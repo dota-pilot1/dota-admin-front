@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import axios from "axios";
+import api from "@/shared/lib/axios";
 import { useAuthStore } from "../store/authStore";
 
 interface LoginPayload {
@@ -12,7 +12,7 @@ export function useLogin() {
 
     return useMutation({
         mutationFn: async (payload: LoginPayload) => {
-            const res = await axios.post("/api/auth/login", payload);
+            const res = await api.post("/api/auth/login", payload);
             return res.data;
         },
         onSuccess: () => {
