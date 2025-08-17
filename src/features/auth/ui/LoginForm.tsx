@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 interface LoginFormProps {
-  onSuccess?: (data: any) => void;
+  onSuccess?: () => void;
 }
 
 export default function LoginForm({ onSuccess }: LoginFormProps) {
@@ -21,10 +21,11 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "로그인 실패");
-      if (onSuccess) onSuccess(data);
-    } catch (err: any) {
-      setError(err.message);
+      if (!res.ok) throw new Error(data?.message || "로그인 실패");
+      onSuccess?.();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "로그인 실패";
+      setError(message);
     } finally {
       setLoading(false);
     }
