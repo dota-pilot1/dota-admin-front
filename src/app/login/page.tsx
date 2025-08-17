@@ -1,80 +1,51 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Input } from "@/shared/ui/input";
-import { Label } from "@/shared/ui/label";
-import { cn } from "@/shared/lib/utils";
-import { toast } from "sonner";
+import LoginForm from "@/features/auth/ui/LoginForm";
+import RegisterForm from "@/features/auth/ui/RegisterForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
   const search = useSearchParams();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const from = search.get("from") || "/dashboard";
+  const [tab, setTab] = useState("login");
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.message || "로그인 실패");
-      }
-      toast.success("로그인 성공");
-      router.replace(from);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "문제가 발생했습니다";
-      toast.error(message);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const handleLoginSuccess = () => {
+    router.replace(from);
+  };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center p-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>로그인</CardTitle>
-          <CardDescription>사내 업무/기술 공유 시스템</CardDescription>
+    <div className="flex min-h-dvh items-center justify-center p-4 bg-muted/20">
+      <Card className="w-full max-w-sm overflow-hidden shadow-lg">
+        {/* Kakao-like accent bar */}
+        <div className="h-1.5 w-full bg-[#FEE500]" />
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl">업무/기술 공유</CardTitle>
+          <CardDescription>회사 계정으로 로그인 또는 회원가입</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={onSubmit} className={cn("space-y-4")}>            
-            <div className="space-y-2">
-              <Label htmlFor="email">이메일</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@dota.co"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+          <Tabs value={tab} onValueChange={setTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">로그인</TabsTrigger>
+              <TabsTrigger value="register">회원가입</TabsTrigger>
+            </TabsList>
+            <TabsContent value="login" className="pt-4">
+              <LoginForm onSuccess={handleLoginSuccess} />
+              {/* Kakao-like CTA */}
+              <p className="mt-4 text-center text-xs text-muted-foreground">
+                계속 진행 시 약관에 동의하는 것으로 간주됩니다.
+              </p>
+            </TabsContent>
+            <TabsContent value="register" className="pt-4">
+              <RegisterForm
+                // 회원가입 성공 시 로그인 탭으로 전환
+                onSuccess={() => setTab("login")}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">비밀번호</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "로그인 중..." : "로그인"}
-            </Button>
-          </form>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
