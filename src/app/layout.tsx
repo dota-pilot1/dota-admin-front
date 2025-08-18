@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/shared/ui/sonner";
+import AppHeader from "@/widgets/header/ui/AppHeader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,14 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <div className="min-h-dvh bg-background text-foreground">
-          <Suspense fallback={null}>{children}</Suspense>
-        </div>
-        <Toaster />
+    <html lang="ko">
+      <body className="min-h-screen bg-background text-foreground">
+        <AppHeader />
+        {children}
       </body>
     </html>
   );
