@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getUsers } from "@/entities/user/api/get-users";
 import { type User } from "@/entities/user/model/types";
 

@@ -111,7 +111,7 @@ export function UsersRemotePanel() {
                     <div className="text-sm text-red-600">
                         목록을 불러오지 못했습니다.
                         {(() => {
-                            const e = error as any;
+                            const e = error as Error & { response?: { status?: number; statusText?: string } };
                             const msg = e?.message || e?.toString?.();
                             const status = e?.response?.status;
                             const statusText = e?.response?.statusText;
