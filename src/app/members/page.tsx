@@ -23,7 +23,6 @@ export default function MembersPage() {
     return (
         <main className="container mx-auto px-4 py-6 space-y-6">
             <h1 className="text-2xl font-bold">회원 관리</h1>
-            <p className="text-sm text-muted-foreground">안녕하세요, {username} 님</p>
             <div className="max-w-3xl">
                 <UsersRemotePanel />
             </div>

@@ -19,19 +19,21 @@ function UserListItem({ user, index, onDelete }: { user: User; index: number; on
 
     return (
         <li className="flex items-center gap-3 py-2 border-b border-gray-100">
-            <div className="w-10 text-right pr-2 text-xs text-muted-foreground font-mono">
+            <div className="w-12 text-right pr-2 text-xs text-muted-foreground font-mono flex-shrink-0">
                 {indexDisplay}
             </div>
-            <div className="min-w-0 flex-1 flex items-center justify-between">
-                <div className="flex flex-col">
-                    <span className="truncate font-medium">{user.name}</span>
-                    <span className="text-xs text-muted-foreground">{user.email}</span>
+            <div className="flex-1 min-w-0">
+                <div className="flex flex-col gap-1">
+                    <span className="truncate font-medium text-sm">{user.name}</span>
+                    <span className="text-xs text-muted-foreground truncate">{user.email}</span>
                     <span className="text-xs text-green-600">계산값: {heavyCalc.toFixed(4)}</span>
                 </div>
             </div>
-            <Button size="sm" variant="destructive" onClick={() => onDelete(index)}>
-                삭제
-            </Button>
+            <div className="flex-shrink-0">
+                <Button size="sm" variant="destructive" onClick={() => onDelete(index)}>
+                    삭제
+                </Button>
+            </div>
         </li>
     );
 }
@@ -77,33 +79,34 @@ export function UsersRemotePanel() {
 
     return (
         <Card>
-            <CardHeader className="flex items-center justify-between">
-                <CardTitle>원격 유저 목록</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-                <div className="flex items-center gap-2">
-                    <label className="text-sm text-muted-foreground">limit</label>
-                    <select
-                        className="rounded border px-2 py-1 text-sm"
-                        value={limit}
-                        onChange={(e) => setLimit(Number(e.target.value))}
-                    >
-                        <option value={100}>100</option>
-                        <option value={500}>500</option>
-                        <option value={1000}>1000</option>
-                        <option value={2000}>2000</option>
-                        <option value={3000}>3000</option>
-                        <option value={5000}>5000</option>
-                        <option value={10000}>10000</option>
-                        <option value={20000}>20000</option>
-                    </select>
-                    <Button size="sm" onClick={() => refetch()} disabled={isFetching}>새로고침</Button>
-                    {isFetching && <span className="text-xs text-muted-foreground">불러오는 중…</span>}
-                </div>
+            <CardContent className="space-y-2">
+                <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm text-muted-foreground">limit</label>
+                        <select
+                            className="rounded border px-2 py-0 text-sm"
+                            value={limit}
+                            onChange={(e) => setLimit(Number(e.target.value))}
+                        >
+                            <option value={100}>100</option>
+                            <option value={500}>500</option>
+                            <option value={1000}>1000</option>
+                            <option value={2000}>2000</option>
+                            <option value={3000}>3000</option>
+                            <option value={5000}>5000</option>
+                            <option value={10000}>10000</option>
+                            <option value={20000}>20000</option>
+                        </select>
+                        <Button size="sm" onClick={() => refetch()} disabled={isFetching}>새로고침</Button>
+                        {isFetching && <span className="text-xs text-muted-foreground">불러오는 중…</span>}
+                    </div>
 
-                {reqUrl && (
-                    <div className="text-xs text-muted-foreground">요청 URL: <a className="underline" href={reqUrl} target="_blank" rel="noreferrer">{reqUrl}</a></div>
-                )}
+                    {reqUrl && (
+                        <div className="text-xs text-muted-foreground flex-1 min-w-0">
+                            요청 URL: <a className="underline truncate" href={reqUrl} target="_blank" rel="noreferrer">{reqUrl}</a>
+                        </div>
+                    )}
+                </div>
 
                 {isLoading ? (
                     <div className="text-sm text-muted-foreground">로딩 중…</div>
@@ -124,7 +127,7 @@ export function UsersRemotePanel() {
                         })()}
                     </div>
                 ) : (
-                    <div className="h-96 overflow-auto rounded border p-2">
+                    <div className="h-[620px] overflow-auto rounded border p-2">
                         <ol className="list-none m-0 p-0">
                             {(data ?? []).map((u, i) => (
                                 <UserListItem
