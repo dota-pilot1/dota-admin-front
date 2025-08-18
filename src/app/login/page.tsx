@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import LoginForm from "@/features/auth/ui/LoginForm";
 import RegisterForm from "@/features/auth/ui/RegisterForm";
@@ -8,14 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { useState } from "react";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const search = useSearchParams();
-  const from = search.get("from") || "/dashboard";
   const [tab, setTab] = useState("login");
-
-  const handleLoginSuccess = () => {
-    router.replace(from);
-  };
 
   return (
     <div className="flex min-h-dvh items-center justify-center p-4 bg-muted/20">
@@ -33,7 +25,7 @@ export default function LoginPage() {
               <TabsTrigger value="register">회원가입</TabsTrigger>
             </TabsList>
             <TabsContent value="login" className="pt-4">
-              <LoginForm onSuccess={handleLoginSuccess} />
+              <LoginForm />
               {/* Kakao-like CTA */}
               <p className="mt-4 text-center text-xs text-muted-foreground">
                 계속 진행 시 약관에 동의하는 것으로 간주됩니다.
