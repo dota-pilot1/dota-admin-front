@@ -120,3 +120,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Utility: render CSS counter value reliably */
+.css-counter::before {
+  content: counter(row);
+}

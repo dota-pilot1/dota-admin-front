@@ -1,19 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import api from "@/shared/lib/axios";
-import { useAuthStore } from "../store/authStore";
-import { useRouter } from "next/navigation";
+import { logoutApi } from "../api/logout";
 
 export function useLogout() {
-  const logoutStore = useAuthStore();
-  const router = useRouter();
-
-  return useMutation({
-    mutationFn: async () => {
-  await api.post("/api/auth/logout");
-    },
-    onSuccess: () => {
-      logoutStore.logout();
-      router.replace("/login");
-    },
-  });
+    return useMutation({
+        mutationFn: logoutApi,
+        // onSuccess는 필요 없음 (logoutApi에서 리다이렉트 처리)
+    });
 }

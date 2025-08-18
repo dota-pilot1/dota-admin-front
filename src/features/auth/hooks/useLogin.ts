@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import api from "@/shared/lib/axios";
-import { useAuthStore } from "../store/authStore";
+import { loginApi } from "../api/login";
 
 interface LoginPayload {
     email: string;
@@ -8,16 +7,20 @@ interface LoginPayload {
 }
 
 export function useLogin() {
-    const { checkAuth } = useAuthStore();
-
     return useMutation({
-        mutationFn: async (payload: LoginPayload) => {
-            const res = await api.post("/api/auth/login", payload);
-            return res.data;
-        },
-        onSuccess: () => {
-            // 쿠키가 설정되었으므로 상태를 쿠키 기준으로 동기화
-            checkAuth();
+        mutationFn: loginApi,
+        onSuccess: (data) => {
+            // 토큰과 사용자 정보를 localStorage에 저장
+            localStorage.setItem("authToken", data.token);
+            localStorage.setItem("userInfo", JSON.stringify({
+                username: data.username,
+                email: data.email,
+                role: data.role,
+                userId: data.userId
+            }));
+            
+            // 페이지 새로고침으로 상태 갱신
+            window.location.href = "/dashboard";
         },
     });
 }

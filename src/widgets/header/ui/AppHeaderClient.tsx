@@ -3,14 +3,38 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/shared/ui/button";
+import { useLogout } from "@/features/auth/hooks/useLogout";
+import { useEffect, useState } from "react";
 
-type Props = {
-    isAuthed: boolean;
-    username: string;
-};
-
-export function AppHeaderClient({ isAuthed, username }: Props) {
+export function AppHeaderClient() {
     const pathname = usePathname();
+    const logout = useLogout();
+    const [isAuthed, setIsAuthed] = useState(false);
+    const [username, setUsername] = useState("guest");
+
+    // localStorage에서 인증 상태 확인
+    useEffect(() => {
+        const token = localStorage.getItem("authToken");
+        const userInfo = localStorage.getItem("userInfo");
+        
+        if (token && userInfo) {
+            setIsAuthed(true);
+            try {
+                const parsed = JSON.parse(userInfo);
+                setUsername(parsed.email || parsed.username || "guest");
+            } catch {
+                setUsername("guest");
+            }
+        } else {
+            setIsAuthed(false);
+            setUsername("guest");
+        }
+    }, []);
+
+    const handleLogout = () => {
+        logout.mutate();
+    };
+
     if (pathname?.startsWith("/login")) return null;
 
     return (
@@ -35,6 +59,12 @@ export function AppHeaderClient({ isAuthed, username }: Props) {
                             >
                                 자유 게시판
                             </Link>
+                            <Link
+                                href="/members"
+                                className="text-sm text-muted-foreground hover:text-foreground"
+                            >
+                                회원 관리
+                            </Link>
                         </>
                     )}
 
@@ -42,11 +72,14 @@ export function AppHeaderClient({ isAuthed, username }: Props) {
                     {isAuthed ? (
                         <div className="flex items-center gap-3">
                             <span className="text-sm text-muted-foreground">{username}</span>
-                            <form action="/api/auth/logout" method="post">
-                                <Button type="submit" size="sm" variant="secondary">
-                                    로그아웃
-                                </Button>
-                            </form>
+                            <Button 
+                                size="sm" 
+                                variant="secondary" 
+                                onClick={handleLogout}
+                                disabled={logout.isPending}
+                            >
+                                {logout.isPending ? "로그아웃 중..." : "로그아웃"}
+                            </Button>
                         </div>
                     ) : (
                         <div className="flex items-center gap-3">
