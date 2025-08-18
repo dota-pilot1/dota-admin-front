@@ -19,25 +19,44 @@ export function AppHeaderClient({ isAuthed, username }: Props) {
                 <Link href="/" className="text-lg font-semibold">
                     Dota Admin
                 </Link>
-                <nav className="flex items-center gap-3">
-                    {isAuthed ? (
+                <nav className="flex items-center gap-4">
+                    {/* Main navigation */}
+                    {isAuthed && (
                         <>
+                            <Link
+                                href="/dashboard"
+                                className="text-sm text-muted-foreground hover:text-foreground"
+                            >
+                                대시보드
+                            </Link>
+                            <Link
+                                href="/freeboard"
+                                className="text-sm text-muted-foreground hover:text-foreground"
+                            >
+                                자유 게시판
+                            </Link>
+                        </>
+                    )}
+
+                    {/* Auth section */}
+                    {isAuthed ? (
+                        <div className="flex items-center gap-3">
                             <span className="text-sm text-muted-foreground">{username}</span>
                             <form action="/api/auth/logout" method="post">
                                 <Button type="submit" size="sm" variant="secondary">
                                     로그아웃
                                 </Button>
                             </form>
-                        </>
+                        </div>
                     ) : (
-                        <>
+                        <div className="flex items-center gap-3">
                             <Button asChild size="sm" variant="default">
                                 <Link href="/login">로그인</Link>
                             </Button>
                             <Button asChild size="sm" variant="outline">
                                 <Link href="/register">회원가입</Link>
                             </Button>
-                        </>
+                        </div>
                     )}
                 </nav>
             </div>
