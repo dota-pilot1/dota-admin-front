@@ -1,13 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getUsers } from "@/entities/user/api/get-users";
-import { type User } from "@/entities/user/model/types";
+import { getUsers, type UsersQuery, type UsersResult } from "@/entities/user/api/get-users";
 
-export function useUsers(limit = 5000) {
-    return useQuery<User[]>({
-        queryKey: ["users", { limit }],
-        queryFn: () => getUsers(limit),
+export function useUsers(params: UsersQuery) {
+    return useQuery<UsersResult>({
+        queryKey: ["users", params],
+        queryFn: () => getUsers(params),
         staleTime: 5 * 60 * 1000, // 5분간 캐시 유지
         refetchOnWindowFocus: false,
     });

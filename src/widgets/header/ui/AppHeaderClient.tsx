@@ -65,12 +65,7 @@ export function AppHeaderClient() {
                         >
                             회원 관리
                         </Link>
-                        <Link
-                            href="/members-css"
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            회원 관리 (CSS Counter 적용)
-                        </Link>
+                        {/* CSS Counter 실험 메뉴 제거 */}
                     </nav>
                 )}
 

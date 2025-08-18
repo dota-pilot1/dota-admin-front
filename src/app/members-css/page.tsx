@@ -1,23 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { UsersRemotePanelCSS } from "@/features/users/ui/users-remote-panel-css";
+import UsersRemotePanelCSS from "@/features/users/ui/users-remote-panel-css";
 
 export default function MembersCSSPage() {
     const [username, setUsername] = useState<string>('게스트');
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const userInfo = localStorage.getItem('userInfo');
-            if (userInfo) {
-                try {
-                    const parsed = JSON.parse(userInfo);
-                    setUsername(parsed.username || parsed.name || '사용자');
-                } catch (error) {
-                    console.error('Failed to parse user info:', error);
-                }
-            }
-        }
+        const u = localStorage.getItem("username");
+        if (u) setUsername(u);
     }, []);
 
     return (

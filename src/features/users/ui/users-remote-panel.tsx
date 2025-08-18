@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useUsers } from "@/features/users/hooks/useUsers";
-import { useDeleteUserNoCache } from "@/features/users/hooks/useDeleteUserNoCache";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { useDeleteUserOptimistic } from "@/features/users/hooks/useDeleteUserOptimistic";
+import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
-import { getApiBaseURL } from "@/shared/lib/axios";
+import { Input } from "@/shared/ui/input";
 import type { User } from "@/entities/user/model/types";
 
 // 순수 컴포넌트 - JavaScript로 인덱스 계산
@@ -33,73 +33,97 @@ function UserListItem({ user, index, onDelete }: { user: User; index: number; on
 }
 
 export function UsersRemotePanel() {
-    const [limit, setLimit] = useState(10000);
-    const [lastDeleteTime, setLastDeleteTime] = useState<number | null>(null);
-    const { data, isLoading, isError, error, refetch, isFetching } = useUsers(limit);
-    const deleteUserMutation = useDeleteUserNoCache(limit);
-    const [reqUrl, setReqUrl] = useState("");
+    // 클라이언트 UX 상태 (서버 페이징/정렬 활용)
+    const [search, setSearch] = useState("");
+    const [pageSize, setPageSize] = useState(100);
+    const [page, setPage] = useState(1);
+    const [sortBy, setSortBy] = useState<"id" | "username">("id");
+    const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
-    useEffect(() => {
-        const base = getApiBaseURL();
-        const url = `${base.replace(/\/$/, "")}/api/users/all?limit=${limit}`;
-        setReqUrl(url);
-    }, [limit]);
+    const { data, isLoading, isError, error, refetch, isFetching } = useUsers({ page, size: pageSize, q: search || undefined, sortBy, sortDir });
+    const deleteUserMutation = useDeleteUserOptimistic();
 
     const deleteAt = useCallback(async (userId: string) => {
-        const startTime = performance.now();
         try {
             await deleteUserMutation.mutateAsync(userId);
-            const endTime = performance.now();
-            setLastDeleteTime(endTime - startTime);
         } catch (error) {
             console.error("삭제 실패:", error);
         }
     }, [deleteUserMutation]);
 
+    // 서버 페이징 결과 + 간단한 클라이언트 필터링(현재 페이지 한정)
+    const pageItems = useMemo(() => {
+        const items = data?.items ?? [];
+        const q = search.trim().toLowerCase();
+        if (!q) return items;
+        return items.filter((u) =>
+            u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+        );
+    }, [data, search]);
+    const totalPages = data?.totalPages || Math.max(1, Math.ceil((data?.total ?? 0) / pageSize)) || 1;
+    const currentPage = Math.min(page, totalPages);
+
     return (
         <Card>
-            <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">회원 목록 (JavaScript 번호 계산 + 캐시 비활성화)</CardTitle>
-                    {lastDeleteTime !== null && (
-                        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2">
-                            <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">삭제 소요 시간</div>
-                            <div className="text-sm font-bold text-blue-800 dark:text-blue-200">
-                                {lastDeleteTime >= 1000
-                                    ? `${(lastDeleteTime / 1000).toFixed(2)}초`
-                                    : `${lastDeleteTime.toFixed(0)}ms`
-                                }
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </CardHeader>
             <CardContent className="space-y-2">
                 <div className="flex items-center gap-4 flex-wrap">
                     <div className="flex items-center gap-2">
-                        <label className="text-sm text-muted-foreground">limit</label>
+                        <label className="text-sm text-muted-foreground">검색</label>
+                        <Input
+                            placeholder="이름 또는 이메일 검색"
+                            value={search}
+                            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                            className="h-8 w-56"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm text-muted-foreground">정렬</label>
                         <select
                             className="rounded border px-2 py-0 text-sm"
-                            value={limit}
-                            onChange={(e) => setLimit(Number(e.target.value))}
+                            value={sortBy}
+                            onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
                         >
-                            <option value={1000}>1000</option>
-                            <option value={2000}>2000</option>
-                            <option value={5000}>5000</option>
-                            <option value={10000}>10000</option>
-                            <option value={20000}>20000</option>
-                            <option value={50000}>50000</option>
-                            <option value={100000}>100000</option>
+                            <option value="id">ID</option>
+                            <option value="username">이름</option>
+                        </select>
+                        <select
+                            className="rounded border px-2 py-0 text-sm"
+                            value={sortDir}
+                            onChange={(e) => { setSortDir(e.target.value as any); setPage(1); }}
+                        >
+                            <option value="asc">오름차순</option>
+                            <option value="desc">내림차순</option>
                         </select>
                         <Button size="sm" onClick={() => refetch()} disabled={isFetching}>새로고침</Button>
                         {isFetching && <span className="text-xs text-muted-foreground">불러오는 중…</span>}
                     </div>
 
-                    {reqUrl && (
-                        <div className="text-xs text-muted-foreground flex-1 min-w-0">
-                            요청 URL: <a className="underline truncate" href={reqUrl} target="_blank" rel="noreferrer">{reqUrl}</a>
-                        </div>
-                    )}
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm text-muted-foreground">페이지당</label>
+                        <select
+                            className="rounded border px-2 py-0 text-sm"
+                            value={pageSize}
+                            onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
+                        >
+                            <option value={50}>50</option>
+                            <option value={100}>100</option>
+                            <option value={200}>200</option>
+                            <option value={500}>500</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* count & pagination controls */}
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <div>
+                        {search.trim()
+                            ? `검색 결과 ${pageItems.length}건 (현재 페이지)`
+                            : `${currentPage}/${totalPages} 페이지`}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button size="sm" variant="outline" disabled={!!search.trim() || currentPage <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>이전</Button>
+                        <Button size="sm" variant="outline" disabled={!!search.trim() || currentPage >= totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>다음</Button>
+                    </div>
                 </div>
 
                 {isLoading ? (
@@ -124,11 +148,11 @@ export function UsersRemotePanel() {
                     <div className="h-[620px] overflow-auto rounded border p-2">
                         {/* JavaScript로 인덱스 계산하는 방식 */}
                         <div className="list-none m-0 p-0">
-                            {(data ?? []).map((u, i) => (
+                            {pageItems.map((u, i) => (
                                 <UserListItem
                                     key={u.id}
                                     user={u}
-                                    index={i}
+                                    index={(currentPage - 1) * pageSize + i}
                                     onDelete={deleteAt}
                                 />
                             ))}
