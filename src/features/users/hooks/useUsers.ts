@@ -8,11 +8,11 @@ export function useUsers(limit = 5000) {
     return useQuery<User[]>({
         queryKey: ["users", { limit }],
         queryFn: () => getUsers(limit),
-        // 캐시 최적화 비활성화 (성능 테스트용)
-        // placeholderData: keepPreviousData,
-        // staleTime: 30_000,
+        // JSP 방식 시뮬레이션: 캐시 완전 비활성화
         staleTime: 0, // 캐시 즉시 무효화
+        gcTime: 0, // 캐시 즉시 삭제
         refetchOnMount: true, // 매번 새로 요청
+        refetchOnWindowFocus: false,
         retry: 1,
     });
 }

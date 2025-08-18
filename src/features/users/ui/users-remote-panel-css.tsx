@@ -7,16 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
 import { getApiBaseURL } from "@/shared/lib/axios";
 import type { User } from "@/entities/user/model/types";
+import styles from "./users-remote-panel-css.module.css";
 
-// 순수 컴포넌트 - JavaScript로 인덱스 계산
-function UserListItem({ user, index, onDelete }: { user: User; index: number; onDelete: (userId: string) => void }) {
-    const indexDisplay = index + 1;
-
+// CSS Counter를 사용하는 순수 컴포넌트
+function UserListItemCSS({ user, onDelete }: { user: User; onDelete: (userId: string) => void }) {
     return (
-        <li className="flex items-center gap-3 py-2 border-b border-gray-100">
-            <div className="w-12 text-right pr-2 text-xs text-muted-foreground font-mono flex-shrink-0">
-                {indexDisplay}
-            </div>
+        <li className={`${styles.counterItem} flex items-center gap-3 py-2 border-b border-gray-100`}>
+            {/* CSS Counter가 자동으로 번호를 생성 */}
             <div className="flex-1 min-w-0">
                 <div className="flex flex-col gap-1">
                     <span className="truncate font-medium text-sm">{user.name}</span>
@@ -32,7 +29,7 @@ function UserListItem({ user, index, onDelete }: { user: User; index: number; on
     );
 }
 
-export function UsersRemotePanel() {
+export function UsersRemotePanelCSS() {
     const [limit, setLimit] = useState(10000);
     const [lastDeleteTime, setLastDeleteTime] = useState<number | null>(null);
     const { data, isLoading, isError, error, refetch, isFetching } = useUsers(limit);
@@ -60,15 +57,12 @@ export function UsersRemotePanel() {
         <Card>
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">회원 목록 (JavaScript 번호 계산 + 캐시 비활성화)</CardTitle>
+                    <CardTitle className="text-lg">회원 목록 (CSS Counter 최적화 + 캐시 비활성화)</CardTitle>
                     {lastDeleteTime !== null && (
-                        <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2">
-                            <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">삭제 소요 시간</div>
-                            <div className="text-sm font-bold text-blue-800 dark:text-blue-200">
-                                {lastDeleteTime >= 1000
-                                    ? `${(lastDeleteTime / 1000).toFixed(2)}초`
-                                    : `${lastDeleteTime.toFixed(0)}ms`
-                                }
+                        <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2">
+                            <div className="text-xs text-green-600 dark:text-green-400 font-medium">삭제 소요 시간</div>
+                            <div className="text-sm font-bold text-green-800 dark:text-green-200">
+                                {lastDeleteTime.toFixed(2)}ms
                             </div>
                         </div>
                     )}
@@ -121,22 +115,20 @@ export function UsersRemotePanel() {
                         })()}
                     </div>
                 ) : (
-                    <div className="h-[620px] overflow-auto rounded border p-2">
-                        {/* JavaScript로 인덱스 계산하는 방식 */}
-                        <div className="list-none m-0 p-0">
-                            {(data ?? []).map((u, i) => (
-                                <UserListItem
+                    <div className="h-[600px] overflow-auto rounded border p-2">
+                        {/* CSS Counter로 자동 번호 매기기 */}
+                        <ol className={styles.counterList}>
+                            {(data ?? []).map((u) => (
+                                <UserListItemCSS
                                     key={u.id}
                                     user={u}
-                                    index={i}
                                     onDelete={deleteAt}
                                 />
                             ))}
-                        </div>
+                        </ol>
                     </div>
                 )}
             </CardContent>
         </Card>
     );
 }
-
