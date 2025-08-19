@@ -26,7 +26,7 @@ if (!baseURL) {
             baseURL = `${protocol}//${hostname}:8080`;
         } else {
             // Probably production-like domain
-            baseURL = "http://43.200.241.26:8080";
+            baseURL = "https://api.dota-task.shop";
         }
     } else {
         // On the server (SSR): prefer explicit env; in development, default to localhost to match client
@@ -35,7 +35,7 @@ if (!baseURL) {
         } else if (process.env.NODE_ENV !== "production") {
             baseURL = "http://localhost:8080";
         } else {
-            baseURL = "http://43.200.241.26:8080";
+            baseURL = "https://api.dota-task.shop";
         }
     }
 }
