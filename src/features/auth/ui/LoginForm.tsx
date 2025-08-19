@@ -17,7 +17,7 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-white font-medium">
+        <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-medium">
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
@@ -30,14 +30,14 @@ export default function LoginForm() {
           type="email"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          className="bg-white/10 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/20 focus:border-blue-400 transition-all duration-200"
+          className="h-12 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-600 focus:border-slate-900 dark:focus:border-white transition-all duration-200"
           placeholder="work@company.com"
           required
         />
       </div>
-      
+
       <div className="space-y-2">
-        <Label htmlFor="password" className="text-white font-medium">
+        <Label htmlFor="password" className="text-slate-700 dark:text-slate-300 font-medium">
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -50,15 +50,15 @@ export default function LoginForm() {
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          className="bg-white/10 border-white/20 text-white placeholder:text-slate-400 focus:bg-white/20 focus:border-blue-400 transition-all duration-200"
+          className="h-12 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-600 focus:border-slate-900 dark:focus:border-white transition-all duration-200"
           placeholder="보안이 중요합니다"
           required
         />
       </div>
-      
+
       <Button
         type="submit"
-        className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold py-6 rounded-lg transition-all duration-200 transform hover:scale-[1.02] hover:shadow-xl disabled:opacity-50 disabled:transform-none"
+        className="w-full h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 font-semibold transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
         disabled={login.isPending}
       >
         {login.isPending ? (
