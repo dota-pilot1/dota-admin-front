@@ -28,7 +28,8 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
                 throw new Error(result.message || "회원가입 실패");
             }
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : "문제가 발생했습니다";
+            console.error("Registration error:", err);
+            const message = err instanceof Error ? err.message : "회원가입에 실패했습니다";
             toast.error(message);
         } finally {
             setLoading(false);
