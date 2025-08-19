@@ -19,7 +19,8 @@ export function useDeleteUserWithTiming(limit: number, onTimingUpdate: (time: nu
         },
         onSuccess: (startTime) => {
             const endTime = performance.now();
-            const duration = endTime - startTime;
+            // duration은 logging이나 디버깅 목적으로 활용 가능
+            console.log(`Delete operation took: ${endTime - startTime}ms`);
             
             // 삭제 완료 후 전체 데이터 다시 로드
             const queryKey = ["users", { limit }];

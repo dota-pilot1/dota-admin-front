@@ -16,7 +16,6 @@ export function useDeleteUserOptimistic() {
 
             // 간단한 optimistic update: 현재 활성 페이지(들)의 items에서 제거
             const affected: Array<{ key: unknown[]; data?: UsersResult }> = [];
-            // @ts-ignore - internal API usage for broad update
             const queries = queryClient.getQueryCache().findAll({ queryKey: ["users"] });
             for (const q of queries) {
                 const key = q.queryKey as unknown[];

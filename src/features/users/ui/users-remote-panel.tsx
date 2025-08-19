@@ -84,7 +84,7 @@ export function UsersRemotePanel() {
                         <select
                             className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
                             value={sortOpt}
-                            onChange={(e) => { setSortOpt(e.target.value as any); setPage(1); }}
+                            onChange={(e) => { setSortOpt(e.target.value as "id-asc" | "id-desc" | "username-asc" | "username-desc"); setPage(1); }}
                         >
                             <option value="id-asc">ID 오름차순</option>
                             <option value="id-desc">ID 내림차순</option>

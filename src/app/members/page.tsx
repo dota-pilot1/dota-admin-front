@@ -23,7 +23,7 @@ export default function MembersPage() {
     return (
         <main className="min-h-screen bg-background p-6">
             <div className="max-w-7xl mx-auto">
-                <h1 className="text-3xl font-bold mb-6">회원 관리</h1>
+                <h1 className="text-3xl font-bold mb-6">회원 관리 - {username}</h1>
                 <UsersRemotePanel />
             </div>
         </main>

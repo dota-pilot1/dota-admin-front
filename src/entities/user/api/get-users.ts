@@ -51,7 +51,15 @@ export async function getUsers(params: UsersQuery = {}): Promise<UsersResult> {
 
     try {
         // Preferred: paginated endpoint
-        const { data } = await api.get<any>("/api/users", {
+        const { data } = await api.get<{
+            content?: unknown[];
+            users?: unknown[];
+            totalElements?: number;
+            totalPages?: number;
+            number?: number;
+            size?: number;
+            currentPage?: number;
+        }>("/api/users", {
             params: {
                 page: page - 1, // 0-based page index
                 size,
@@ -65,7 +73,7 @@ export async function getUsers(params: UsersQuery = {}): Promise<UsersResult> {
 
         // Handle Spring Data style { content, totalElements, totalPages, number, size }
         if (data && Array.isArray(data.content)) {
-            const items = data.content.map(normalizeUser);
+            const items = data.content.map((item) => normalizeUser(item as AnyUser));
             return {
                 items,
                 total: Number(data.totalElements ?? items.length) || items.length,
@@ -77,10 +85,10 @@ export async function getUsers(params: UsersQuery = {}): Promise<UsersResult> {
 
         // Handle generic { users, currentPage, totalPages, size }
         if (data && Array.isArray(data.users)) {
-            const items = data.users.map(normalizeUser);
+            const items = data.users.map((item) => normalizeUser(item as AnyUser));
             // total이 명시되지 않았다면 totalPages와 size를 이용해 근사치 계산
             let total = Number(data.totalElements);
-            let totalPages = Number(data.totalPages);
+            const totalPages = Number(data.totalPages);
             if (!Number.isFinite(total) && Number.isFinite(totalPages)) {
                 // 마지막 페이지 여부에 따라 추정값 계산
                 const currentPage = Number(data.currentPage);
@@ -101,8 +109,8 @@ export async function getUsers(params: UsersQuery = {}): Promise<UsersResult> {
         }
 
         // Fallback: legacy endpoint
-        const legacy = await api.get<any>("/api/users/all", { params: { limit: size } });
-        const list: AnyUser[] = Array.isArray(legacy.data?.users) ? legacy.data.users : [];
+        const legacy = await api.get<{ users?: unknown[] }>("/api/users/all", { params: { limit: size } });
+        const list: AnyUser[] = Array.isArray(legacy.data?.users) ? legacy.data.users as AnyUser[] : [];
         const items = list.map(normalizeUser);
         return { items, total: items.length, page, size };
     } catch (error) {

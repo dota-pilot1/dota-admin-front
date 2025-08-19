@@ -485,7 +485,6 @@ function GuideSection({
 
 // 하이라이터 의존성 제거를 위한 단순 CodeBlock 구현
 function CodeBlock({
-    language,
     code,
 }: {
     language: string;
