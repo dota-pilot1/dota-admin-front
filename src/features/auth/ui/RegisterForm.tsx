@@ -4,6 +4,7 @@ import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Button } from "@/shared/ui/button";
 import { toast } from "sonner";
+import { register } from "@/features/auth/api/register";
 
 interface RegisterFormProps {
     onSuccess?: () => void;
@@ -19,15 +20,13 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await fetch("/api/auth/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, email, password }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data?.message || "회원가입 실패");
-            toast.success("회원가입 성공! 로그인해 주세요.");
-            onSuccess?.();
+            const result = await register({ username, email, password });
+            if (result.success) {
+                toast.success("회원가입 성공! 로그인해 주세요.");
+                onSuccess?.();
+            } else {
+                throw new Error(result.message || "회원가입 실패");
+            }
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : "문제가 발생했습니다";
             toast.error(message);
