@@ -9,7 +9,7 @@ export default function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     login.mutate({ email, password });
-  };  return (
+  }; return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-sm mx-auto">
       <div>
         <label htmlFor="email" className="block mb-1">이메일</label>
@@ -33,11 +33,6 @@ export default function LoginForm() {
           required
         />
       </div>
-      {login.error && (
-        <div className="text-red-500 text-sm">
-          {login.error instanceof Error ? login.error.message : "로그인 실패"}
-        </div>
-      )}
       <button
         type="submit"
         className="bg-blue-600 text-white px-4 py-2 rounded w-full"
