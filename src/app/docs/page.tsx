@@ -3,10 +3,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { FileText, CreditCard, BookOpen, Settings, Users, Code } from "lucide-react";
+import { FileText, CreditCard, BookOpen, Settings, Users, Code, Target } from "lucide-react";
 import Link from "next/link";
 
 const docItems = [
+    {
+        id: "challenge-process",
+        title: "챌린지 포상 프로세스",
+        description: "handlePay 함수 중심의 전체 챌린지 포상 워크플로우 및 파일 구조 설명",
+        icon: Target,
+        href: "/docs/challenge-process",
+        tags: ["챌린지", "워크플로우", "handlePay"],
+        priority: "high"
+    },
     {
         id: "payment-process",
         title: "결제 프로세스",

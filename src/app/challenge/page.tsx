@@ -41,7 +41,6 @@ type PortOneResult = PortOneSuccess | PortOneError;
 type PortOneSDK = { requestPayment: (req: PortOneRequest) => Promise<PortOneResult> };
 
 
-
 // PortOne configuration (prefer env in production)
 const STORE_ID = "store-8859c392-62e5-4fe5-92d3-11c686e9b2bc";
 const CHANNEL_KEY = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY || "channel-key-943d5d92-0688-4619-ac6e-7116f665abc0";
@@ -144,8 +143,9 @@ export default function ChallengePage() {
             return undefined;
         };
         // Prefer PortOne v2 SDK if available
-    const PortOne: PortOneSDK | undefined = (window as unknown as { PortOne?: PortOneSDK }).PortOne;
-    if (PortOne?.requestPayment) {
+
+        const PortOne: PortOneSDK | undefined = (window as unknown as { PortOne?: PortOneSDK }).PortOne;
+        if (PortOne?.requestPayment) {
             // For now, process only the first recipient to avoid repeated popups
             const targets = recipients.slice(0, 1);
             for (const r of targets) {
@@ -164,7 +164,7 @@ export default function ChallengePage() {
                             customer: r,
                         });
                     }
-            const res = await PortOne.requestPayment({
+                    const res = await PortOne.requestPayment({
                         storeId: STORE_ID,
                         channelKey: CHANNEL_KEY,
                         paymentId,
@@ -179,63 +179,68 @@ export default function ChallengePage() {
                         console.log("[PortOne][Result]", res);
                     }
                     // PortOne v2: success responses DO NOT include `code`; error responses include { code, message }
-            const isSuccess = !!res && !("code" in res);
+                    const isSuccess = !!res && !("code" in res);
                     if (isSuccess) {
+                        // ✅ 결제 성공: 백엔드 API 요청 및 포상 처리
                         try {
                             if (!SKIP_BACKEND) {
-                                // Persist payment record to backend (best effort)
-                                try {
-                                    await recordPayment({
-                                        paymentId,
-                                        orderName: `${selected.title} 포상 (${r.name})`,
-                                        amount: amountPerPerson,
-                                        currency: "KRW",
-                                        status: "PAID",
-                                        method: "EASY_PAY",
-                                        provider: "KAKAOPAY",
-                                        payerName: r.name,
-                                        payerEmail: r.email,
-                                        paidAt: new Date().toISOString(),
-                                        challengeId: selected.id,
-                                        participantId: r.id,
-                    raw: res as PortOneResult,
-                                    });
-                } catch (persistErr: unknown) {
-                                    if (process.env.NODE_ENV !== "production") {
-                    const msg = persistErr instanceof Error ? persistErr.message : String(persistErr);
-                    console.warn("[Payments][Persist][Warn]", msg);
-                                    }
-                                }
+                                // 🔥 [백엔드 API 요청 1] 결제 기록 저장 (POST /admin/payments)
+                                await recordPayment({
+                                    paymentId,
+                                    orderName: `${selected.title} 포상 (${r.name})`,
+                                    amount: amountPerPerson,
+                                    currency: "KRW",
+                                    status: "PAID",
+                                    method: "EASY_PAY",
+                                    provider: "KAKAOPAY",
+                                    payerName: r.name,
+                                    payerEmail: r.email,
+                                    paidAt: new Date().toISOString(),
+                                    challengeId: selected.id,
+                                    participantId: r.id,
+                                    raw: res as PortOneResult,
+                                });
+
+                                // 🔥 [백엔드 API 요청 2] 포상 처리 (POST /admin/challenges/reward)
                                 await issueReward({ challengeId: selected.id, participantId: r.id, amount: amountPerPerson });
                             }
+
+                            // ✅ 모든 처리 성공: UI 업데이트
                             if (process.env.NODE_ENV !== "production") {
-                                console.log("[Reward][Success]", { challengeId: selected.id, participantId: r.id, amount: amountPerPerson });
+                                console.log("[Payment & Reward][Success]", { challengeId: selected.id, participantId: r.id, amount: amountPerPerson });
                             }
                             setItems(prev => prev.map(c => c.id === selected.id ? { ...c, achievedCount: (c.achievedCount ?? 0) + 1 } : c));
                             toast.success(`${r.name}에게 ${amountPerPerson.toLocaleString()}원 포상 완료`);
-            } catch (e: unknown) {
+
+                            // 로컬 캐시 저장
+                            const cached = recordLocalPayment(r, paymentId, "PAID", "EASY_PAY", "KAKAOPAY");
+                            if (cached) created.push(cached);
+
+                        } catch (backendError: unknown) {
+                            // ❌ 백엔드 API 실패: 사용자에게 명확한 에러 메시지
                             if (process.env.NODE_ENV !== "production") {
-                console.error("[Reward][Error]", e);
+                                console.error("[Backend][Error]", backendError);
                             }
-                const msg = e instanceof Error ? e.message : `${r.name} 포상 처리에 실패했습니다.`;
-                toast.error(msg);
+                            const msg = backendError instanceof Error ? backendError.message : "포상 처리 중 오류가 발생했습니다.";
+                            toast.error(`${r.name} 포상 실패: ${msg}`);
+
+                            // 실패한 경우에도 로컬 캐시는 저장 (결제는 성공했으므로)
+                            const cached = recordLocalPayment(r, paymentId, "PAID", "EASY_PAY", "KAKAOPAY");
+                            if (cached) created.push(cached);
                         }
-                        // Record locally so /payments works without backend
-                        const cached = recordLocalPayment(r, paymentId, "PAID", "EASY_PAY", "KAKAOPAY");
-                        if (cached) created.push(cached);
                     } else {
-                        // Non-success: do not record pending entries; only notify and stop
-            const msg = (res as PortOneError).message || "알 수 없는 오류";
-            toast.error(`결제 실패(${r.name}): ${msg}`);
-                        // Stop processing subsequent recipients on failure
+                        // ❌ 결제 실패: 포상 진행 안함
+                        const msg = (res as PortOneError).message || "알 수 없는 오류";
+                        toast.error(`결제 실패(${r.name}): ${msg}`);
+                        // 다음 참여자 처리 중단
                         break;
                     }
-        } catch (err: unknown) {
+                } catch (err: unknown) {
                     if (process.env.NODE_ENV !== "production") {
-            console.error("[PortOne][Error]", err);
+                        console.error("[PortOne][Error]", err);
                     }
-            const msg = err instanceof Error ? err.message : String(err);
-            toast.error(`결제 실패(${r.name}): ${msg}`);
+                    const msg = err instanceof Error ? err.message : String(err);
+                    toast.error(`결제 실패(${r.name}): ${msg}`);
                     break;
                 }
             }
