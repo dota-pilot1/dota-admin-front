@@ -116,8 +116,9 @@ export default function ChallengePage() {
         // Prefer PortOne v2 SDK if available
         const PortOne = (window as any).PortOne;
         if (PortOne?.requestPayment) {
-            // Process payments sequentially per recipient for clearer approval flow
-            for (const r of recipients) {
+            // For now, process only the first recipient to avoid repeated popups
+            const targets = recipients.slice(0, 1);
+            for (const r of targets) {
                 try {
                     const paymentId = `pay_${Date.now()}_${r.id}`;
                     if (process.env.NODE_ENV !== "production") {

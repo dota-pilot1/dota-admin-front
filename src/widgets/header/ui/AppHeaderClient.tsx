@@ -60,12 +60,6 @@ export function AppHeaderClient() {
                             챌린지
                         </Link>
                         <Link
-                            href="/payments"
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            결제 내역
-                        </Link>
-                        <Link
                             href="/freeboard"
                             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
