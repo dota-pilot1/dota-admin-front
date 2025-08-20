@@ -71,7 +71,18 @@ export function AppHeaderClient() {
                         >
                             회원 관리
                         </Link>
-                        {/* CSS Counter 실험 메뉴 제거 */}
+                        <Link
+                            href="/payments"
+                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            결제 내역
+                        </Link>
+                        <Link
+                            href="/docs"
+                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            문서
+                        </Link>
                     </nav>
                 )}
 
