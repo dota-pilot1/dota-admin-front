@@ -22,10 +22,11 @@ export async function recordPayment(body: CreatePaymentRequest): Promise<CreateP
     try {
         const { data } = await api.post<CreatePaymentResponse>("/admin/payments", body);
         return data ?? { success: true };
-    } catch (err: any) {
+    } catch (err: unknown) {
         // Swallow 404 to keep UX smooth when backend endpoint is not ready
-        if (err?.response?.status === 404) return { success: false, message: "endpoint not found" };
-        const message = err?.response?.data?.message || err?.message || "결제 기록 저장에 실패했습니다.";
+        const e = err as { response?: { status?: number; data?: { message?: string } }; message?: string };
+        if (e?.response?.status === 404) return { success: false, message: "endpoint not found" };
+        const message = e?.response?.data?.message || e?.message || "결제 기록 저장에 실패했습니다.";
         throw new Error(message);
     }
 }

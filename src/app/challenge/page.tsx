@@ -12,6 +12,57 @@ import { toast } from "sonner";
 import { recordPayment } from "@/features/payments/api/create";
 import type { PaymentItem } from "@/features/payments/api/list";
 
+// Minimal PortOne v2 browser SDK typings
+type PortOneRequest = {
+    storeId: string;
+    channelKey: string;
+    paymentId: string;
+    orderName: string;
+    totalAmount: number;
+    currency: string;
+    payMethod: string;
+    easyPay?: { provider?: string };
+    customer?: { fullName?: string; email?: string };
+};
+
+type PortOneError = { code: string; message: string };
+type PortOneSuccess = {
+    paymentId: string;
+    orderName?: string;
+    approvedAt?: string;
+    amount?: { total?: number; currency?: string };
+    method?: string;
+    easyPay?: { provider?: string };
+    // Success result does NOT include `code`
+    code?: undefined;
+    [k: string]: unknown;
+};
+type PortOneResult = PortOneSuccess | PortOneError;
+type PortOneSDK = { requestPayment: (req: PortOneRequest) => Promise<PortOneResult> };
+
+// Minimal IMP(v1) typings for legacy fallback
+type IMPRequest = {
+    pg: string;
+    pay_method: string;
+    merchant_uid: string;
+    name: string;
+    amount: number;
+    buyer_email?: string;
+    buyer_name?: string;
+};
+type IMPResponse = {
+    success: boolean;
+    error_msg?: string;
+    imp_uid?: string;
+    merchant_uid: string;
+    paid_amount?: number;
+    [k: string]: unknown;
+};
+type IMPSDK = {
+    init: (key: string) => void;
+    request_pay: (params: IMPRequest, cb: (rsp: IMPResponse) => void) => void;
+};
+
 // PortOne configuration (prefer env in production)
 const STORE_ID = "store-8859c392-62e5-4fe5-92d3-11c686e9b2bc";
 const CHANNEL_KEY = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY || "channel-key-943d5d92-0688-4619-ac6e-7116f665abc0";
@@ -114,8 +165,8 @@ export default function ChallengePage() {
             return undefined;
         };
         // Prefer PortOne v2 SDK if available
-        const PortOne = (window as any).PortOne;
-        if (PortOne?.requestPayment) {
+    const PortOne: PortOneSDK | undefined = (window as unknown as { PortOne?: PortOneSDK }).PortOne;
+    if (PortOne?.requestPayment) {
             // For now, process only the first recipient to avoid repeated popups
             const targets = recipients.slice(0, 1);
             for (const r of targets) {
@@ -134,7 +185,7 @@ export default function ChallengePage() {
                             customer: r,
                         });
                     }
-                    const res: any = await PortOne.requestPayment({
+            const res = await PortOne.requestPayment({
                         storeId: STORE_ID,
                         channelKey: CHANNEL_KEY,
                         paymentId,
@@ -149,7 +200,7 @@ export default function ChallengePage() {
                         console.log("[PortOne][Result]", res);
                     }
                     // PortOne v2: success responses DO NOT include `code`; error responses include { code, message }
-                    const isSuccess = res && !res.code;
+            const isSuccess = !!res && !("code" in res);
                     if (isSuccess) {
                         try {
                             if (!SKIP_BACKEND) {
@@ -168,11 +219,12 @@ export default function ChallengePage() {
                                         paidAt: new Date().toISOString(),
                                         challengeId: selected.id,
                                         participantId: r.id,
-                                        raw: res,
+                    raw: res as PortOneResult,
                                     });
-                                } catch (persistErr: any) {
+                } catch (persistErr: unknown) {
                                     if (process.env.NODE_ENV !== "production") {
-                                        console.warn("[Payments][Persist][Warn]", persistErr?.message || persistErr);
+                    const msg = persistErr instanceof Error ? persistErr.message : String(persistErr);
+                    console.warn("[Payments][Persist][Warn]", msg);
                                     }
                                 }
                                 await issueReward({ challengeId: selected.id, participantId: r.id, amount: amountPerPerson });
@@ -182,26 +234,29 @@ export default function ChallengePage() {
                             }
                             setItems(prev => prev.map(c => c.id === selected.id ? { ...c, achievedCount: (c.achievedCount ?? 0) + 1 } : c));
                             toast.success(`${r.name}에게 ${amountPerPerson.toLocaleString()}원 포상 완료`);
-                        } catch (e: any) {
+            } catch (e: unknown) {
                             if (process.env.NODE_ENV !== "production") {
-                                console.error("[Reward][Error]", e);
+                console.error("[Reward][Error]", e);
                             }
-                            toast.error(e?.message || `${r.name} 포상 처리에 실패했습니다.`);
+                const msg = e instanceof Error ? e.message : `${r.name} 포상 처리에 실패했습니다.`;
+                toast.error(msg);
                         }
                         // Record locally so /payments works without backend
                         const cached = recordLocalPayment(r, paymentId, "PAID", "EASY_PAY", "KAKAOPAY");
                         if (cached) created.push(cached);
                     } else {
                         // Non-success: do not record pending entries; only notify and stop
-                        toast.error(`결제 실패(${r.name}): ${res?.message || "알 수 없는 오류"}`);
+            const msg = (res as PortOneError).message || "알 수 없는 오류";
+            toast.error(`결제 실패(${r.name}): ${msg}`);
                         // Stop processing subsequent recipients on failure
                         break;
                     }
-                } catch (err: any) {
+        } catch (err: unknown) {
                     if (process.env.NODE_ENV !== "production") {
-                        console.error("[PortOne][Error]", err);
+            console.error("[PortOne][Error]", err);
                     }
-                    toast.error(`결제 실패(${r.name}): ${err?.message || err}`);
+            const msg = err instanceof Error ? err.message : String(err);
+            toast.error(`결제 실패(${r.name}): ${msg}`);
                     break;
                 }
             }
@@ -221,14 +276,14 @@ export default function ChallengePage() {
         }
 
         // Fallback: legacy IMP SDK
-        const IMP = (window as any).IMP;
+    const IMP: IMPSDK | undefined = (window as unknown as { IMP?: IMPSDK }).IMP;
         if (!IMP) return;
         if (process.env.NODE_ENV !== "production") {
             console.log("[IMP][Init]");
         }
         IMP.init("impXXXXXXXXX");
         // Legacy fallback: process first only (multi-pay not supported in one call)
-        const [first, ...rest] = recipients;
+    const [first] = recipients;
         if (!first) return;
         const legacyPayload = {
             pg: "kakaopay",
@@ -242,7 +297,7 @@ export default function ChallengePage() {
         if (process.env.NODE_ENV !== "production") {
             console.log("[IMP][Request]", legacyPayload);
         }
-        IMP.request_pay(legacyPayload, async function (rsp: any) {
+    IMP.request_pay(legacyPayload as IMPRequest, async function (rsp: IMPResponse) {
             if (process.env.NODE_ENV !== "production") {
                 console.log("[IMP][Result]", rsp);
             }
@@ -263,11 +318,12 @@ export default function ChallengePage() {
                                 paidAt: new Date().toISOString(),
                                 challengeId: selected.id,
                                 participantId: first.id,
-                                raw: rsp,
+                raw: rsp as IMPResponse,
                             });
-                        } catch (persistErr: any) {
+            } catch (persistErr: unknown) {
                             if (process.env.NODE_ENV !== "production") {
-                                console.warn("[Payments][Persist][Warn]", persistErr?.message || persistErr);
+                const msg = persistErr instanceof Error ? persistErr.message : String(persistErr);
+                console.warn("[Payments][Persist][Warn]", msg);
                             }
                         }
                         await issueReward({ challengeId: selected.id, participantId: first.id, amount: amountPerPerson });
@@ -277,11 +333,12 @@ export default function ChallengePage() {
                     }
                     setItems(prev => prev.map(c => c.id === selected.id ? { ...c, achievedCount: (c.achievedCount ?? 0) + 1 } : c));
                     toast.success(`${first.name}에게 ${amountPerPerson.toLocaleString()}원 포상 완료`);
-                } catch (e: any) {
+        } catch (e: unknown) {
                     if (process.env.NODE_ENV !== "production") {
                         console.error("[Reward][Error]", e);
                     }
-                    toast.error(e?.message || "포상 처리에 실패했습니다.");
+            const msg = e instanceof Error ? e.message : "포상 처리에 실패했습니다.";
+            toast.error(msg);
                 }
                 // Record locally for payments page
                 const cached = recordLocalPayment(first, legacyPayload.merchant_uid);

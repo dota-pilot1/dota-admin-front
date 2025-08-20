@@ -22,8 +22,11 @@ export async function issueReward(req: RewardRequest): Promise<RewardResponse> {
         }
         return data;
     } catch (err: unknown) {
-        const anyErr = err as any;
-        const message = anyErr?.response?.data?.message || anyErr?.message || "포상 처리 중 오류가 발생했습니다.";
+        let message = "포상 처리 중 오류가 발생했습니다.";
+        if (typeof err === "object" && err !== null) {
+            const e = err as { response?: { data?: { message?: string } }; message?: string };
+            message = e.response?.data?.message || e.message || message;
+        }
         throw new Error(message);
     }
 }

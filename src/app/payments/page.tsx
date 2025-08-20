@@ -34,7 +34,7 @@ export default function PaymentsPage() {
   }
 
   // Hide pending items if any
-  const visible = (items || []).filter((p: any) => p.status !== "PENDING");
+  const visible: PaymentItem[] = (items || []).filter((p: PaymentItem) => p.status !== "PENDING");
 
   return (
     <main className="max-w-4xl mx-auto p-6 space-y-4">
@@ -44,7 +44,7 @@ export default function PaymentsPage() {
       {isError && <div className="text-red-600">{(error as Error).message}</div>}
 
       <div className="grid grid-cols-1 gap-3">
-        {visible?.map((p: any) => (
+  {visible?.map((p: PaymentItem) => (
           <Card key={p.id}>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
