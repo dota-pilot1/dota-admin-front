@@ -40,28 +40,7 @@ type PortOneSuccess = {
 type PortOneResult = PortOneSuccess | PortOneError;
 type PortOneSDK = { requestPayment: (req: PortOneRequest) => Promise<PortOneResult> };
 
-// Minimal IMP(v1) typings for legacy fallback
-type IMPRequest = {
-    pg: string;
-    pay_method: string;
-    merchant_uid: string;
-    name: string;
-    amount: number;
-    buyer_email?: string;
-    buyer_name?: string;
-};
-type IMPResponse = {
-    success: boolean;
-    error_msg?: string;
-    imp_uid?: string;
-    merchant_uid: string;
-    paid_amount?: number;
-    [k: string]: unknown;
-};
-type IMPSDK = {
-    init: (key: string) => void;
-    request_pay: (params: IMPRequest, cb: (rsp: IMPResponse) => void) => void;
-};
+
 
 // PortOne configuration (prefer env in production)
 const STORE_ID = "store-8859c392-62e5-4fe5-92d3-11c686e9b2bc";
@@ -272,100 +251,13 @@ export default function ChallengePage() {
                 console.log("[Navigate] -> /payments (router)");
             }
             router.push("/payments");
-            return;
         }
-
-        // Fallback: legacy IMP SDK
-    const IMP: IMPSDK | undefined = (window as unknown as { IMP?: IMPSDK }).IMP;
-        if (!IMP) return;
-        if (process.env.NODE_ENV !== "production") {
-            console.log("[IMP][Init]");
-        }
-        IMP.init("impXXXXXXXXX");
-        // Legacy fallback: process first only (multi-pay not supported in one call)
-    const [first] = recipients;
-        if (!first) return;
-        const legacyPayload = {
-            pg: "kakaopay",
-            pay_method: "card",
-            merchant_uid: `mid_${Date.now()}_${first.id}`,
-            name: `${selected.title} 포상 (${first.name})`,
-            amount: amountPerPerson,
-            buyer_email: first?.email || "user@example.com",
-            buyer_name: first?.name || "사용자",
-        };
-        if (process.env.NODE_ENV !== "production") {
-            console.log("[IMP][Request]", legacyPayload);
-        }
-    IMP.request_pay(legacyPayload as IMPRequest, async function (rsp: IMPResponse) {
-            if (process.env.NODE_ENV !== "production") {
-                console.log("[IMP][Result]", rsp);
-            }
-            if (rsp.success) {
-                try {
-                    if (!SKIP_BACKEND) {
-                        try {
-                            await recordPayment({
-                                paymentId: legacyPayload.merchant_uid,
-                                orderName: legacyPayload.name,
-                                amount: legacyPayload.amount,
-                                currency: "KRW",
-                                status: "PAID",
-                                method: "CARD",
-                                provider: "KAKAOPAY",
-                                payerName: legacyPayload.buyer_name,
-                                payerEmail: legacyPayload.buyer_email,
-                                paidAt: new Date().toISOString(),
-                                challengeId: selected.id,
-                                participantId: first.id,
-                raw: rsp as IMPResponse,
-                            });
-            } catch (persistErr: unknown) {
-                            if (process.env.NODE_ENV !== "production") {
-                const msg = persistErr instanceof Error ? persistErr.message : String(persistErr);
-                console.warn("[Payments][Persist][Warn]", msg);
-                            }
-                        }
-                        await issueReward({ challengeId: selected.id, participantId: first.id, amount: amountPerPerson });
-                    }
-                    if (process.env.NODE_ENV !== "production") {
-                        console.log("[Reward][Success]", { challengeId: selected.id, participantId: first.id, amount: amountPerPerson });
-                    }
-                    setItems(prev => prev.map(c => c.id === selected.id ? { ...c, achievedCount: (c.achievedCount ?? 0) + 1 } : c));
-                    toast.success(`${first.name}에게 ${amountPerPerson.toLocaleString()}원 포상 완료`);
-        } catch (e: unknown) {
-                    if (process.env.NODE_ENV !== "production") {
-                        console.error("[Reward][Error]", e);
-                    }
-            const msg = e instanceof Error ? e.message : "포상 처리에 실패했습니다.";
-            toast.error(msg);
-                }
-                // Record locally for payments page
-                const cached = recordLocalPayment(first, legacyPayload.merchant_uid);
-                if (cached) {
-                    try {
-                        queryClient.setQueryData<PaymentItem[] | undefined>(["payments", "list"], (old) => {
-                            const prev = Array.isArray(old) ? old : [];
-                            return [cached, ...prev];
-                        });
-                    } catch { }
-                }
-            } else {
-                toast.error("결제 실패: " + rsp.error_msg);
-            }
-            if (process.env.NODE_ENV !== "production") {
-                console.log("[Navigate] -> /payments (router)");
-            }
-            router.push("/payments");
-        });
     }, [selected, queryClient, router]);
 
     return (
         <main className="max-w-6xl mx-auto p-6">
             {/* PortOne v2 SDK */}
             <Script src="https://cdn.portone.io/v2/browser-sdk.js" strategy="afterInteractive" />
-            {/* Legacy IMP SDK (fallback) */}
-            <Script src="https://cdn.portone.io/v1/portone.js" strategy="afterInteractive" />
             <ChallengeHeader />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
