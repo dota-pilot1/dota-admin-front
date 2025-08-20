@@ -54,6 +54,18 @@ export function AppHeaderClient() {
                             대시보드
                         </Link>
                         <Link
+                            href="/challenge"
+                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            챌린지
+                        </Link>
+                        <Link
+                            href="/payments"
+                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            결제 내역
+                        </Link>
+                        <Link
                             href="/freeboard"
                             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                         >
