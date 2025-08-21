@@ -74,7 +74,7 @@ export default function ChallengePage() {
         if (mapped.length > 0 && selectedId == null) {
             setSelectedId(mapped[0].id);
         }
-    }, [data]);
+    }, [data, selectedId]);
     const selected = useMemo(() => items.find(c => c.id === selectedId) ?? null, [selectedId, items]);
     const router = useRouter();
     const queryClient = useQueryClient();

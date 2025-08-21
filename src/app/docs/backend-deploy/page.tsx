@@ -104,7 +104,7 @@ nohup java -jar build/libs/dota-admin-backend-0.0.1-SNAPSHOT.jar > app.log 2>&1 
 # 백그라운드 PID 출력됨`}</code>
                         </pre>
                     </div>
-                    <p className="text-xs text-muted-foreground">필요 시 환경변수는 <code>nohup</code> 앞에 붙여서 실행하세요. 예: <code>SERVER_PORT=8080 JAVA_OPTS="-Xms256m -Xmx512m" nohup java ...</code></p>
+                    <p className="text-xs text-muted-foreground">필요 시 환경변수는 <code>nohup</code> 앞에 붙여서 실행하세요. 예: <code>SERVER_PORT=8080 JAVA_OPTS=&quot;-Xms256m -Xmx512m&quot; nohup java ...</code></p>
                 </CardContent>
             </Card>
 
