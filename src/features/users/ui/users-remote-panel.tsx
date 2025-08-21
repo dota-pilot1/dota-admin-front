@@ -43,7 +43,8 @@ export function UsersRemotePanel() {
     const sortBy = sortOpt.startsWith("username") ? "username" : "id";
     const sortDir = sortOpt.endsWith("desc") ? "desc" : "asc";
 
-    const { data, isLoading, isError, error, refetch, isFetching } = useUsers({ page, size: pageSize, q: search || undefined, sortBy, sortDir });
+    const serverRole = role === "all" ? undefined : (role === "admin" ? "ADMIN" : "USER");
+    const { data, isLoading, isError, error, refetch, isFetching } = useUsers({ page, size: pageSize, q: search || undefined, sortBy, sortDir, role: serverRole });
     const deleteUserMutation = useDeleteUserOptimistic();
 
     const deleteAt = useCallback(async (userId: string) => {
@@ -57,10 +58,13 @@ export function UsersRemotePanel() {
     // 서버 페이징 결과 + 간단한 클라이언트 필터링(현재 페이지 한정)
     const items = data?.items ?? [];
     const q = search.trim().toLowerCase();
-    const pageItems = q
-        ? items.filter((u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))
-        : items;
-    const viewItems = role === "all" ? pageItems : pageItems.filter((u) => u.role === role);
+    const filteredBySearch = q ? items.filter((u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) : items;
+    // 서버 role 파라미터가 무시될 수 있으므로 항상 클라이언트 재필터링 (이중 안전장치)
+    const viewItems = role === "all" ? filteredBySearch : filteredBySearch.filter(u => u.role === role);
+    const adminCountPage = filteredBySearch.filter(u => u.role === "admin").length;
+    const memberCountPage = filteredBySearch.filter(u => u.role === "member").length;
+    const adminTotal = data?.roleCounts?.ADMIN ?? data?.roleCounts?.admin ?? adminCountPage;
+    const memberTotal = data?.roleCounts?.USER ?? data?.roleCounts?.user ?? memberCountPage;
     const totalPages = data?.totalPages || Math.max(1, Math.ceil((data?.total ?? 0) / pageSize)) || 1;
     const currentPage = Math.min(page, totalPages);
     const approxTotal = typeof data?.total === "number" ? data.total : (data?.totalPages ? data.totalPages * pageSize : undefined);
@@ -115,14 +119,14 @@ export function UsersRemotePanel() {
                     {/* 빠른 필터 */}
                     <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">표시:</span>
-                        <Button size="sm" variant={role === "all" ? "default" : "outline"} onClick={() => setRole("all")}>
-                            전체 ({pageItems.length})
+                        <Button size="sm" variant={role === "all" ? "default" : "outline"} onClick={() => { setRole("all"); setPage(1); }}>
+                            전체 ({filteredBySearch.length})
                         </Button>
-                        <Button size="sm" variant={role === "admin" ? "default" : "outline"} onClick={() => setRole("admin")}>
-                            관리자 ({pageItems.filter(u => u.role === "admin").length})
+                        <Button size="sm" variant={role === "admin" ? "default" : "outline"} onClick={() => { setRole("admin"); setPage(1); }}>
+                            관리자 ({adminTotal})
                         </Button>
-                        <Button size="sm" variant={role === "member" ? "default" : "outline"} onClick={() => setRole("member")}>
-                            일반회원 ({pageItems.filter(u => u.role === "member").length})
+                        <Button size="sm" variant={role === "member" ? "default" : "outline"} onClick={() => { setRole("member"); setPage(1); }}>
+                            일반회원 ({memberTotal})
                         </Button>
                         {isFetching && <span className="text-xs text-muted-foreground ml-auto">불러오는 중…</span>}
                     </div>
