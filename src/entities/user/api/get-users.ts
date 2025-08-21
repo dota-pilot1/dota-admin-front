@@ -28,8 +28,7 @@ function normalizeUser(u: AnyUser): User {
     const rawNorm = (rawRole ?? "USER").toString();
     if (process.env.NODE_ENV !== "production" && !seenRawRoles.has(rawNorm)) {
         seenRawRoles.add(rawNorm);
-        // eslint-disable-next-line no-console
-        console.debug("[getUsers] 발견한 원시 role:", Array.from(seenRawRoles));
+    console.debug("[getUsers] 발견한 원시 role:", Array.from(seenRawRoles));
     }
     const roleLower = rawNorm.toLowerCase();
     // ROLE_ADMIN, ADMIN_USER, SUPER_ADMIN 등 포함 패턴 허용
