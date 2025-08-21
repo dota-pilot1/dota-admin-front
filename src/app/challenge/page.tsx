@@ -4,13 +4,15 @@ import { ChallengeHeader } from "@/widgets/challenge/ui/ChallengeHeader";
 import { ChallengeList, type Challenge, type Participant } from "@/widgets/challenge/ui/ChallengeList";
 import { ChallengeDetail } from "@/widgets/challenge/ui/ChallengeDetail";
 import Script from "next/script";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { issueReward } from "@/features/challenge/api/reward";
 import { toast } from "sonner";
 import { recordPayment } from "@/features/payments/api/create";
 import type { PaymentItem } from "@/features/payments/api/list";
+import { useApiForGetChallengeList } from "@/features/challenge/hooks/useApiForGetChallengeList";
+import type { ApiForGetChallengeListResponse } from "@/features/challenge/api/getChallengeList";
 
 // Minimal PortOne v2 browser SDK typings
 type PortOneRequest = {
@@ -46,61 +48,33 @@ const STORE_ID = "store-8859c392-62e5-4fe5-92d3-11c686e9b2bc";
 const CHANNEL_KEY = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY || "channel-key-943d5d92-0688-4619-ac6e-7116f665abc0";
 const SKIP_BACKEND = process.env.NEXT_PUBLIC_SKIP_BACKEND === "1";
 
-const DUMMY: Challenge[] = [
-    {
-        id: 1,
-        title: "주간 스터디 발표",
-        description: "Spring AI 또는 RAG 체인 실습 내용을 10분 발표",
-        tags: ["Spring Boot", "Spring AI", "RAG"],
-        achievedCount: 5,
-        author: { id: 100, name: "Tech Lead" },
-        participants: [
-            { id: 201, name: "김개발", email: "dev1@example.com" },
-            { id: 202, name: "이리액트", email: "react@example.com" },
-        ],
-    },
-    {
-        id: 2,
-        title: "프론트 성능 개선",
-        description: "Next.js에서 framer-motion 사용해 전환 애니메이션 적용 및 TTI 10% 개선",
-        tags: ["Next.js", "React", "framer-motion"],
-        achievedCount: 3,
-        author: { id: 101, name: "FE Lead" },
-        participants: [
-            { id: 203, name: "박모션" },
-            { id: 204, name: "최렌더" },
-        ],
-    },
-    {
-        id: 3,
-        title: "드래그앤드롭 UX 개선",
-        description: "dnd-kit으로 칸반 보드 구성 및 키보드 접근성 추가",
-        tags: ["dnd-kit", "React"],
-        achievedCount: 4,
-        author: { id: 100, name: "Tech Lead" },
-        participants: [
-            { id: 205, name: "오칸반" },
-            { id: 206, name: "윤드롭" },
-        ],
-    },
-    {
-        id: 4,
-        title: "사내 챗봇 개선",
-        description: "RAG 파이프라인 튜닝으로 답변 정확도 15% 향상",
-        tags: ["RAG", "Chatbot"],
-        achievedCount: 2,
-        author: { id: 102, name: "AI Lead" },
-        participants: [
-            { id: 207, name: "정봇" },
-            { id: 208, name: "한지식" },
-        ],
-    },
-];
+// Map API challenge model -> UI model consumed by ChallengeList/Detail
+function mapApiToUi(data?: ApiForGetChallengeListResponse): Challenge[] {
+    if (!data?.challenges) return [];
+    return data.challenges.map((c) => ({
+        id: c.id,
+        title: c.title,
+        description: c.description,
+        achievedCount: 0,
+        author: { id: 0, name: c.author },
+        participants: [],
+        // tags, reward 등은 백엔드 확장 시 매핑 추가
+    }));
+}
 
 export default function ChallengePage() {
-    // keep local state for optimistic updates
-    const [items, setItems] = useState<Challenge[]>(DUMMY);
-    const [selectedId, setSelectedId] = useState<number | null>(items[0]?.id ?? null);
+    // fetch from backend and keep local state for optimistic updates
+    const { data, isLoading, isError } = useApiForGetChallengeList();
+    const [items, setItems] = useState<Challenge[]>([]);
+    const [selectedId, setSelectedId] = useState<number | null>(null);
+    // hydrate local state when data arrives
+    useEffect(() => {
+        const mapped = mapApiToUi(data);
+        setItems(mapped);
+        if (mapped.length > 0 && selectedId == null) {
+            setSelectedId(mapped[0].id);
+        }
+    }, [data]);
     const selected = useMemo(() => items.find(c => c.id === selectedId) ?? null, [selectedId, items]);
     const router = useRouter();
     const queryClient = useQueryClient();
@@ -110,6 +84,8 @@ export default function ChallengePage() {
         if (!selected) return;
         if (!Array.isArray(recipients) || recipients.length === 0) return;
         const created: PaymentItem[] = [];
+        // 로컬 캐시 저장 함수 (불필요, 주석 처리)
+        /*
         const recordLocalPayment = (
             r: Participant,
             id: string,
@@ -142,6 +118,7 @@ export default function ChallengePage() {
             } catch { }
             return undefined;
         };
+        */
         // Prefer PortOne v2 SDK if available
 
         const PortOne: PortOneSDK | undefined = (window as unknown as { PortOne?: PortOneSDK }).PortOne;
@@ -181,7 +158,8 @@ export default function ChallengePage() {
                     // PortOne v2: success responses DO NOT include `code`; error responses include { code, message }
                     const isSuccess = !!res && !("code" in res);
                     if (isSuccess) {
-                        // ✅ 결제 성공: 백엔드 API 요청 및 포상 처리
+                        // ✅ 결제 성공: PortOne 응답 결과 로그 출력
+                        console.log("[PortOne][결제 성공 응답]", res);
                         try {
                             if (!SKIP_BACKEND) {
                                 // 🔥 [백엔드 API 요청 1] 결제 기록 저장 (POST /admin/payments)
@@ -211,11 +189,9 @@ export default function ChallengePage() {
                             }
                             setItems(prev => prev.map(c => c.id === selected.id ? { ...c, achievedCount: (c.achievedCount ?? 0) + 1 } : c));
                             toast.success(`${r.name}에게 ${amountPerPerson.toLocaleString()}원 포상 완료`);
-
-                            // 로컬 캐시 저장
-                            const cached = recordLocalPayment(r, paymentId, "PAID", "EASY_PAY", "KAKAOPAY");
-                            if (cached) created.push(cached);
-
+                            // 로컬 캐시 저장 불필요 (주석 처리)
+                            // const cached = recordLocalPayment(r, paymentId, "PAID", "EASY_PAY", "KAKAOPAY");
+                            // if (cached) created.push(cached);
                         } catch (backendError: unknown) {
                             // ❌ 백엔드 API 실패: 사용자에게 명확한 에러 메시지
                             if (process.env.NODE_ENV !== "production") {
@@ -223,10 +199,9 @@ export default function ChallengePage() {
                             }
                             const msg = backendError instanceof Error ? backendError.message : "포상 처리 중 오류가 발생했습니다.";
                             toast.error(`${r.name} 포상 실패: ${msg}`);
-
-                            // 실패한 경우에도 로컬 캐시는 저장 (결제는 성공했으므로)
-                            const cached = recordLocalPayment(r, paymentId, "PAID", "EASY_PAY", "KAKAOPAY");
-                            if (cached) created.push(cached);
+                            // 실패한 경우에도 로컬 캐시 저장 불필요 (주석 처리)
+                            // const cached = recordLocalPayment(r, paymentId, "PAID", "EASY_PAY", "KAKAOPAY");
+                            // if (cached) created.push(cached);
                         }
                     } else {
                         // ❌ 결제 실패: 포상 진행 안함
@@ -266,7 +241,15 @@ export default function ChallengePage() {
             <ChallengeHeader />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
-                    <ChallengeList items={items} selectedId={selectedId ?? undefined} onSelect={setSelectedId} />
+                    {isLoading ? (
+                        <div className="text-sm text-muted-foreground">챌린지를 불러오는 중...</div>
+                    ) : isError ? (
+                        <div className="text-sm text-destructive">챌린지 목록을 가져오지 못했습니다.</div>
+                    ) : items.length === 0 ? (
+                        <div className="text-sm text-muted-foreground">표시할 챌린지가 없습니다.</div>
+                    ) : (
+                        <ChallengeList items={items} selectedId={selectedId ?? undefined} onSelect={setSelectedId} />
+                    )}
                 </div>
                 <div>
                     <ChallengeDetail data={selected} onPay={handlePay} />
