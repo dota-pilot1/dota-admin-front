@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { FileText, CreditCard, BookOpen, Settings, Users, Code, Target } from "lucide-react";
+import { FileText, CreditCard, BookOpen, Settings, Users, Code, Target, Server } from "lucide-react";
 import Link from "next/link";
 
 const docItems = [
@@ -23,6 +23,15 @@ const docItems = [
         icon: CreditCard,
         href: "/docs/payment-process",
         tags: ["PortOne", "결제", "프로세스"],
+        priority: "high"
+    },
+    {
+        id: "backend-deploy",
+        title: "백엔드 EC2 배포",
+        description: "EC2에서 Spring Boot 서버 재배포: 명령어 복붙 매뉴얼",
+        icon: Server,
+        href: "/docs/backend-deploy",
+        tags: ["EC2", "Spring Boot", "배포"],
         priority: "high"
     },
     {
