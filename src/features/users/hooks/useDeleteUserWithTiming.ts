@@ -7,11 +7,11 @@ export function useDeleteUserWithTiming(limit: number, onTimingUpdate: (time: nu
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (userId: string) => {
+        mutationFn: async (id: string) => {
             const startTime = performance.now();
             
             try {
-                await deleteUser(userId);
+                await deleteUser(id);
                 return startTime;
             } catch (error) {
                 throw error;

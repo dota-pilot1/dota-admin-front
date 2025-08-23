@@ -4,9 +4,9 @@ import { persist } from "zustand/middleware";
 interface AuthState {
     isLoggedIn: boolean;
     user: string | null;          // 기존 (예: 이메일)
-    userId: number | null;        // ★ 추가: 백엔드 authorId 용
+    id: number | null;        // ★ 추가: 백엔드 authorId 용
     isHydrated: boolean;
-    login: (user: string, userId?: number) => void;  // ★ userId 옵션 추가
+    login: (user: string, id?: number) => void;  // ★ id 옵션 추가
     logout: () => void;
     setHydrated: () => void;
 }
@@ -16,13 +16,13 @@ export const useAuthStore = create<AuthState>()(
         (set) => ({
             isLoggedIn: false,
             user: null,
-            userId: null,
+            id: null,
             isHydrated: false,
-            login: (user: string, userId?: number) => {
-                set({ isLoggedIn: true, user, userId: userId ?? null });
+            login: (user: string, id?: number) => {
+                set({ isLoggedIn: true, user, id: id ?? null });
             },
             logout: () => {
-                set({ isLoggedIn: false, user: null, userId: null });
+                set({ isLoggedIn: false, user: null, id: null });
             },
             setHydrated: () => {
                 set({ isHydrated: true });

@@ -5,7 +5,7 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import { useMemo } from "react";
 
 export default function MembersPage() {
-    const { user, userId, isLoggedIn } = useAuthStore();
+    const { user, id, isLoggedIn } = useAuthStore();
     const displayName = useMemo(() => {
         if (user) return user;
         return isLoggedIn ? "알수없는 사용자" : "게스트";
@@ -16,7 +16,7 @@ export default function MembersPage() {
             <div className="max-w-7xl mx-auto">
                 <h1 className="text-3xl font-bold mb-2">회원 관리</h1>
                 <p className="text-sm text-muted-foreground mb-6">
-                    현재 사용자: <span className="font-medium">{displayName}</span>{userId ? ` (ID: ${userId})` : ""}
+                    현재 사용자: <span className="font-medium">{displayName}</span>{id ? ` (ID: ${id})` : ""}
                 </p>
                 <UsersRemotePanel />
             </div>

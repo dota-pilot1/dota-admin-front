@@ -17,10 +17,16 @@ export function AuthGuard({ children, redirectTo = '/login' }: AuthGuardProps) {
       if (typeof window !== 'undefined') {
         const token = localStorage.getItem('authToken');
         const userInfo = localStorage.getItem('userInfo');
-        
+        console.log("🔍 AuthGuard checking:", {
+          token: token ? "EXISTS" : "NOT_FOUND",
+          userInfo: userInfo ? "EXISTS" : "NOT_FOUND"
+        });
+
         if (token && userInfo) {
+          console.log("✅ User authenticated");
           setIsAuthed(true);
         } else {
+          console.log("❌ User not authenticated, redirecting to login");
           setIsAuthed(false);
           router.replace(redirectTo);
         }

@@ -1,29 +1,37 @@
 import { useMutation } from "@tanstack/react-query";
-import { loginApi } from "../api/login";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { loginApi } from "../api/login";
 
 export function useLogin() {
+    const router = useRouter();
+
     return useMutation({
         mutationFn: loginApi,
         onSuccess: (data) => {
-            // 토큰과 사용자 정보를 localStorage에 저장
+            // 토큰과 사용자 정보 모두 localStorage에 저장
             localStorage.setItem("authToken", data.token);
             localStorage.setItem("userInfo", JSON.stringify({
+                id: data.id,
                 username: data.username,
                 email: data.email,
                 role: data.role,
-                userId: data.userId
+                authorities: data.authorities
             }));
-
-            toast.success("로그인 성공!");
             
-            // 페이지 새로고침으로 상태 갱신
-            window.location.href = "/dashboard";
+            console.log("✅ Token and user info saved");
+
+            toast.success(data.message || "로그인 성공!");
+
+            // 약간의 지연 후 라우팅 (localStorage 동기화 대기)
+            setTimeout(() => {
+                console.log("🔄 Redirecting to dashboard...");
+                router.push("/dashboard");
+            }, 100);
         },
-        onError: (error: unknown) => {
+        onError: (error) => {
+            // 에러 메시지는 폼에서 표시하므로 toast는 제거
             console.error("Login error:", error);
-            const message = error instanceof Error ? error.message : "로그인에 실패했습니다";
-            toast.error(message);
         }
     });
 }

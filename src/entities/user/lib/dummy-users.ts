@@ -16,14 +16,18 @@ const NAMES = [
 export function generateUsers(count: number): User[] {
   const users: User[] = [];
   for (let i = 0; i < count; i++) {
-    const name = NAMES[i % NAMES.length] + (i >= NAMES.length ? ` ${i + 1}` : "");
+    const username = NAMES[i % NAMES.length] + (i >= NAMES.length ? ` ${i + 1}` : "");
+    const id = i + 1; // Changed from userId to id
+    const email = `user${id}@example.com`;
+    const role = i % 20 === 0 ? "admin" : "member";
+    const authorities = [role.toUpperCase()]; // Simple authorities based on role
+
     users.push({
-      id: `u${i + 1}`,
-      name,
-      email: `user${i + 1}@example.com`,
-      role: i % 20 === 0 ? "admin" : "member",
-      joinedAt: new Date(Date.now() - i * 1000 * 60 * 60 * 6).toISOString(),
-      posts: (i * 7) % 53,
+      id, // Changed from userId to id
+      username,
+      email,
+      role,
+      authorities,
     });
   }
   return users;

@@ -7,19 +7,14 @@ type AnyUser = Record<string, unknown>;
 const seenRawRoles: Set<string> = new Set();
 
 function normalizeUser(u: AnyUser): User {
-    // ID 우선순위: id -> userId -> uid -> 랜덤
-    const id = String(u.id ?? u.userId ?? u.uid ?? cryptoRandomId());
-    // 이름 우선순위: username -> name -> nick -> Fallback
-    const name = String(u.username ?? u.name ?? u.nick ?? "알수없음");
-    // 이메일 Fallback 보정
+    const id = Number(u.id ?? u.userId ?? u.uid ?? cryptoRandomId()); // Changed from userId to id
+    const username = String(u.username ?? u.name ?? u.nick ?? "알수없음");
     const email = String(u.email ?? u.mail ?? `${id}@example.com`);
 
-    // role 은 이제 문자열 혹은 객체 { id, name, description }
     let rawRole: string | undefined;
     if (typeof u.role === "string") {
         rawRole = u.role;
     } else if (u.role && typeof u.role === "object") {
-        // name / code / id 등 중 하나에 ADMIN 이 들어있는지 탐색
         const rObj = u.role as Record<string, unknown>;
         if (typeof rObj.name === "string") rawRole = rObj.name;
         else if (typeof rObj.code === "string") rawRole = rObj.code;
@@ -28,21 +23,18 @@ function normalizeUser(u: AnyUser): User {
     const rawNorm = (rawRole ?? "USER").toString();
     if (process.env.NODE_ENV !== "production" && !seenRawRoles.has(rawNorm)) {
         seenRawRoles.add(rawNorm);
-    console.debug("[getUsers] 발견한 원시 role:", Array.from(seenRawRoles));
+        console.debug("[getUsers] 발견한 원시 role:", Array.from(seenRawRoles));
     }
     const roleLower = rawNorm.toLowerCase();
-    // ROLE_ADMIN, ADMIN_USER, SUPER_ADMIN 등 포함 패턴 허용
-    const isAdmin = /(^|_|-|:)admin(?![a-z])/i.test(roleLower) || roleLower === "admin";
-    const role: User["role"] = isAdmin ? "admin" : "member";
+    const role: User["role"] = /(^|_|-|:)admin(?![a-z])/i.test(roleLower) || roleLower === "admin" ? "admin" : "member";
 
-    // 날짜 필드 (서버가 joinedAt / createdAt 제공 안하면 현재시각)
-    const joinedAtValue = u.joinedAt ?? u.createdAt ?? Date.now();
-    const joinedAt = new Date(joinedAtValue as string | number | Date).toISOString();
+    const authorities: string[] = Array.isArray(u.authorities) ? (u.authorities as string[]) : [role.toUpperCase()];
 
-    // 게시글 수(없으면 0)
-    const posts = Number.isFinite(u.posts) ? Number(u.posts) : 0;
-    return { id, name, email, role, joinedAt, posts };
+
+    return { id, username, email, role, authorities }; // Changed userId to id
 }
+
+
 
 function cryptoRandomId() {
     if (typeof crypto !== "undefined" && "randomUUID" in crypto) {

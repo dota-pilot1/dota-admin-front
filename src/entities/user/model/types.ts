@@ -1,8 +1,11 @@
+/**
+ * 사용자 정보 타입 (JWT 토큰에서 추출)
+ */
 export type User = {
-  id: string;
-  name: string;
+  id: number;
+  username: string;
   email: string;
-  role: "admin" | "member";
-  joinedAt: string; // ISO date string
-  posts: number;
+  role: string;
+  authorities: string[];
 };
+

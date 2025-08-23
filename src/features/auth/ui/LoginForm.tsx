@@ -3,6 +3,8 @@ import { useLogin } from "../hooks/useLogin";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Button } from "@/shared/ui/button";
+import { Alert, AlertDescription } from "@/shared/ui/alert";
+import { getLoginErrorMessage } from "@/shared/lib/error-utils";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -14,8 +16,17 @@ export default function LoginForm() {
     login.mutate({ email, password });
   };
 
+  // 에러 메시지 추출
+  const errorMessage = login.error ? getLoginErrorMessage(login.error) : null;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {/* 에러 메시지 표시 */}
+      {errorMessage && (
+        <Alert variant="destructive">
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      )}
       <div className="space-y-2">
         <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-medium">
           <div className="flex items-center gap-2">

@@ -8,7 +8,7 @@ export function useDeleteUser(limit: number) {
 
     return useMutation({
         mutationFn: deleteUser,
-        onMutate: async (userId: string) => {
+        onMutate: async (id: string) => {
             // Optimistic update - 즉시 UI에서 제거
             const queryKey = ["users", { limit }];
             await queryClient.cancelQueries({ queryKey });
@@ -16,13 +16,13 @@ export function useDeleteUser(limit: number) {
             const previousUsers = queryClient.getQueryData(queryKey) as User[] | undefined;
 
             if (previousUsers) {
-                const optimisticUsers = previousUsers.filter(user => user.id !== userId);
+                const optimisticUsers = previousUsers.filter(user => user.id !== Number(id));
                 queryClient.setQueryData(queryKey, optimisticUsers);
             }
 
             return { previousUsers };
         },
-        onError: (error, userId, context) => {
+        onError: (error, id, context) => {
             // 실패 시 이전 상태로 복원
             if (context?.previousUsers) {
                 const queryKey = ["users", { limit }];
@@ -41,3 +41,6 @@ export function useDeleteUser(limit: number) {
         }
     });
 }
+
+
+

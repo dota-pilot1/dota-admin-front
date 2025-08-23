@@ -17,15 +17,15 @@ export function UserList({ users }: { users: User[] }) {
           <ul className="space-y-3">
             {users.map((u) => (
               <li
-                key={u.id}
+                key={u.id} // Changed from u.userId to u.id
                 className="flex items-center justify-between rounded-md border p-3"
               >
                 <div className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarFallback>{u.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>{u.username.slice(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium">{u.name}</div>
+                    <div className="font-medium">{u.username}</div>
                     <div className="text-xs text-muted-foreground">{u.email}</div>
                   </div>
                 </div>
@@ -33,9 +33,7 @@ export function UserList({ users }: { users: User[] }) {
                   <Badge variant={u.role === "admin" ? "default" : "secondary"}>
                     {u.role}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">
-                    가입: {new Date(u.joinedAt).toLocaleDateString()} • 글 {u.posts}
-                  </span>
+                  {/* Removed joinedAt and posts */}
                 </div>
               </li>
             ))}

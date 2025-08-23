@@ -9,7 +9,7 @@ import { Input } from "@/shared/ui/input";
 import type { User } from "@/entities/user/model/types";
 
 // 순수 컴포넌트 - JavaScript로 인덱스 계산
-function UserListItem({ user, index, onDelete }: { user: User; index: number; onDelete: (userId: string) => void }) {
+function UserListItem({ user, index, onDelete }: { user: User; index: number; onDelete: (id: number) => void }) {
     const indexDisplay = index + 1;
 
     return (
@@ -19,7 +19,7 @@ function UserListItem({ user, index, onDelete }: { user: User; index: number; on
             </div>
             <div className="flex-1 min-w-0">
                 <div className="flex flex-col gap-1">
-                    <span className="truncate font-medium text-sm">{user.name}</span>
+                    <span className="truncate font-medium text-sm">{user.username}</span>
                     <span className="text-xs text-muted-foreground truncate">{user.email}</span>
                 </div>
             </div>
@@ -47,9 +47,9 @@ export function UsersRemotePanel() {
     const { data, isLoading, isError, error, refetch, isFetching } = useUsers({ page, size: pageSize, q: search || undefined, sortBy, sortDir, role: serverRole });
     const deleteUserMutation = useDeleteUserOptimistic();
 
-    const deleteAt = useCallback(async (userId: string) => {
+    const deleteAt = useCallback(async (id: number) => {
         try {
-            await deleteUserMutation.mutateAsync(userId);
+            await deleteUserMutation.mutateAsync(String(id));
         } catch (error) {
             console.error("삭제 실패:", error);
         }
@@ -58,7 +58,7 @@ export function UsersRemotePanel() {
     // 서버 페이징 결과 + 간단한 클라이언트 필터링(현재 페이지 한정)
     const items = data?.items ?? [];
     const q = search.trim().toLowerCase();
-    const filteredBySearch = q ? items.filter((u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) : items;
+    const filteredBySearch = q ? items.filter((u) => u.username.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) : items;
     // 서버 role 파라미터가 무시될 수 있으므로 항상 클라이언트 재필터링 (이중 안전장치)
     const viewItems = role === "all" ? filteredBySearch : filteredBySearch.filter(u => u.role === role);
     const adminCountPage = filteredBySearch.filter(u => u.role === "admin").length;

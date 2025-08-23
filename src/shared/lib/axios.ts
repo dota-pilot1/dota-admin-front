@@ -61,4 +61,34 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+// Response interceptor: 간단한 에러 처리
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        // 개발 환경에서만 로깅
+        if (process.env.NODE_ENV === 'development') {
+            console.error('API Error:', error.response?.data || error.message);
+            
+            // 백엔드 표준 에러 응답 형식 상세 로깅
+            if (error.response?.data) {
+                const { success, message, errorCode, details, timestamp } = error.response.data;
+                if (errorCode) {
+                    console.error('🔍 Detailed Error Info:', {
+                        success,
+                        errorCode,
+                        message,
+                        details,
+                        timestamp,
+                        status: error.response.status,
+                        url: error.response.config?.url
+                    });
+                }
+            }
+        }
+
+        // 에러를 그대로 throw하여 각 훅에서 처리하도록 함
+        return Promise.reject(error);
+    }
+);
+
 export default api;

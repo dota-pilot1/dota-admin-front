@@ -10,10 +10,10 @@ export function FreeboardCounterPanel({ users }: { users: User[] }) {
             <div className="rounded-md border p-2 h-80 overflow-auto">
                 <ListWithCounter
                     items={users}
-                    getKey={(u) => u.id}
+                    getKey={(u) => u.id} // Changed from u.userId to u.id
                     renderRow={({ item }) => (
                         <div className="flex items-center justify-between">
-                            <span className="truncate">{item.name}</span>
+                            <span className="truncate">{item.username}</span>
                             <span className="text-xs text-muted-foreground">{item.email}</span>
                         </div>
                     )}

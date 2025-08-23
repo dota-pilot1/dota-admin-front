@@ -10,7 +10,7 @@ export function useDeleteUserOptimistic() {
 
     return useMutation({
         mutationFn: deleteUser,
-        onMutate: async (deletedUserId: string) => {
+        onMutate: async (deletedId: string) => {
             // 진행 중인 모든 users 관련 쿼리 취소
             await queryClient.cancelQueries({ queryKey: ["users"] });
 
@@ -24,7 +24,7 @@ export function useDeleteUserOptimistic() {
                 if (data && Array.isArray(data.items)) {
                     const next: UsersResult = {
                         ...data,
-                        items: data.items.filter((u: User) => u.id !== deletedUserId),
+                        items: data.items.filter((u: User) => u.id !== Number(deletedId)),
                         total: typeof data.total === "number" ? Math.max(0, data.total - 1) : data.total,
                     };
                     queryClient.setQueryData(key, next);
@@ -33,7 +33,7 @@ export function useDeleteUserOptimistic() {
 
             return { affected };
         },
-        onError: (err, _deletedUserId, context) => {
+        onError: (err, _deletedId, context) => {
             // 실패 시 이전 데이터로 복구
             if (context?.affected) {
                 for (const { key, data } of context.affected) {

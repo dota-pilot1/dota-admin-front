@@ -1,8 +1,11 @@
 "use client";
 
 import { ChallengeHeader } from "@/widgets/challenge/ui/ChallengeHeader";
+import { CreateChallengeForm } from "@/features/challenge/ui/CreateChallengeForm";
+import { CreateChallengeFormV2 } from "@/features/challenge/ui/CreateChallengeFormV2";
 import { ChallengeList, type Challenge, type Participant } from "@/widgets/challenge/ui/ChallengeList";
 import { ChallengeDetail } from "@/widgets/challenge/ui/ChallengeDetail";
+import { ChallengeDetailV2 } from "@/widgets/challenge/ui/ChallengeDetailV2";
 import Script from "next/script";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -239,6 +242,13 @@ export default function ChallengePage() {
             {/* PortOne v2 SDK */}
             <Script src="https://cdn.portone.io/v2/browser-sdk.js" strategy="afterInteractive" />
             <ChallengeHeader />
+
+            {/* 비교용 폼 두 개 */}
+            <div className="flex gap-4 mb-6">
+                {/* <CreateChallengeForm /> */}
+                <CreateChallengeFormV2 />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
                     {isLoading ? (
@@ -252,7 +262,11 @@ export default function ChallengePage() {
                     )}
                 </div>
                 <div>
-                    <ChallengeDetail data={selected} onPay={handlePay} />
+                    {/* 기존 상세 보기 */}
+                    {/* <ChallengeDetail data={selected} onPay={handlePay} /> */}
+
+                    {/* 새로운 API 연동 상세 보기 */}
+                    <ChallengeDetailV2 challengeId={selectedId} />
                 </div>
             </div>
         </main>

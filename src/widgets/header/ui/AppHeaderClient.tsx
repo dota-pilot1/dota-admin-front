@@ -5,29 +5,33 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/shared/ui/button";
 import { useLogout } from "@/features/auth/hooks/useLogout";
 import { useEffect, useState } from "react";
+import { getCurrentUser } from "@/entities/user/lib/auth-utils";
 
 export function AppHeaderClient() {
     const pathname = usePathname();
     const logout = useLogout();
     const [isAuthed, setIsAuthed] = useState(false);
-    const [username, setUsername] = useState("guest");
+    const [userInfo, setUserInfo] = useState<{
+        username: string;
+        email: string;
+        role: string;
+    } | null>(null);
 
     // localStorage에서 인증 상태 확인
     useEffect(() => {
         const token = localStorage.getItem("authToken");
-        const userInfo = localStorage.getItem("userInfo");
+        const user = getCurrentUser();
 
-        if (token && userInfo) {
+        if (token && user) {
             setIsAuthed(true);
-            try {
-                const parsed = JSON.parse(userInfo);
-                setUsername(parsed.email || parsed.username || "guest");
-            } catch {
-                setUsername("guest");
-            }
+            setUserInfo({
+                username: user.username,
+                email: user.email,
+                role: user.role
+            });
         } else {
             setIsAuthed(false);
-            setUsername("guest");
+            setUserInfo(null);
         }
     }, []);
 
@@ -88,11 +92,12 @@ export function AppHeaderClient() {
 
                 {/* Auth section - 오른쪽 정렬 */}
                 <div className="flex items-center gap-3">
-                    {isAuthed ? (
+                    {isAuthed && userInfo ? (
                         <>
-                            <span className="text-sm text-muted-foreground bg-gray-100 px-2 py-1 rounded-md">
-                                {username}
-                            </span>
+                            <div className="text-sm bg-gray-100 px-3 py-1 rounded-md">
+                                <span className="font-medium">{userInfo.username}</span>
+                                <span className="text-muted-foreground ml-1">({userInfo.role})</span>
+                            </div>
                             <Button
                                 size="sm"
                                 variant="outline"
