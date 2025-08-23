@@ -3,10 +3,19 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { FileText, CreditCard, BookOpen, Settings, Users, Code, Target, Server } from "lucide-react";
+import { FileText, CreditCard, BookOpen, Settings, Users, Code, Target, Server, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 const docItems = [
+    {
+        id: "auth-system",
+        title: "권한 / 롤 시스템",
+        description: "현재 Role 기반 구조와 초기화 & 등록 정책 설명",
+        icon: ShieldCheck,
+        href: "/docs/auth-system",
+        tags: ["Role", "권한", "Bootstrap"],
+        priority: "high"
+    },
     {
         id: "challenge-process",
         title: "챌린지 포상 프로세스",

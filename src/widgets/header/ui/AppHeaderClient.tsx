@@ -87,6 +87,12 @@ export function AppHeaderClient() {
                         >
                             문서
                         </Link>
+                        <Link
+                            href="/docs/auth-system"
+                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            권한 시스템
+                        </Link>
                     </nav>
                 )}
 
