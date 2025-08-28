@@ -153,8 +153,8 @@ export function CreateChallengeForm() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={!hasPermission}>
-          {hasPermission ? "챌린지 추가" : "권한 없음"}
+        <Button disabled={!hasPermission} title={!hasPermission ? "권한이 없습니다" : "새 챌린지 추가"}>
+          챌린지 추가
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

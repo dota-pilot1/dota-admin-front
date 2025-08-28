@@ -135,7 +135,8 @@ export function isAdmin(): boolean {
  * 챌린지 생성 권한이 있는지 확인하는 함수
  */
 export function canCreateChallenge(): boolean {
-    return hasAuthority("CHALLENGE_CREATE");
+    // Allow users with explicit CHALLENGE_CREATE authority or ADMIN role
+    return hasAuthority("CHALLENGE_CREATE") || isAdmin();
 }
 
 /**

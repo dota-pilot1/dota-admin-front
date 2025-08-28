@@ -2,7 +2,6 @@
 
 import { ChallengeHeader } from "@/widgets/challenge/ui/ChallengeHeader";
 import { CreateChallengeForm } from "@/features/challenge/ui/CreateChallengeForm";
-import { CreateChallengeFormV2 } from "@/features/challenge/ui/CreateChallengeFormV2";
 import { ChallengeList, type Challenge, type Participant } from "@/widgets/challenge/ui/ChallengeList";
 import { ChallengeDetail } from "@/widgets/challenge/ui/ChallengeDetail";
 import { ChallengeDetailV2 } from "@/widgets/challenge/ui/ChallengeDetailV2";
@@ -58,7 +57,7 @@ function mapApiToUi(data?: ApiForGetChallengeListResponse): Challenge[] {
         id: c.id,
         title: c.title,
         description: c.description,
-        achievedCount: 0,
+        achievedCount: 0, // 달성 숫자는 사용하지 않지만 기존 타입 호환을 위해 유지
         author: { id: 0, name: c.author },
         participants: [],
         // tags, reward 등은 백엔드 확장 시 매핑 추가
@@ -68,17 +67,15 @@ function mapApiToUi(data?: ApiForGetChallengeListResponse): Challenge[] {
 export default function ChallengePage() {
     // fetch from backend and keep local state for optimistic updates
     const { data, isLoading, isError } = useApiForGetChallengeList();
-    const [items, setItems] = useState<Challenge[]>([]);
     const [selectedId, setSelectedId] = useState<number | null>(null);
-    // hydrate local state when data arrives
-    useEffect(() => {
-        const mapped = mapApiToUi(data);
-        setItems(mapped);
-        if (mapped.length > 0 && selectedId == null) {
-            setSelectedId(mapped[0].id);
-        }
-    }, [data, selectedId]);
-    const selected = useMemo(() => items.find(c => c.id === selectedId) ?? null, [selectedId, items]);
+    
+    // API 데이터를 UI 모델로 변환
+    const items = useMemo(() => mapApiToUi(data), [data]);
+    
+    // 선택된 아이템 (선택하지 않으면 null)
+    const selected = useMemo(() => {
+        return selectedId ? items.find(c => c.id === selectedId) ?? null : null;
+    }, [selectedId, items]);
     const router = useRouter();
     const queryClient = useQueryClient();
 
@@ -186,11 +183,10 @@ export default function ChallengePage() {
                                 await issueReward({ challengeId: selected.id, participantId: r.id, amount: amountPerPerson });
                             }
 
-                            // ✅ 모든 처리 성공: UI 업데이트
+                            // ✅ 모든 처리 성공: UI 업데이트 (달성 숫자 업데이트 제거)
                             if (process.env.NODE_ENV !== "production") {
                                 console.log("[Payment & Reward][Success]", { challengeId: selected.id, participantId: r.id, amount: amountPerPerson });
                             }
-                            setItems(prev => prev.map(c => c.id === selected.id ? { ...c, achievedCount: (c.achievedCount ?? 0) + 1 } : c));
                             toast.success(`${r.name}에게 ${amountPerPerson.toLocaleString()}원 포상 완료`);
                             // 로컬 캐시 저장 불필요 (주석 처리)
                             // const cached = recordLocalPayment(r, paymentId, "PAID", "EASY_PAY", "KAKAOPAY");
@@ -241,13 +237,15 @@ export default function ChallengePage() {
         <main className="max-w-6xl mx-auto p-6">
             {/* PortOne v2 SDK */}
             <Script src="https://cdn.portone.io/v2/browser-sdk.js" strategy="afterInteractive" />
-            <ChallengeHeader />
-
-            {/* 비교용 폼 두 개 */}
-            <div className="flex gap-4 mb-6">
-                {/* <CreateChallengeForm /> */}
-                <CreateChallengeFormV2 />
+            <div className="flex items-center justify-between">
+                <ChallengeHeader />
+                <div className="ml-4">
+                    <CreateChallengeForm />
+                </div>
             </div>
+
+            {/* 여백용 영역 */}
+            <div className="mb-6" />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div>
@@ -258,7 +256,7 @@ export default function ChallengePage() {
                     ) : items.length === 0 ? (
                         <div className="text-sm text-muted-foreground">표시할 챌린지가 없습니다.</div>
                     ) : (
-                        <ChallengeList items={items} selectedId={selectedId ?? undefined} onSelect={setSelectedId} />
+                        <ChallengeList items={items} selectedId={selected?.id} onSelect={setSelectedId} />
                     )}
                 </div>
                 <div>
@@ -266,7 +264,16 @@ export default function ChallengePage() {
                     {/* <ChallengeDetail data={selected} onPay={handlePay} /> */}
 
                     {/* 새로운 API 연동 상세 보기 */}
-                    <ChallengeDetailV2 challengeId={selectedId} />
+                    {selected ? (
+                        <ChallengeDetailV2 challengeId={selected.id} />
+                    ) : (
+                        <div className="flex items-center justify-center h-64 border border-dashed border-gray-300 rounded-lg">
+                            <div className="text-center text-muted-foreground">
+                                <p className="text-lg mb-2">📋</p>
+                                <p>챌린지를 선택해주세요</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </main>
