@@ -2,11 +2,11 @@
 
 import { ChallengeHeader } from "@/widgets/challenge/ui/ChallengeHeader";
 import { CreateChallengeForm } from "@/features/challenge/ui/CreateChallengeForm";
-import { ChallengeList, type Challenge, type Participant } from "@/widgets/challenge/ui/ChallengeList";
+import { ChallengeList, type Participant } from "@/widgets/challenge/ui/ChallengeList";
 import { ChallengeDetail } from "@/widgets/challenge/ui/ChallengeDetail";
 import { ChallengeDetailV2 } from "@/widgets/challenge/ui/ChallengeDetailV2";
 import Script from "next/script";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { issueReward } from "@/features/challenge/api/reward";
@@ -50,32 +50,16 @@ const STORE_ID = "store-8859c392-62e5-4fe5-92d3-11c686e9b2bc";
 const CHANNEL_KEY = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY || "channel-key-943d5d92-0688-4619-ac6e-7116f665abc0";
 const SKIP_BACKEND = process.env.NEXT_PUBLIC_SKIP_BACKEND === "1";
 
-// Map API challenge model -> UI model consumed by ChallengeList/Detail
-function mapApiToUi(data?: ApiForGetChallengeListResponse): Challenge[] {
-    if (!data?.challenges) return [];
-    return data.challenges.map((c) => ({
-        id: c.id,
-        title: c.title,
-        description: c.description,
-        achievedCount: 0, // 달성 숫자는 사용하지 않지만 기존 타입 호환을 위해 유지
-        author: { id: 0, name: c.author },
-        participants: [],
-        // tags, reward 등은 백엔드 확장 시 매핑 추가
-    }));
-}
-
 export default function ChallengePage() {
     // fetch from backend and keep local state for optimistic updates
     const { data, isLoading, isError } = useApiForGetChallengeList();
     const [selectedId, setSelectedId] = useState<number | null>(null);
     
-    // API 데이터를 UI 모델로 변환
-    const items = useMemo(() => mapApiToUi(data), [data]);
+    // API 데이터를 직접 사용
+    const items = data?.challenges ?? [];
     
     // 선택된 아이템 (선택하지 않으면 null)
-    const selected = useMemo(() => {
-        return selectedId ? items.find(c => c.id === selectedId) ?? null : null;
-    }, [selectedId, items]);
+    const selected = selectedId ? items.find(c => c.id === selectedId) ?? null : null;
     const router = useRouter();
     const queryClient = useQueryClient();
 

@@ -11,6 +11,8 @@ export type Challenge = {
     endDate: string;
     rewardAmount: number;
     rewardType: string;
+    participantIds?: number[];
+    participantCount?: number;
     createdAt: string;
 };
 
