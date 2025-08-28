@@ -1,19 +1,28 @@
 // 챌린지 전체 목록 조회 API
 import api from '@/shared/lib/axios';
 
+export type Participant = {
+    id: number;
+    name: string;
+    email?: string;
+    achievedAt?: string;
+};
+
 export type Challenge = {
     id: number;
     title: string;
     description: string;
-    author: string;
+    author: string; // 작성자 이름
     status: string;
     startDate: string;
     endDate: string;
     rewardAmount: number;
     rewardType: string;
     participantIds?: number[];
+    participants?: Participant[];
     participantCount?: number;
     createdAt: string;
+    tags?: string[];
 };
 
 export type ApiForGetChallengeListResponse = {

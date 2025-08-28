@@ -2,7 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiForParticipateChallenge, type ParticipateResponse } from '../api/participateChallenge';
 import { apiForLeaveChallenge, type LeaveChallengeResponse } from '../api/leaveChallenge';
-import { apiForGetParticipationStatus, type ParticipationStatusResponse } from '../api/getParticipationStatus';
+import { apiForGetParticipationStatus } from '../api/getParticipationStatus';
 import { toast } from 'sonner';
 
 // 챌린지 참여 상태 확인 훅
@@ -38,8 +38,8 @@ export function useParticipateChallenge() {
 
             toast.success(data.message || '챌린지 참여가 완료되었습니다!');
         },
-        onError: (error: any) => {
-            const message = error.response?.data?.message || '챌린지 참여에 실패했습니다.';
+        onError: (error: unknown) => {
+            const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || '챌린지 참여에 실패했습니다.';
             toast.error(message);
         },
     });
@@ -67,8 +67,8 @@ export function useLeaveChallenge() {
 
             toast.success(data.message || '챌린지에서 탈퇴했습니다.');
         },
-        onError: (error: any) => {
-            const message = error.response?.data?.message || '챌린지 탈퇴에 실패했습니다.';
+        onError: (error: unknown) => {
+            const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || '챌린지 탈퇴에 실패했습니다.';
             toast.error(message);
         },
     });

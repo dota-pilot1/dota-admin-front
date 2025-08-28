@@ -7,7 +7,7 @@ import { Button } from "@/shared/ui/button";
 import { useState } from "react";
 import { Badge } from "@/shared/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
-import type { Challenge, Participant } from "./ChallengeList";
+import type { Challenge, Participant } from "@/features/challenge/api/getChallengeList";
 
 export function ChallengeDetail({ data, onPay }: {
     data: Challenge | null;
@@ -50,7 +50,7 @@ export function ChallengeDetail({ data, onPay }: {
 
                 <div className="text-sm">
                     <div className="font-medium">작성자</div>
-                    <div className="text-muted-foreground">{data.author.name}</div>
+                    <div className="text-muted-foreground">{data.author}</div>
                 </div>
 
                 <div className="space-y-2">

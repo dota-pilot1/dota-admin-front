@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { Calendar, Clock, User, Coins, Target, Users, Award } from "lucide-react";
+import { Calendar, Clock, User, Target, Users, Award } from "lucide-react";
 import { useApiForGetChallengeDetail } from "@/features/challenge/hooks/useApiForGetChallengeDetail";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Alert, AlertDescription } from "@/shared/ui/alert";

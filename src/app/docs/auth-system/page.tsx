@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert";
-import { ShieldCheck, RefreshCcw, Database, Settings, Flag, Layers } from "lucide-react";
+import { ShieldCheck, RefreshCcw, Database, Settings, Layers } from "lucide-react";
 
 export default function AuthSystemDocsPage() {
     return (
