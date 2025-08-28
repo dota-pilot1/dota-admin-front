@@ -4,7 +4,9 @@ import { apiForGetChallengeList, ApiForGetChallengeListResponse } from '../api/g
 
 export function useApiForGetChallengeList() {
   return useQuery<ApiForGetChallengeListResponse>({
-    queryKey: ['challenges'],
+    queryKey: ['challenges', 'list'],
     queryFn: apiForGetChallengeList,
+    // refetch on focus to surface recent participation changes if any missed
+    refetchOnWindowFocus: true,
   });
 }
