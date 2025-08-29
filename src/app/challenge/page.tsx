@@ -6,13 +6,7 @@ import { ChallengeList } from "@/widgets/challenge/ui/ChallengeList";
 import { ChallengeDetailV2 } from "@/widgets/challenge/ui/ChallengeDetailV2";
 import { ChallengeRewardHistory } from "@/widgets/challenge/ui/ChallengeRewardHistory";
 import Script from "next/script";
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
-import { issueReward } from "@/features/challenge/api/reward";
-import { toast } from "sonner";
-import { recordPayment } from "@/features/payments/api/create";
-import type { PaymentItem } from "@/features/payments/api/list";
+import { useState } from "react";
 import { useApiForGetChallengeList } from "@/features/challenge/hooks/useApiForGetChallengeList";
 
 // Minimal PortOne v2 browser SDK typings
@@ -59,8 +53,6 @@ export default function ChallengePage() {
     
     // 선택된 아이템 (선택하지 않으면 null)
     const selected = selectedId ? items.find(c => c.id === selectedId) ?? null : null;
-    const router = useRouter();
-    const queryClient = useQueryClient();
 
     // 결제 처리 핸들러는 현재 사용되지 않으므로 주석 처리됨
 

@@ -34,9 +34,7 @@ interface ChallengeStatusPanelProps {
     // 표시 모드: 'compact' | 'detailed' | 'card'
     mode?: 'compact' | 'detailed' | 'card';
     // 추가 정보 (detailed/card 모드에서 사용)
-    title?: string;
-    startDate?: string;
-    endDate?: string;
+    // title, startDate, endDate 제거 (사용하지 않음)
     participantCount?: number;
     className?: string;
 }
@@ -45,9 +43,6 @@ export function ChallengeStatusPanel({
     challengeId, 
     status, 
     mode = 'compact',
-    title,
-    startDate,
-    endDate,
     participantCount,
     className
 }: ChallengeStatusPanelProps) {

@@ -11,7 +11,6 @@ import { Button } from "@/shared/ui/button";
 import { Separator } from "@/shared/ui/separator";
 import { 
     User, 
-    Calendar, 
     Award, 
     CheckCircle, 
     Clock, 

@@ -18,7 +18,6 @@ interface ChallengeDetailV2Props {
 
 export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
     const { data, isLoading, isError, error } = useApiForGetChallengeDetail(challengeId);
-    const { data: rewardInfo } = useRewardInfo(challengeId);
 
     if (!challengeId) {
         return (

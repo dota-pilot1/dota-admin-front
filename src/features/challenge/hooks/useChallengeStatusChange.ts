@@ -18,8 +18,13 @@ export function useChallengeStatusChange() {
             queryClient.invalidateQueries({ queryKey: ['challenges'] });
             queryClient.invalidateQueries({ queryKey: ['challenge', data.challenge.id] });
         },
-        onError: (error: any) => {
-            toast.error(error.response?.data?.message || '챌린지 시작에 실패했습니다.');
+        onError: (error: unknown) => {
+            let message = '챌린지 시작에 실패했습니다.';
+            if (typeof error === 'object' && error !== null && 'response' in error) {
+                // @ts-expect-error
+                message = error.response?.data?.message || message;
+            }
+            toast.error(message);
         },
     });
 
@@ -30,8 +35,13 @@ export function useChallengeStatusChange() {
             queryClient.invalidateQueries({ queryKey: ['challenges'] });
             queryClient.invalidateQueries({ queryKey: ['challenge', data.challenge.id] });
         },
-        onError: (error: any) => {
-            toast.error(error.response?.data?.message || '챌린지 완료에 실패했습니다.');
+        onError: (error: unknown) => {
+            let message = '챌린지 완료에 실패했습니다.';
+            if (typeof error === 'object' && error !== null && 'response' in error) {
+                // @ts-ignore
+                message = error.response?.data?.message || message;
+            }
+            toast.error(message);
         },
     });
 
@@ -42,8 +52,13 @@ export function useChallengeStatusChange() {
             queryClient.invalidateQueries({ queryKey: ['challenges'] });
             queryClient.invalidateQueries({ queryKey: ['challenge', data.challenge.id] });
         },
-        onError: (error: any) => {
-            toast.error(error.response?.data?.message || '챌린지 취소에 실패했습니다.');
+        onError: (error: unknown) => {
+            let message = '챌린지 취소에 실패했습니다.';
+            if (typeof error === 'object' && error !== null && 'response' in error) {
+                // @ts-ignore
+                message = error.response?.data?.message || message;
+            }
+            toast.error(message);
         },
     });
 
@@ -54,8 +69,13 @@ export function useChallengeStatusChange() {
             queryClient.invalidateQueries({ queryKey: ['challenges'] });
             queryClient.invalidateQueries({ queryKey: ['challenge', data.challenge.id] });
         },
-        onError: (error: any) => {
-            toast.error(error.response?.data?.message || '챌린지 재개에 실패했습니다.');
+        onError: (error: unknown) => {
+            let message = '챌린지 재개에 실패했습니다.';
+            if (typeof error === 'object' && error !== null && 'response' in error) {
+                // @ts-ignore
+                message = error.response?.data?.message || message;
+            }
+            toast.error(message);
         },
     });
 

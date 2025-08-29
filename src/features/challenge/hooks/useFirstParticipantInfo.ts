@@ -10,8 +10,8 @@ export function useFirstParticipantInfo(challengeId: number | null) {
   const queryClient = useQueryClient();
   return useMemo<Participant | null>(() => {
     if (!challengeId) return null;
-    const listData: any = queryClient.getQueryData(['challenges','list']);
-    const found = listData?.challenges?.find((c: any) => c.id === challengeId);
+    const listData = queryClient.getQueryData(['challenges','list']) as import('../api/getChallengeList').ApiForGetChallengeListResponse | undefined;
+    const found = listData?.challenges?.find((c: import('../api/getChallengeList').Challenge) => c.id === challengeId);
     if (!found) return null;
     if (found.participants && found.participants.length > 0) return found.participants[0];
     return null;

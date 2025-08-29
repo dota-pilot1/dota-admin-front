@@ -50,7 +50,7 @@ export function ChallengeDetail({ data, onPay }: {
 
                 <div className="text-sm">
                     <div className="font-medium">작성자</div>
-                    <div className="text-muted-foreground">{data.author}</div>
+                    <div className="text-muted-foreground">{data.username || data.email || data.authorId}</div>
                 </div>
 
                 <div className="space-y-2">

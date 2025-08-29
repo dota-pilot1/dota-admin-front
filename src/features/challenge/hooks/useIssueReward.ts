@@ -13,7 +13,7 @@ export function useIssueReward({ challengeId, onSuccess, onError }: UseIssueRewa
 
     return useMutation({
         mutationFn: (request: RewardRequest) => issueReward(challengeId, request),
-        onSuccess: (data, variables) => {
+        onSuccess: () => {
             // 캐시 무효화하여 최신 데이터 반영 (올바른 쿼리 키 사용)
             queryClient.invalidateQueries({ queryKey: ['challenge', 'detail', challengeId] });
             queryClient.invalidateQueries({ queryKey: ['challenges', 'list'] });

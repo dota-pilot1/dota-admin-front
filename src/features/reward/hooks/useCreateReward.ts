@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiForCreateReward, RewardRequest } from '../api/createReward';
+import { apiForCreateReward } from '../api/createReward';
 import { toast } from 'sonner';
 
 export function useCreateReward() {
@@ -18,8 +18,12 @@ export function useCreateReward() {
         queryKey: ['challenges', 'list'] 
       });
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || '포상 지급에 실패했습니다.';
+    onError: (error: unknown) => {
+      let message = '포상 지급에 실패했습니다.';
+      if (typeof error === 'object' && error !== null && 'response' in error) {
+        // @ts-ignore
+        message = error.response?.data?.message || message;
+      }
       toast.error(message);
     },
   });
