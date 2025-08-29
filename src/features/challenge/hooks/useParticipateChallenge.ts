@@ -4,6 +4,21 @@ import { apiForParticipateChallenge, type ParticipateResponse } from '../api/par
 import { apiForLeaveChallenge, type LeaveChallengeResponse } from '../api/leaveChallenge';
 import { apiForGetParticipationStatus } from '../api/getParticipationStatus';
 import { toast } from 'sonner';
+import { useCallback, useState } from 'react';
+// NOTE: CommonDialog JSX was previously created inside this hook file (a .ts file) causing TS/JSX errors.
+// We refactor to expose state so the consuming component (e.g. page or layout) can render a dialog.
+
+// 에러 다이얼로그 상태 훅 (UI 책임은 외부 컴포넌트)
+export function useParticipationErrorState() {
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const showError = useCallback((msg: string) => {
+        setErrorMessage(msg);
+        setErrorOpen(true);
+    }, []);
+    const closeError = useCallback(() => setErrorOpen(false), []);
+    return { errorOpen, errorMessage, showError, closeError };
+}
 
 // 챌린지 참여 상태 확인 훅
 export function useParticipationStatus(challengeId: number | null) {
@@ -17,59 +32,39 @@ export function useParticipationStatus(challengeId: number | null) {
 }
 
 // 챌린지 참여 훅
-export function useParticipateChallenge() {
+export function useParticipateChallenge(options?: { onErrorDialog?: (msg: string) => void }) {
     const queryClient = useQueryClient();
-
     return useMutation({
         mutationFn: (challengeId: number) => apiForParticipateChallenge(challengeId),
         onSuccess: (data: ParticipateResponse, challengeId: number) => {
-            // 참여 상태 캐시 무효화
-            queryClient.invalidateQueries({ 
-                queryKey: ['challenges', challengeId, 'participation-status'] 
-            });
-            // 챌린지 목록 캐시 무효화
-            queryClient.invalidateQueries({ 
-                queryKey: ['challenges', 'list'] 
-            });
-            // 챌린지 상세 캐시 무효화
-            queryClient.invalidateQueries({ 
-                queryKey: ['challenges', challengeId] 
-            });
-
+            queryClient.invalidateQueries({ queryKey: ['challenges', challengeId, 'participation-status'] });
+            queryClient.invalidateQueries({ queryKey: ['challenges', 'list'] });
+            queryClient.invalidateQueries({ queryKey: ['challenges', challengeId] });
             toast.success(data.message || '챌린지 참여가 완료되었습니다!');
         },
-        onError: (error: unknown) => {
-            const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || '챌린지 참여에 실패했습니다.';
-            toast.error(message);
+            onError: (error: unknown) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const message = (error as any)?.response?.data?.message || '챌린지 참여에 실패했습니다.';
+            options?.onErrorDialog?.(message);
         },
     });
 }
 
 // 챌린지 탈퇴 훅
-export function useLeaveChallenge() {
+export function useLeaveChallenge(options?: { onErrorDialog?: (msg: string) => void }) {
     const queryClient = useQueryClient();
-
     return useMutation({
         mutationFn: (challengeId: number) => apiForLeaveChallenge(challengeId),
         onSuccess: (data: LeaveChallengeResponse, challengeId: number) => {
-            // 참여 상태 캐시 무효화
-            queryClient.invalidateQueries({ 
-                queryKey: ['challenges', challengeId, 'participation-status'] 
-            });
-            // 챌린지 목록 캐시 무효화
-            queryClient.invalidateQueries({ 
-                queryKey: ['challenges', 'list'] 
-            });
-            // 챌린지 상세 캐시 무효화
-            queryClient.invalidateQueries({ 
-                queryKey: ['challenges', challengeId] 
-            });
-
+            queryClient.invalidateQueries({ queryKey: ['challenges', challengeId, 'participation-status'] });
+            queryClient.invalidateQueries({ queryKey: ['challenges', 'list'] });
+            queryClient.invalidateQueries({ queryKey: ['challenges', challengeId] });
             toast.success(data.message || '챌린지에서 탈퇴했습니다.');
         },
-        onError: (error: unknown) => {
-            const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || '챌린지 탈퇴에 실패했습니다.';
-            toast.error(message);
+            onError: (error: unknown) => {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const message = (error as any)?.response?.data?.message || '챌린지 탈퇴에 실패했습니다.';
+            options?.onErrorDialog?.(message);
         },
     });
 }

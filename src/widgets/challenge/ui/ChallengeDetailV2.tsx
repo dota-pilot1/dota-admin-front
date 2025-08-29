@@ -7,6 +7,9 @@ import { Calendar, Clock, User, Target, Users, Award } from "lucide-react";
 import { useApiForGetChallengeDetail } from "@/features/challenge/hooks/useApiForGetChallengeDetail";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
+import { RewardButton } from "./RewardButton";
+import { RewardDialog } from "./RewardDialog";
+import React, { useState } from "react";
 
 interface ChallengeDetailV2Props {
     challengeId: number | null;
@@ -14,6 +17,7 @@ interface ChallengeDetailV2Props {
 
 export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
     const { data, isLoading, isError, error } = useApiForGetChallengeDetail(challengeId);
+    const [rewardDialogOpen, setRewardDialogOpen] = useState(false);
 
     if (!challengeId) {
         return (
@@ -239,9 +243,25 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                     <Button variant="outline" size="sm" className="flex-1">
                         수정
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
-                        참여자 관리
-                    </Button>
+                    {/* 포상 버튼: 첫 번째 참여자에게 포상 예시, 실제 구현 시 참여자 선택 등 추가 가능 */}
+                    {challenge.participantIds && challenge.participantIds.length > 0 && (
+                        <>
+                            <RewardButton
+                                challengeId={challenge.id}
+                                participantId={challenge.participantIds[0]}
+                                className="flex-1"
+                                onReward={() => setRewardDialogOpen(true)}
+                            />
+                            <RewardDialog
+                                open={rewardDialogOpen}
+                                onClose={() => setRewardDialogOpen(false)}
+                                participantName={String(challenge.participantIds[0])}
+                                onReward={(amount, reason) => {
+                                    window.alert(`포상 지급: 참여자ID ${challenge.participantIds[0]}에게 ${amount}원, 사유: ${reason}`);
+                                }}
+                            />
+                        </>
+                    )}
                 </div>
             </CardContent>
         </Card>
