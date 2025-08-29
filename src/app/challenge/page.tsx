@@ -4,6 +4,7 @@ import { ChallengeHeader } from "@/widgets/challenge/ui/ChallengeHeader";
 import { CreateChallengeForm } from "@/features/challenge/ui/CreateChallengeForm";
 import { ChallengeList } from "@/widgets/challenge/ui/ChallengeList";
 import { ChallengeDetailV2 } from "@/widgets/challenge/ui/ChallengeDetailV2";
+import { ChallengeRewardHistory } from "@/widgets/challenge/ui/ChallengeRewardHistory";
 import Script from "next/script";
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -77,8 +78,8 @@ export default function ChallengePage() {
             {/* 여백용 영역 */}
             <div className="mb-6" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                <div className="lg:col-span-1">
                     {isLoading ? (
                         <div className="text-sm text-muted-foreground">챌린지를 불러오는 중...</div>
                     ) : isError ? (
@@ -89,11 +90,9 @@ export default function ChallengePage() {
                         <ChallengeList items={items} selectedId={selected?.id} onSelect={setSelectedId} />
                     )}
                 </div>
-                <div>
-                    {/* 기존 상세 보기 */}
-                    {/* <ChallengeDetail data={selected} onPay={handlePay} /> */}
-
-                    {/* 새로운 API 연동 상세 보기 */}
+                
+                <div className="lg:col-span-1">
+                    {/* 챌린지 상세 정보 */}
                     {selected ? (
                         <ChallengeDetailV2 challengeId={selected.id} />
                     ) : (
@@ -104,6 +103,11 @@ export default function ChallengePage() {
                             </div>
                         </div>
                     )}
+                </div>
+                
+                <div className="lg:col-span-1">
+                    {/* 포상 히스토리 */}
+                    <ChallengeRewardHistory challengeId={selected?.id ?? null} />
                 </div>
             </div>
         </main>

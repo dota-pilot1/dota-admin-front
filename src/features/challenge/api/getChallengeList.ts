@@ -12,7 +12,9 @@ export type Challenge = {
     id: number;
     title: string;
     description: string;
-    author: string; // 작성자 이름
+    authorId?: number; // 작성자 ID
+    username?: string; // 작성자 username
+    email?: string; // 작성자 이메일
     status: string;
     startDate: string;
     endDate: string;

@@ -1,0 +1,8 @@
+PortOne 결제 정보
+
+Store ID: store-4ff4af41-85e3-4559-8eb8-0d08a2c6ceec
+Channel Key: channel-key-943d5d92-0688-4619-ac6e-7116f665abc0
+PG Provider: kakaopay
+
+결제 수단: 카카오페이
+환경: 개발/테스트

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { CommonDialog } from "@/shared/ui/CommonDialog";
+import { Button } from "@/shared/ui/button";
 
 interface RewardButtonProps {
   challengeId: number;
@@ -26,13 +27,13 @@ export function RewardButton({ challengeId, participantId, onReward, className }
 
   return (
     <>
-      <button
+      <Button
         type="button"
-        className={`px-4 py-2 rounded bg-yellow-400 text-white font-bold shadow hover:bg-yellow-500 transition ${className ?? ""}`}
+        className={`bg-yellow-500 text-white font-bold shadow hover:bg-yellow-600 focus-visible:ring-yellow-500/20 ${className ?? ""}`}
         onClick={handleClick}
       >
         포상
-      </button>
+      </Button>
       <CommonDialog
         open={open}
         title="포상 확인"

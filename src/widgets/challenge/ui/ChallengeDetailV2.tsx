@@ -173,9 +173,14 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                     <div className="space-y-2">
                         <div className="flex items-center gap-2 text-sm">
                             <User className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">작성자 ID</span>
+                            <span className="font-medium">작성자</span>
                         </div>
-                        <p className="text-sm text-muted-foreground pl-6">{challenge.authorId}</p>
+                        <div className="pl-6 space-y-1">
+                            <p className="text-sm font-medium">{challenge.username || '알 수 없음'}</p>
+                            {challenge.email && (
+                                <p className="text-xs text-muted-foreground">{challenge.email}</p>
+                            )}
+                        </div>
                     </div>
 
                     <div className="space-y-2">
@@ -246,18 +251,16 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                         수정
                     </Button>
                     {/* 포상 버튼: 첫 번째 참여자에게 포상 예시, 실제 구현 시 참여자 선택 등 추가 가능 */}
-            {challenge.participantIds && challenge.participantIds.length > 0 && (
+                    {challenge.participantIds && challenge.participantIds.length > 0 && (
                         <RewardButtonWithDialog
+                            challengeId={challenge.id}
                             challengeTitle={challenge.title}
+                            participantId={challenge.participantIds[0]}
                             participantName={
-                                rewardInfo?.challenge.participants?.[0]?.name ||
                                 firstParticipantInfo?.name ||
                                 String(challenge.participantIds[0])
                             }
                             className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white"
-                            onReward={(amount, reason, method) => {
-                                window.alert(`포상 지급: ${challenge.participantIds[0]} / ${amount} (${method}) 사유: ${reason}`);
-                            }}
                         />
                     )}
                 </div>
