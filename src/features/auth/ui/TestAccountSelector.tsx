@@ -62,7 +62,11 @@ export default function TestAccountSelector({ onAccountSelect, className }: Test
                         </SelectTrigger>
                         <SelectContent>
                             {TEST_ACCOUNTS.map((account) => (
-                                <SelectItem key={account.email} value={account.email} className="text-sm">
+                                <SelectItem
+                                    key={account.email}
+                                    value={account.email}
+                                    className={`text-sm ${selectedAccount === account.email ? 'border border-dotted border-primary bg-primary/10' : ''}`}
+                                >
                                     {account.email}
                                 </SelectItem>
                             ))}

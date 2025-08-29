@@ -51,48 +51,30 @@ export function AppHeaderClient() {
                 {/* Main navigation - 인증된 사용자만 표시 */}
                 {isAuthed && (
                     <nav className="flex items-center gap-6">
-                        <Link
-                            href="/dashboard"
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            대시보드
-                        </Link>
-                        <Link
-                            href="/challenge"
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            챌린지
-                        </Link>
-                        <Link
-                            href="/freeboard"
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            자유 게시판
-                        </Link>
-                        <Link
-                            href="/members"
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            회원 관리
-                        </Link>
-                        <Link
-                            href="/payments"
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            결제 내역
-                        </Link>
-                        <Link
-                            href="/docs"
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            문서
-                        </Link>
-                        <Link
-                            href="/docs/auth-system"
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            권한 시스템
-                        </Link>
+                        {[
+                            { href: "/dashboard", label: "대시보드" },
+                            { href: "/challenge", label: "챌린지" },
+                            { href: "/freeboard", label: "자유 게시판" },
+                            { href: "/members", label: "회원 관리" },
+                            { href: "/payments", label: "결제 내역" },
+                            { href: "/docs", label: "문서" },
+                            { href: "/docs/auth-system", label: "권한 시스템" },
+                        ].map(({ href, label }) => {
+                            const isActive = pathname === href || (href !== "/" && pathname?.startsWith(href));
+                            return (
+                                <Link
+                                    key={href}
+                                    href={href}
+                                    className={`text-sm font-medium transition-colors px-2 py-1 rounded-md ${
+                                        isActive
+                                            ? "text-blue-600 font-bold underline underline-offset-4 bg-blue-50 border border-blue-300"
+                                            : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                                >
+                                    {label}
+                                </Link>
+                            );
+                        })}
                     </nav>
                 )}
 
