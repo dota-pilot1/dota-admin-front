@@ -7,10 +7,10 @@ import { Calendar, Clock, User, Target, Users, Award } from "lucide-react";
 import { useApiForGetChallengeDetail } from "@/features/challenge/hooks/useApiForGetChallengeDetail";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
-import { RewardButtonWithDialog } from "./RewardButtonWithDialog";
+import { ChallengeRewardDialog } from "@/shared/components/ChallengeRewardDialog";
 import React from "react";
-import { useFirstParticipantInfo } from '@/features/challenge/hooks/useFirstParticipantInfo';
 import { useRewardInfo } from '@/features/challenge/hooks/useRewardInfo';
+import { ChallengeStatusPanel } from "@/shared/components/ChallengeStatusPanel";
 
 interface ChallengeDetailV2Props {
     challengeId: number | null;
@@ -18,7 +18,6 @@ interface ChallengeDetailV2Props {
 
 export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
     const { data, isLoading, isError, error } = useApiForGetChallengeDetail(challengeId);
-    const firstParticipantInfo = useFirstParticipantInfo(challengeId);
     const { data: rewardInfo } = useRewardInfo(challengeId);
 
     if (!challengeId) {
@@ -106,22 +105,6 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
 
     const challenge = data.challenge;
 
-    // 상태별 색상 설정
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'RECRUITING':
-                return <Badge variant="default" className="bg-blue-500">모집중</Badge>;
-            case 'IN_PROGRESS':
-                return <Badge variant="default" className="bg-orange-500">진행중</Badge>;
-            case 'COMPLETED':
-                return <Badge variant="default" className="bg-green-500">완료</Badge>;
-            case 'CANCELLED':
-                return <Badge variant="destructive">취소됨</Badge>;
-            default:
-                return <Badge variant="secondary">{status}</Badge>;
-        }
-    };
-
     // 보상 타입별 표시
     const getRewardTypeDisplay = (type: string) => {
         switch (type) {
@@ -145,7 +128,11 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                 <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
                         <h2 className="text-xl font-semibold leading-tight">{challenge.title}</h2>
-                        {getStatusBadge(challenge.status)}
+                        <ChallengeStatusPanel 
+                            challengeId={challenge.id}
+                            status={challenge.status}
+                            mode="compact"
+                        />
                     </div>
                     <p className="text-muted-foreground text-sm leading-relaxed">
                         {challenge.description}
@@ -246,23 +233,18 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                 </div>
 
                 {/* 액션 버튼들 */}
-                <div className="flex gap-2 pt-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                        수정
-                    </Button>
-                    {/* 포상 버튼: 첫 번째 참여자에게 포상 예시, 실제 구현 시 참여자 선택 등 추가 가능 */}
-                    {challenge.participantIds && challenge.participantIds.length > 0 && (
-                        <RewardButtonWithDialog
+                <div className="pt-2">
+                    {/* 포상 및 수정 버튼들 */}
+                    <div className="flex gap-2">
+                        <Button variant="outline" size="sm" className="flex-1">
+                            수정
+                        </Button>
+                        <ChallengeRewardDialog
                             challengeId={challenge.id}
                             challengeTitle={challenge.title}
-                            participantId={challenge.participantIds[0]}
-                            participantName={
-                                firstParticipantInfo?.name ||
-                                String(challenge.participantIds[0])
-                            }
                             className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white"
                         />
-                    )}
+                    </div>
                 </div>
             </CardContent>
         </Card>

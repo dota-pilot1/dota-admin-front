@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { ParticipateChallengeButton } from "@/features/challenge/ui/ParticipateChallengeButton";
+import { ChallengeStatusPanel } from "@/shared/components/ChallengeStatusPanel";
 import type { Challenge, Participant } from "@/features/challenge/api/getChallengeList";
 
 export function ChallengeList({ items, onSelect, selectedId }: {
@@ -42,7 +43,7 @@ export function ChallengeList({ items, onSelect, selectedId }: {
                                             {ch.title}
                                         </CardTitle>
                                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                            <span>작성자: {ch.author}</span>
+                                            <span>작성자: {ch.username || ch.email || '알 수 없음'}</span>
                                             <span>•</span>
                                             <span>참여자 {ch.participantCount ?? (ch.participantIds?.length || 0)}명</span>
                                         </div>
@@ -87,6 +88,15 @@ export function ChallengeList({ items, onSelect, selectedId }: {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* 상태 및 액션 버튼들 */}
+                                <div className="flex items-center justify-end">
+                                    <ChallengeStatusPanel 
+                                        challengeId={ch.id}
+                                        status={ch.status}
+                                        mode="compact"
+                                    />
+                                </div>
 
                                 {/* 챌린지 기간 */}
                                 {(ch.startDate || ch.endDate) && (

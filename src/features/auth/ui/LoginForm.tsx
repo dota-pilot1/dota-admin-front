@@ -5,6 +5,7 @@ import { Label } from "@/shared/ui/label";
 import { Button } from "@/shared/ui/button";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { getLoginErrorMessage } from "@/shared/lib/error-utils";
+import TestAccountSelector from "./TestAccountSelector";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -16,11 +17,21 @@ export default function LoginForm() {
     login.mutate({ email, password });
   };
 
+  const handleTestAccountSelect = (testEmail: string, testPassword: string) => {
+    setEmail(testEmail);
+    setPassword(testPassword);
+    login.mutate({ email: testEmail, password: testPassword });
+  };
+
   // 에러 메시지 추출
   const errorMessage = login.error ? getLoginErrorMessage(login.error) : null;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <div className="space-y-6">
+      {/* 테스트 계정 선택 */}
+      <TestAccountSelector onAccountSelect={handleTestAccountSelect} />
+      
+      <form onSubmit={handleSubmit} className="space-y-5">
       {/* 에러 메시지 표시 */}
       {errorMessage && (
         <Alert variant="destructive">
@@ -90,5 +101,6 @@ export default function LoginForm() {
         )}
       </Button>
     </form>
+    </div>
   );
 }
