@@ -7,9 +7,10 @@ import { Calendar, Clock, User, Target, Users, Award } from "lucide-react";
 import { useApiForGetChallengeDetail } from "@/features/challenge/hooks/useApiForGetChallengeDetail";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
-import { RewardButton } from "./RewardButton";
-import { RewardDialog } from "./RewardDialog";
-import React, { useState } from "react";
+import { RewardButtonWithDialog } from "./RewardButtonWithDialog";
+import React from "react";
+import { useFirstParticipantInfo } from '@/features/challenge/hooks/useFirstParticipantInfo';
+import { useRewardInfo } from '@/features/challenge/hooks/useRewardInfo';
 
 interface ChallengeDetailV2Props {
     challengeId: number | null;
@@ -17,7 +18,8 @@ interface ChallengeDetailV2Props {
 
 export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
     const { data, isLoading, isError, error } = useApiForGetChallengeDetail(challengeId);
-    const [rewardDialogOpen, setRewardDialogOpen] = useState(false);
+    const firstParticipantInfo = useFirstParticipantInfo(challengeId);
+    const { data: rewardInfo } = useRewardInfo(challengeId);
 
     if (!challengeId) {
         return (
@@ -244,23 +246,19 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                         수정
                     </Button>
                     {/* 포상 버튼: 첫 번째 참여자에게 포상 예시, 실제 구현 시 참여자 선택 등 추가 가능 */}
-                    {challenge.participantIds && challenge.participantIds.length > 0 && (
-                        <>
-                            <RewardButton
-                                challengeId={challenge.id}
-                                participantId={challenge.participantIds[0]}
-                                className="flex-1"
-                                onReward={() => setRewardDialogOpen(true)}
-                            />
-                            <RewardDialog
-                                open={rewardDialogOpen}
-                                onClose={() => setRewardDialogOpen(false)}
-                                participantName={String(challenge.participantIds[0])}
-                                onReward={(amount, reason) => {
-                                    window.alert(`포상 지급: 참여자ID ${challenge.participantIds[0]}에게 ${amount}원, 사유: ${reason}`);
-                                }}
-                            />
-                        </>
+            {challenge.participantIds && challenge.participantIds.length > 0 && (
+                        <RewardButtonWithDialog
+                            challengeTitle={challenge.title}
+                            participantName={
+                                rewardInfo?.challenge.participants?.[0]?.name ||
+                                firstParticipantInfo?.name ||
+                                String(challenge.participantIds[0])
+                            }
+                            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white"
+                            onReward={(amount, reason, method) => {
+                                window.alert(`포상 지급: ${challenge.participantIds[0]} / ${amount} (${method}) 사유: ${reason}`);
+                            }}
+                        />
                     )}
                 </div>
             </CardContent>

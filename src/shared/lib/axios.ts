@@ -67,22 +67,30 @@ api.interceptors.response.use(
     (error) => {
         // 개발 환경에서만 로깅
         if (process.env.NODE_ENV === 'development') {
-            console.error('API Error:', error.response?.data || error.message);
-            
-            // 백엔드 표준 에러 응답 형식 상세 로깅
-            if (error.response?.data) {
-                const { success, message, errorCode, details, timestamp } = error.response.data;
-                if (errorCode) {
-                    console.error('🔍 Detailed Error Info:', {
-                        success,
-                        errorCode,
-                        message,
-                        details,
-                        timestamp,
-                        status: error.response.status,
-                        url: error.response.config?.url
-                    });
-                }
+            // Always log status, url, and message for easier debugging
+            const status = error.response?.status;
+            const url = error.response?.config?.url;
+            const data = error.response?.data;
+            const fallbackMsg = error.message || '[No error message]';
+            if (data) {
+                const { success, message, errorCode, details, timestamp } = data;
+                console.error('API Error:', {
+                    status,
+                    url,
+                    errorCode,
+                    message,
+                    details,
+                    timestamp,
+                    success,
+                    raw: data
+                });
+            } else {
+                console.error('API Error:', {
+                    status,
+                    url,
+                    message: fallbackMsg,
+                    raw: error
+                });
             }
         }
 
