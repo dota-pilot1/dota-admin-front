@@ -58,6 +58,7 @@ export function AppHeaderClient() {
                             { href: "/members", label: "회원 관리" },
                             { href: "/payments", label: "결제 내역" },
                             { href: "/docs", label: "문서" },
+                            { href: "/docs/challenge-history", label: "챌린지 히스토리" },
                             { href: "/docs/auth-system", label: "권한 시스템" },
                         ].map(({ href, label }) => {
                             const isActive = pathname === href || (href !== "/" && pathname?.startsWith(href));
