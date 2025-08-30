@@ -19,7 +19,7 @@ export interface ChallengeDetailResponse {
             achievedAt?: string;
         }>;
         participantCount?: number;
-        status: 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+        status: 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
         startDate: string; // yyyy-MM-dd
         endDate: string;   // yyyy-MM-dd
         rewardAmount: number;
