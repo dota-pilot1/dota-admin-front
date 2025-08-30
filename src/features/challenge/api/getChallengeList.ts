@@ -23,6 +23,7 @@ export type Challenge = {
     participantIds?: number[];
     participants?: Participant[];
     participantCount?: number;
+    rewardedParticipantCount?: number; // 포상 받은 참가자 수
     createdAt: string;
     tags?: string[];
 };

@@ -15,15 +15,6 @@ export function ChallengeList({ items, onSelect, selectedId }: {
         <div className="grid grid-cols-1 gap-4">
             {items.map((ch) => (
                 <div key={ch.id} className="relative group">
-                    {/* 참여 버튼 - 오른쪽 위 고정 위치 */}
-                    <div className="absolute top-3 right-3 z-10">
-                        <ParticipateChallengeButton 
-                            challengeId={ch.id}
-                            authorId={ch.authorId}
-                            className="w-24 h-8 text-xs"
-                        />
-                    </div>
-
                     <div
                         role="button"
                         tabIndex={0}
@@ -37,8 +28,9 @@ export function ChallengeList({ items, onSelect, selectedId }: {
                         className="text-left w-full cursor-pointer focus:outline-none"
                     >
                         <Card className={`${selectedId === ch.id ? "border-primary shadow-md" : "hover:border-foreground/30 hover:shadow-sm"} transition-all duration-200 border-2`}>
+                            {/* 헤더 - 고정 높이 */}
                             <CardHeader className="pb-3">
-                                <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-start justify-between gap-3 w-full">
                                     <div className="flex-1 min-w-0">
                                         <CardTitle className="text-lg font-semibold leading-tight mb-1 truncate">
                                             {ch.title}
@@ -49,10 +41,20 @@ export function ChallengeList({ items, onSelect, selectedId }: {
                                             <span>참여자 {ch.participantCount ?? (ch.participantIds?.length || 0)}명</span>
                                         </div>
                                     </div>
+                                    {/* 상태 배지 - 우측 상단에 고정 */}
+                                    <div className="flex-shrink-0 ml-auto">
+                                        <ChallengeStatusPanel 
+                                            challengeId={ch.id}
+                                            status={ch.status}
+                                            mode="compact"
+                                        />
+                                    </div>
                                 </div>
                             </CardHeader>
 
-                            <CardContent className="space-y-3">
+                            {/* 컨텐츠 - 유동적 높이 */}
+                            <CardContent className="space-y-3 p-6 pt-0">
+                                {/* 설명 */}
                                 <div className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                                     {ch.description}
                                 </div>
@@ -71,10 +73,17 @@ export function ChallengeList({ items, onSelect, selectedId }: {
                                     </div>
                                 )}
 
-                                {/* 참여자 목록 (최대 3명 표시) */}
+                                {/* 참여자 목록과 포상자 수 */}
                                 {ch.participants && ch.participants.length > 0 && (
                                     <div className="space-y-2">
-                                        <div className="text-xs text-muted-foreground font-medium">최근 참여자</div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="text-xs text-muted-foreground font-medium">최근 참여자</div>
+                                            {ch.rewardedParticipantCount !== undefined && ch.rewardedParticipantCount > 0 && (
+                                                <div className="text-xs text-green-600 font-medium">
+                                                    포상 {ch.rewardedParticipantCount}명
+                                                </div>
+                                            )}
+                                        </div>
                                         <div className="flex flex-wrap gap-1">
                                             {ch.participants.slice(0, 3).map((participant: Participant) => (
                                                 <Badge key={participant.id} variant="secondary" className="text-xs px-2 py-1">
@@ -90,25 +99,26 @@ export function ChallengeList({ items, onSelect, selectedId }: {
                                     </div>
                                 )}
 
-                                {/* 상태 및 액션 버튼들 */}
-                                <div className="flex items-center justify-end">
-                                    <ChallengeStatusPanel 
-                                        challengeId={ch.id}
-                                        status={ch.status}
-                                        mode="compact"
-                                    />
-                                </div>
-
-                                {/* 챌린지 기간 */}
-                                {(ch.startDate || ch.endDate) && (
-                                    <div className="text-xs text-muted-foreground">
+                                {/* 하단 영역 - 날짜와 버튼 */}
+                                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                                    {/* 챌린지 기간 - 좌하단 */}
+                                    <div className="text-xs text-muted-foreground flex-1">
                                         {ch.startDate && ch.endDate ? 
                                             `${new Date(ch.startDate).toLocaleDateString()} ~ ${new Date(ch.endDate).toLocaleDateString()}` :
                                             ch.startDate ? `시작: ${new Date(ch.startDate).toLocaleDateString()}` :
                                             ch.endDate ? `마감: ${new Date(ch.endDate).toLocaleDateString()}` : null
                                         }
                                     </div>
-                                )}
+                                    
+                                    {/* 참여 버튼 - 우하단 */}
+                                    <div className="flex-shrink-0 ml-2">
+                                        <ParticipateChallengeButton 
+                                            challengeId={ch.id}
+                                            authorId={ch.authorId}
+                                            className="w-20 h-8 text-xs"
+                                        />
+                                    </div>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>

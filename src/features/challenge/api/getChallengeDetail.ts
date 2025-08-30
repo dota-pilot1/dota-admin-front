@@ -23,7 +23,8 @@ export interface ChallengeDetailResponse {
         startDate: string; // yyyy-MM-dd
         endDate: string;   // yyyy-MM-dd
         rewardAmount: number;
-    rewardType: 'CASH' | 'ITEM';
+        rewardType: 'CASH' | 'ITEM';
+        rewardedParticipantCount?: number; // 포상 받은 참가자 수
         createdAt: string;
         updatedAt: string;
     };
