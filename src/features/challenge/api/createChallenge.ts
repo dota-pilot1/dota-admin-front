@@ -5,7 +5,7 @@ export interface CreateChallengeRequest {
     description: string;
     tags: string[];
     rewardAmount: number;
-    rewardType: 'CASH' | 'POINT' | 'ITEM';
+    rewardType: 'CASH' | 'ITEM';
     startDate: string; // yyyy-MM-dd
     endDate: string;   // yyyy-MM-dd
     // authorId 제거 - 서버에서 JWT 토큰으로부터 추출

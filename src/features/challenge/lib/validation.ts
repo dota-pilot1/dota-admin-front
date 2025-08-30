@@ -23,7 +23,7 @@ export const createChallengeSchema = z.object({
     .optional(),
   
   rewardType: z
-    .enum(['CASH', 'POINT', 'ITEM'])
+  .enum(['CASH', 'ITEM'])
     .optional(),
   
   startDate: z

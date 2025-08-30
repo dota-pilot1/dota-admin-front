@@ -23,7 +23,7 @@ export interface ChallengeDetailResponse {
         startDate: string; // yyyy-MM-dd
         endDate: string;   // yyyy-MM-dd
         rewardAmount: number;
-        rewardType: 'CASH' | 'POINT' | 'ITEM';
+    rewardType: 'CASH' | 'ITEM';
         createdAt: string;
         updatedAt: string;
     };

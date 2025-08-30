@@ -108,7 +108,6 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
     const getRewardTypeDisplay = (type: string) => {
         switch (type) {
             case 'CASH': return '💰 현금';
-            case 'POINT': return '🏆 포인트';
             case 'ITEM': return '🎁 아이템';
             default: return type;
         }
@@ -211,7 +210,7 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                             </span>
                             <span className="text-lg font-bold text-orange-600">
                                 {challenge.rewardAmount.toLocaleString()}
-                                {challenge.rewardType === 'CASH' ? '원' : challenge.rewardType === 'POINT' ? 'P' : '개'}
+                                {challenge.rewardType === 'CASH' ? '원' : '개'}
                             </span>
                         </div>
                     </div>

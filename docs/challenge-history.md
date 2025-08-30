@@ -10,7 +10,7 @@
   - `challengeId`: 소속 챌린지 ID
   - `participantId`: 포상 대상 참가자 ID
   - `amount`: 지급 금액
-  - `method`: 지급 방식 (예: POINT, CASH 등)
+  - `method`: 지급 방식 (CASH: 현금, ITEM: 아이템)
   - `reason`: 지급 사유
   - `createdAt`: 지급 시각
   - `createdBy`: 지급자(관리자) ID
@@ -31,7 +31,7 @@
           "challengeId": 10,
           "participantId": 5,
           "amount": 100000,
-          "method": "POINT",
+          "method": "CASH",
           "reason": "기여도 우수",
           "createdAt": "2025-08-30T12:34:56",
           "createdBy": 2,
@@ -60,6 +60,9 @@
 ## 관계도
 - Challenge(챌린지) 1 --- N ChallengeReward(포상)
 - ChallengeReward는 Challenge에 소속, Participant(사용자)와 지급자(Admin) 정보 포함
+
+## 포상 방법 단순화 안내
+포상 방법은 2단계(현금(CASH), 아이템(ITEM))만 지원하며, 기존 POINT 등은 제거됨.
 
 ## 프론트 적용 예시
 - 챌린지 상세 페이지에서 `/api/challenges/{id}/rewards` 호출하여 포상 히스토리 표시

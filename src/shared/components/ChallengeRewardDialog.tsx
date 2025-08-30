@@ -81,7 +81,7 @@ export function ChallengeRewardDialog({
         issueRewardMutation.mutate({
             participantId: parseInt(selectedParticipantId),
             amount: challenge.rewardAmount,
-            method: challenge.rewardType === 'CASH' ? 'CASH' : 'POINT',
+            method: challenge.rewardType === 'CASH' ? 'CASH' : 'ITEM',
             reason: reason.trim()
         });
     };
@@ -123,8 +123,7 @@ export function ChallengeRewardDialog({
                                 <span className="text-sm text-muted-foreground">포상 금액</span>
                                 <span className="text-lg font-bold text-orange-600">
                                     {challenge.rewardAmount.toLocaleString()}
-                                    {challenge.rewardType === 'CASH' ? '원' : 
-                                     challenge.rewardType === 'POINT' ? 'P' : '개'}
+                                    {challenge.rewardType === 'CASH' ? '원' : '개'}
                                 </span>
                             </div>
                         </div>
