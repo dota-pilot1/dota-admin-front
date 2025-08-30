@@ -38,7 +38,14 @@ export function ChallengeList({ items, onSelect, selectedId }: {
                                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                             <span>작성자: {ch.username || ch.email || '알 수 없음'}</span>
                                             <span>•</span>
-                                            <span>참여자 {ch.participantCount ?? (ch.participantIds?.length || 0)}명</span>
+                                            <span>
+                                                참여자 {ch.participantCount ?? (ch.participantIds?.length || 0)}명
+                                                {ch.rewardedParticipantCount !== undefined && ch.rewardedParticipantCount > 0 && (
+                                                    <span className="text-green-600 font-medium ml-1">
+                                                        (포상 {ch.rewardedParticipantCount}명)
+                                                    </span>
+                                                )}
+                                            </span>
                                         </div>
                                     </div>
                                     {/* 상태 배지 - 우측 상단에 고정 */}
