@@ -52,8 +52,8 @@ export function AppHeaderClient() {
                 {isAuthed && (
                     <nav className="flex items-center gap-6">
                         {[
-                            { href: "/dashboard", label: "대시보드" },
                             { href: "/challenge", label: "챌린지" },
+                            { href: "/dashboard", label: "Tech Hub" },
                             { href: "/freeboard", label: "자유 게시판" },
                             { href: "/members", label: "회원 관리" },
                             { href: "/payments", label: "결제 내역" },
