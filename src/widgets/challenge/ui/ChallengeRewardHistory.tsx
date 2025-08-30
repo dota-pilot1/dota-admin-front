@@ -27,7 +27,7 @@ export function ChallengeRewardHistory({ challengeId }: ChallengeRewardHistoryPr
     if (!challengeId) {
         return (
             <Card className="h-fit">
-                <CardHeader>
+                <CardHeader className="bg-gray-50 rounded-t-xl">
                     <CardTitle className="flex items-center gap-2">
                         <History className="h-5 w-5" />
                         포상 히스토리
@@ -46,7 +46,7 @@ export function ChallengeRewardHistory({ challengeId }: ChallengeRewardHistoryPr
     if (isLoading) {
         return (
             <Card className="h-fit">
-                <CardHeader>
+                <CardHeader className="bg-gray-50 rounded-t-xl">
                     <CardTitle className="flex items-center gap-2">
                         <History className="h-5 w-5" />
                         포상 히스토리
@@ -111,26 +111,28 @@ export function ChallengeRewardHistory({ challengeId }: ChallengeRewardHistoryPr
 
     return (
         <>
-            <Card className="h-fit">
-                <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
+            <Card className="h-full flex flex-col">
+                <CardHeader className="rounded-t-xl py-4 px-5 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0">
+                    <CardTitle className="flex items-center justify-between w-full text-base font-semibold tracking-tight">
                         <div className="flex items-center gap-2">
-                            <History className="h-5 w-5" />
-                            포상 히스토리
+                            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-purple-100/70 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                                <History className="h-4 w-4" />
+                            </span>
+                            <span className="ml-1">포상 히스토리</span>
                         </div>
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="outline" className="h-5 px-2 text-[10px] font-medium bg-white/60 dark:bg-slate-800/60">
                             총 {data.length}건
                         </Badge>
                     </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-5 flex-1 overflow-y-auto">
                     {data.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
                             <Award className="h-12 w-12 mx-auto mb-2 opacity-50" />
                             <p>아직 포상 내역이 없습니다</p>
                         </div>
                     ) : (
-                        <div className="space-y-3 max-h-96 overflow-y-auto">
+                        <div className="space-y-3 max-h-full overflow-y-auto">
                             {data.map((reward) => (
                                 <div 
                                     key={reward.id}

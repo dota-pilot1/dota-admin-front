@@ -36,13 +36,26 @@ const TagInput = React.forwardRef<HTMLDivElement, TagInputProps>(
     ref
   ) => {
     const [inputValue, setInputValue] = React.useState("");
-    const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const composingRef = React.useRef(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setInputValue(e.target.value);
     };
 
+    const handleCompositionStart = () => {
+      composingRef.current = true;
+    };
+
+    const handleCompositionEnd = () => {
+      // small delay to ensure composition result is available in input
+      composingRef.current = false;
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // ignore Enter while IME composition is in progress
+      if (composingRef.current) return;
+
       if (e.key === "Enter" || e.key === ",") {
         e.preventDefault();
         addTag();
@@ -81,7 +94,7 @@ const TagInput = React.forwardRef<HTMLDivElement, TagInputProps>(
       <div
         ref={ref}
         className={cn(
-          "min-h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
+          "min-h-10 w-full rounded-md px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
           disabled && "cursor-not-allowed opacity-50",
           className
         )}
@@ -117,13 +130,15 @@ const TagInput = React.forwardRef<HTMLDivElement, TagInputProps>(
               value={inputValue}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
+              onCompositionStart={handleCompositionStart}
+              onCompositionEnd={handleCompositionEnd}
               disabled={disabled}
               placeholder={
                 maxTags && tags.length >= maxTags 
                   ? `최대 ${maxTags}개 태그까지 가능합니다` 
                   : placeholder
               }
-              className="flex-1 border-0 bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 min-w-[120px]"
+              className="flex-1 bg-transparent py-0 text-sm focus-visible:!ring-0 focus-visible:ring-offset-0 min-w-[120px] border-none"
             />
           )}
         </div>

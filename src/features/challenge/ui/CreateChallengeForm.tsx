@@ -16,10 +16,11 @@ import {
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
-import { TagInput } from "@/shared/ui/tag-input";
+import TagEditor from "@/shared/components/TagEditor";
 import { useApiForCreateChallenge } from "@/features/challenge/hooks/useApiForCreateChallenge";
 import { getToastErrorMessage } from "@/shared/lib/error-utils";
 import { canCreateChallenge } from "@/entities/user/lib/auth-utils";
+import EditorForTabsHeadless from "@/shared/components/editor-for-tabs-headless";
 
 export function CreateChallengeForm() {
   const [title, setTitle] = useState("");
@@ -120,7 +121,8 @@ export function CreateChallengeForm() {
       description: description.trim(),
       tags: tags,
       rewardAmount: rewardAmount > 0 ? Number(rewardAmount) : 0,
-      rewardType: (rewardType || "CASH") as "CASH" | "POINT" | "ITEM",
+      // backend expects only CASH or ITEM, map POINT -> ITEM
+      rewardType: (rewardType === "POINT" ? "ITEM" : (rewardType || "CASH")) as "CASH" | "ITEM",
       startDate,
       endDate,
     };
@@ -215,13 +217,9 @@ export function CreateChallengeForm() {
               <Label htmlFor="tags" className="text-right">
                 태그 *
               </Label>
-              <TagInput
-                tags={tags}
-                setTags={setTags}
-                placeholder="태그를 입력하고 Enter를 누르세요"
-                maxTags={10}
-                className="col-span-3"
-              />
+              <div className="col-span-3">
+                <EditorForTabsHeadless tags={tags} setTags={setTags} />
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="rewardAmount" className="text-right">

@@ -98,7 +98,7 @@ export function ChallengeRewardDialog({
         }}>
             <DialogTrigger asChild>
                 <Button 
-                    className={className}
+                    className={`${className ?? ""} mb-3`}
                     size="sm"
                     disabled={disabled || !challenge || participants.length === 0}
                 >

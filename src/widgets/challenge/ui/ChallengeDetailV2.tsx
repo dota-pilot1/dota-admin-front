@@ -1,14 +1,16 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import { Calendar, Clock, User, Target, Users, Award } from "lucide-react";
+import { Calendar, Clock, User, Target, Users, Award, Trash2 } from "lucide-react";
 import { useApiForGetChallengeDetail } from "@/features/challenge/hooks/useApiForGetChallengeDetail";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { ChallengeRewardDialog } from "@/shared/components/ChallengeRewardDialog";
 import React from "react";
+import { useDeleteChallenge } from '@/features/challenge/hooks/useDeleteChallenge';
+import { useRouter } from 'next/navigation';
 // Challenge 타입 기본값
 const defaultChallenge = {
     id: 0,
@@ -42,6 +44,8 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
     const { data, isLoading, isError, error } = useApiForGetChallengeDetail(challengeId);
     const currentUser = getCurrentUser();
     const challenge = data?.challenge;
+    const router = useRouter();
+    const deleteChallengeMutation = useDeleteChallenge();
 
     if (!challengeId) {
         return (
@@ -118,14 +122,42 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
     };
 
     return (
-        <Card className="h-fit">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5" />
-                    챌린지 상세 정보
-                </CardTitle>
+        <Card className="h-full flex flex-col py-0 gap-3">
+            <CardHeader className="rounded-t-xl px-5 py-2 pb-2 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0 items-center gap-0">
+                <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight">
+                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100/70 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                            <Target className="h-4 w-4" />
+                        </span>
+                        <span className="ml-1">챌린지 상세 정보2</span>
+                    </CardTitle>
+                    {(currentUser?.id === challenge?.authorId || currentUser?.role === 'ADMIN') && (
+                        <div className="flex items-center gap-1">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                title="챌린지 삭제"
+                                onClick={async () => {
+                                    if (!challenge?.id) return;
+                                    if (!window.confirm('정말로 이 챌린지를 삭제하시겠습니까?\n관련 포상 내역도 모두 삭제됩니다.')) return;
+                                    try {
+                                        await deleteChallengeMutation.mutateAsync(challenge.id);
+                                        router.push('/challenge');
+                                    } catch (err: any) {
+                                        alert(err?.message || '삭제에 실패했습니다.');
+                                    }
+                                }}
+                                disabled={deleteChallengeMutation.isPending}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">삭제</span>
+                            </Button>
+                        </div>
+                    )}
+                </div>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 pt-0 flex-1 overflow-y-auto">
                 {/* 최상단: 제목, 상태, 설명 */}
                 <div className="space-y-2 mb-4">
                     <div className="flex items-start justify-between gap-2">
@@ -198,7 +230,7 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
 
                 {/* 하단: 참여자 목록 및 포상 버튼 (challenge 있을 때만 렌더링) */}
                 {challenge && (
-                  <div className="mt-6">
+                  <div className="mt-4">
                     <div className="flex items-center gap-2 text-sm mb-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">참여자 목록</span>
@@ -214,17 +246,18 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                             <span className="text-xs text-muted-foreground">아직 참여자가 없습니다.</span>
                         )}
                     </div>
-                        <div className="flex justify-end">
-                            <ChallengeRewardDialog
-                                challengeId={challenge.id}
-                                challengeTitle={challenge.title}
-                                disabled={!(currentUser?.id === challenge?.authorId || currentUser?.role === 'ADMIN')}
-                                className="z-50"
-                            />
-                        </div>
                   </div>
                 )}
             </CardContent>
+            {challenge && (
+                <CardFooter className="justify-end">
+                    <ChallengeRewardDialog
+                        challengeId={challenge.id}
+                        challengeTitle={challenge.title}
+                        disabled={!(currentUser?.id === challenge?.authorId || currentUser?.role === 'ADMIN')}
+                    />
+                </CardFooter>
+            )}
         </Card>
     );
 }

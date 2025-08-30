@@ -83,12 +83,12 @@ export default function ChallengePage() {
                     )}
                 </div>
                 
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-1 flex flex-col">
                     {/* 챌린지 상세 정보 */}
                     {selected ? (
                         <ChallengeDetailV2 challengeId={selected.id} />
                     ) : (
-                        <div className="flex items-center justify-center h-64 border border-dashed border-gray-300 rounded-lg">
+                        <div className="flex items-center justify-center h-[400px] border border-dashed border-gray-300 rounded-lg bg-gray-50/50">
                             <div className="text-center text-muted-foreground">
                                 <p className="text-lg mb-2">📋</p>
                                 <p>챌린지를 선택해주세요</p>
@@ -97,7 +97,7 @@ export default function ChallengePage() {
                     )}
                 </div>
                 
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-1 flex flex-col">
                     {/* 포상 히스토리 */}
                     <ChallengeRewardHistory challengeId={selected?.id ?? null} />
                 </div>
