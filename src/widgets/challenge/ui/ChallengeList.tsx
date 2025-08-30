@@ -19,6 +19,7 @@ export function ChallengeList({ items, onSelect, selectedId }: {
                     <div className="absolute top-3 right-3 z-10">
                         <ParticipateChallengeButton 
                             challengeId={ch.id}
+                            authorId={ch.authorId}
                             className="w-24 h-8 text-xs"
                         />
                     </div>
