@@ -35,16 +35,22 @@ export function useParticipationStatus(challengeId: number | null) {
 export function useParticipateChallenge(options?: { onErrorDialog?: (msg: string) => void }) {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (challengeId: number) => apiForParticipateChallenge(challengeId),
+        mutationFn: (challengeId: number) => {
+            console.log('[useParticipateChallenge] Starting mutation for challengeId:', challengeId);
+            return apiForParticipateChallenge(challengeId);
+        },
         onSuccess: (data: ParticipateResponse, challengeId: number) => {
+            console.log('[useParticipateChallenge] Mutation success:', data);
             queryClient.invalidateQueries({ queryKey: ['challenges', challengeId, 'participation-status'] });
             queryClient.invalidateQueries({ queryKey: ['challenges', 'list'] });
             queryClient.invalidateQueries({ queryKey: ['challenges', challengeId] });
+               queryClient.invalidateQueries({ queryKey: ['challenge', 'detail', challengeId] });
             toast.success(data.message || '챌린지 참여가 완료되었습니다!');
         },
-            onError: (error: unknown) => {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const message = (error as any)?.response?.data?.message || '챌린지 참여에 실패했습니다.';
+        onError: (error: unknown) => {
+            console.error('[useParticipateChallenge] Mutation error:', error);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const message = (error as any)?.response?.data?.message || '챌린지 참여에 실패했습니다.';
             options?.onErrorDialog?.(message);
         },
     });
@@ -54,16 +60,22 @@ export function useParticipateChallenge(options?: { onErrorDialog?: (msg: string
 export function useLeaveChallenge(options?: { onErrorDialog?: (msg: string) => void }) {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (challengeId: number) => apiForLeaveChallenge(challengeId),
+        mutationFn: (challengeId: number) => {
+            console.log('[useLeaveChallenge] Starting mutation for challengeId:', challengeId);
+            return apiForLeaveChallenge(challengeId);
+        },
         onSuccess: (data: LeaveChallengeResponse, challengeId: number) => {
+            console.log('[useLeaveChallenge] Mutation success:', data);
             queryClient.invalidateQueries({ queryKey: ['challenges', challengeId, 'participation-status'] });
             queryClient.invalidateQueries({ queryKey: ['challenges', 'list'] });
             queryClient.invalidateQueries({ queryKey: ['challenges', challengeId] });
+               queryClient.invalidateQueries({ queryKey: ['challenge', 'detail', challengeId] });
             toast.success(data.message || '챌린지에서 탈퇴했습니다.');
         },
-            onError: (error: unknown) => {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const message = (error as any)?.response?.data?.message || '챌린지 탈퇴에 실패했습니다.';
+        onError: (error: unknown) => {
+            console.error('[useLeaveChallenge] Mutation error:', error);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const message = (error as any)?.response?.data?.message || '챌린지 탈퇴에 실패했습니다.';
             options?.onErrorDialog?.(message);
         },
     });

@@ -20,6 +20,8 @@ export function ParticipateChallengeButton({ challengeId, authorId, className, d
     const participateMutation = useParticipateChallenge({ onErrorDialog: showError });
     const leaveMutation = useLeaveChallenge({ onErrorDialog: showError });
 
+    console.log('[ParticipateChallengeButton] challengeId:', challengeId, 'statusData:', statusData, 'authorId:', authorId);
+
     const isParticipant = statusData?.isParticipant ?? false;
     const isLoading = statusLoading || participateMutation.isPending || leaveMutation.isPending;
 
@@ -27,11 +29,25 @@ export function ParticipateChallengeButton({ challengeId, authorId, className, d
     const currentUser = getCurrentUser();
     const isAuthor = !!authorId && currentUser?.id === authorId;
 
+    console.log('[ParticipateChallengeButton] currentUser:', currentUser, 'isAuthor:', isAuthor, 'isParticipant:', isParticipant);
+
+    console.log('[ParticipateChallengeButton] Button render state:', {
+        disabled: disabled || isLoading || Boolean(isAuthor),
+        isLoading,
+        isAuthor,
+        isParticipant,
+        statusLoading
+    });
+
     const handleClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // 부모 요소의 클릭 이벤트 전파 방지
+        console.log('ParticipateChallengeButton clicked:', { challengeId, isParticipant, isAuthor, disabled, isLoading });
+        
         if (isParticipant) {
+            console.log('Leaving challenge:', challengeId);
             leaveMutation.mutate(challengeId);
         } else {
+            console.log('Participating in challenge:', challengeId);
             participateMutation.mutate(challengeId);
         }
     };

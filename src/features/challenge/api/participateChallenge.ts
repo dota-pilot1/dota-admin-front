@@ -24,6 +24,13 @@ export type ParticipateResponse = {
 
 // 챌린지 참여 API
 export async function apiForParticipateChallenge(challengeId: number): Promise<ParticipateResponse> {
-    const res = await api.post(`/api/challenges/${challengeId}/participate`);
-    return res.data;
+    console.log('[API] Participating in challenge:', challengeId);
+    try {
+        const res = await api.post(`/api/challenges/${challengeId}/participate`);
+        console.log('[API] Participate response:', res.data);
+        return res.data;
+    } catch (error) {
+        console.error('[API] Participate error:', error);
+        throw error;
+    }
 }

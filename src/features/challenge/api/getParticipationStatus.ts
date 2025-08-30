@@ -12,6 +12,13 @@ export type ParticipationStatusResponse = {
 
 // 챌린지 참여 상태 확인 API
 export async function apiForGetParticipationStatus(challengeId: number): Promise<ParticipationStatusResponse> {
-    const res = await api.get(`/api/challenges/${challengeId}/participation-status`);
-    return res.data;
+    console.log('apiForGetParticipationStatus called with challengeId:', challengeId);
+    try {
+        const res = await api.get(`/api/challenges/${challengeId}/participation-status`);
+        console.log('apiForGetParticipationStatus success:', res.data);
+        return res.data;
+    } catch (error) {
+        console.error('apiForGetParticipationStatus error:', error);
+        throw error;
+    }
 }

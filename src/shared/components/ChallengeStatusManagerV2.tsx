@@ -6,10 +6,9 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
-import { MoreHorizontal, Play, Square, RotateCcw, CheckCircle2 } from "lucide-react";
+import { MoreHorizontal, Play, CheckCircle2 } from "lucide-react";
 import { useChallengeStatusChange } from '@/features/challenge/hooks/useChallengeStatusChange';
 
 interface ChallengeStatusManagerV2Props {
@@ -50,12 +49,6 @@ export function ChallengeStatusManagerV2({
                     color: "text-green-600",
                     bgColor: "bg-green-50 border-green-200"
                 };
-            case 'CANCELLED':
-                return { 
-                    badge: <Badge variant="destructive">취소됨</Badge>,
-                    color: "text-red-600",
-                    bgColor: "bg-red-50 border-red-200"
-                };
             default:
                 return { 
                     badge: <Badge variant="outline">{status}</Badge>,
@@ -78,14 +71,6 @@ export function ChallengeStatusManagerV2({
                 variant: 'default' as const,
                 className: "text-blue-600 hover:text-blue-700 hover:bg-blue-50"
             });
-            actions.push({
-                key: 'cancel',
-                label: '취소',
-                icon: <Square className="h-4 w-4" />,
-                action: () => cancelChallenge(challengeId),
-                variant: 'destructive' as const,
-                className: "text-red-600 hover:text-red-700 hover:bg-red-50"
-            });
         } else if (status === 'IN_PROGRESS') {
             actions.push({
                 key: 'complete',
@@ -94,23 +79,6 @@ export function ChallengeStatusManagerV2({
                 action: () => completeChallenge(challengeId),
                 variant: 'default' as const,
                 className: "text-green-600 hover:text-green-700 hover:bg-green-50"
-            });
-            actions.push({
-                key: 'cancel',
-                label: '취소',
-                icon: <Square className="h-4 w-4" />,
-                action: () => cancelChallenge(challengeId),
-                variant: 'destructive' as const,
-                className: "text-red-600 hover:text-red-700 hover:bg-red-50"
-            });
-        } else if (status === 'CANCELLED') {
-            actions.push({
-                key: 'reopen',
-                label: '다시 열기',
-                icon: <RotateCcw className="h-4 w-4" />,
-                action: () => reopenChallenge(challengeId),
-                variant: 'outline' as const,
-                className: "text-blue-600 hover:text-blue-700 hover:bg-blue-50"
             });
         }
         
@@ -144,18 +112,16 @@ export function ChallengeStatusManagerV2({
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-36">
-                            {availableActions.map((action, index) => (
-                                <div key={action.key}>
-                                    {index > 0 && action.variant === 'destructive' && <DropdownMenuSeparator />}
-                                    <DropdownMenuItem
-                                        onClick={action.action}
-                                        className={`flex items-center gap-2 cursor-pointer ${action.className}`}
-                                        disabled={isStatusChanging}
-                                    >
-                                        {action.icon}
-                                        {action.label}
-                                    </DropdownMenuItem>
-                                </div>
+                            {availableActions.map((action) => (
+                                <DropdownMenuItem
+                                    key={action.key}
+                                    onClick={action.action}
+                                    className={`flex items-center gap-2 cursor-pointer ${action.className}`}
+                                    disabled={isStatusChanging}
+                                >
+                                    {action.icon}
+                                    {action.label}
+                                </DropdownMenuItem>
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
