@@ -29,12 +29,14 @@ interface ChallengeRewardDialogProps {
     challengeId: number;
     challengeTitle: string;
     className?: string;
+    disabled?: boolean;
 }
 
 export function ChallengeRewardDialog({ 
     challengeId, 
     challengeTitle, 
-    className 
+    className,
+    disabled = false
 }: ChallengeRewardDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedParticipantId, setSelectedParticipantId] = useState<string>("");
@@ -81,7 +83,7 @@ export function ChallengeRewardDialog({
         issueRewardMutation.mutate({
             participantId: parseInt(selectedParticipantId),
             amount: challenge.rewardAmount,
-            method: challenge.rewardType === 'CASH' ? 'CASH' : 'ITEM',
+            method: challenge.rewardType === 'CASH' ? 'CASH' : 'POINT',
             reason: reason.trim()
         });
     };
@@ -98,10 +100,10 @@ export function ChallengeRewardDialog({
                 <Button 
                     className={className}
                     size="sm"
-                    disabled={!challenge || participants.length === 0}
+                    disabled={disabled || !challenge || participants.length === 0}
                 >
                     <Award className="h-4 w-4 mr-1" />
-                    포상
+                    포상 ({participants.length}명)
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">

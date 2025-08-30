@@ -9,6 +9,25 @@ import { Skeleton } from "@/shared/ui/skeleton";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { ChallengeRewardDialog } from "@/shared/components/ChallengeRewardDialog";
 import React from "react";
+// Challenge 타입 기본값
+const defaultChallenge = {
+    id: 0,
+    title: '',
+    description: '',
+    authorId: 0,
+    username: '',
+    email: '',
+    tags: [],
+    participantIds: [],
+    participants: [],
+    status: 'RECRUITING',
+    startDate: '',
+    endDate: '',
+    rewardType: 'CASH' as 'CASH' | 'ITEM',
+    rewardAmount: 0,
+    createdAt: '',
+    updatedAt: '',
+};
 import { useRewardInfo } from '@/features/challenge/hooks/useRewardInfo';
 import { ChallengeStatusPanel } from "@/shared/components/ChallengeStatusPanel";
 import { ChallengeEditDialog } from "@/shared/components/ChallengeEditDialog";
@@ -22,7 +41,7 @@ interface ChallengeDetailV2Props {
 export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
     const { data, isLoading, isError, error } = useApiForGetChallengeDetail(challengeId);
     const currentUser = getCurrentUser();
-    const currentUserId = currentUser?.id ?? null;
+    const challenge = data?.challenge;
 
     if (!challengeId) {
         return (
@@ -87,27 +106,7 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
         );
     }
 
-    if (!data?.challenge) {
-        return (
-            <Card className="h-fit">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Target className="h-5 w-5" />
-                        챌린지 상세 정보
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Alert>
-                        <AlertDescription>
-                            챌린지 정보가 없습니다.
-                        </AlertDescription>
-                    </Alert>
-                </CardContent>
-            </Card>
-        );
-    }
-
-    const challenge = data.challenge;
+    // rewardDialogOpen은 ChallengeRewardDialog에서 내부적으로 관리하므로 제거
 
     // 보상 타입별 표시
     const getRewardTypeDisplay = (type: string) => {
@@ -130,20 +129,20 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                 {/* 최상단: 제목, 상태, 설명 */}
                 <div className="space-y-2 mb-4">
                     <div className="flex items-start justify-between gap-2">
-                        <h2 className="text-xl font-semibold leading-tight">{challenge.title}</h2>
+                        <h2 className="text-xl font-semibold leading-tight">{challenge?.title ?? ''}</h2>
                         <div className="flex items-center gap-2">
                             <ChallengeStatusPanel 
-                                challengeId={challenge.id}
-                                status={challenge.status}
+                                challengeId={challenge?.id ?? 0}
+                                status={challenge?.status ?? 'RECRUITING'}
                                 mode="compact"
                             />
                             {/* 작성자가 본인이면 수정 버튼, 아니면 참여 버튼 */}
-                            {currentUserId === challenge.authorId ? (
-                                <ChallengeEditDialog challenge={challenge} />
+                            {currentUser?.id === challenge?.authorId ? (
+                                <ChallengeEditDialog challenge={challenge ?? defaultChallenge} />
                             ) : (
                                 <ParticipateChallengeButton
-                                    challengeId={challenge.id}
-                                    authorId={challenge.authorId}
+                                    challengeId={challenge?.id ?? 0}
+                                    authorId={challenge?.authorId ?? 0}
                                     className="h-8 px-3 text-xs"
                                 />
                             )}
@@ -152,11 +151,11 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                     {/* 작성자 정보 추가 */}
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <User className="h-4 w-4" />
-                        <span className="font-medium">작성자</span>: {challenge.username || '알 수 없음'}
-                        {challenge.email && <span className="ml-2">({challenge.email})</span>}
+                        <span className="font-medium">작성자</span>: {challenge?.username ?? '알 수 없음'}
+                        {challenge?.email && <span className="ml-2">({challenge.email})</span>}
                     </div>
                     <p className="text-muted-foreground text-sm leading-relaxed">
-                        {challenge.description}
+                        {challenge?.description ?? ''}
                     </p>
                 </div>
 
@@ -165,27 +164,30 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                     <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">일정</span>
-                        <span className="pl-4 text-muted-foreground">{challenge.startDate}</span>
+                        <span className="pl-4 text-muted-foreground">{challenge?.startDate ?? ''}</span>
                         <span className="mx-2">~</span>
-                        <span className="font-medium">{challenge.endDate}</span>
+                        <span className="font-medium">{challenge?.endDate ?? ''}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                         <Award className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">보상</span>
-                        <span className="pl-4 text-muted-foreground">{getRewardTypeDisplay(challenge.rewardType)}</span>
+                        <span className="pl-4 text-muted-foreground">{getRewardTypeDisplay(challenge?.rewardType ?? '')}</span>
                         <span className="mx-2">/</span>
-                        <span className="font-bold text-orange-600">{challenge.rewardAmount.toLocaleString()}{challenge.rewardType === 'CASH' ? '원' : '개'}</span>
+                        <span className="font-bold text-orange-600">
+                            {challenge?.rewardAmount?.toLocaleString() ?? ''}
+                            {challenge?.rewardType === 'CASH' ? '원' : challenge?.rewardType === 'ITEM' ? '개' : ''}
+                        </span>
                     </div>
                 </div>
 
                 {/* 태그 */}
-                {challenge.tags && challenge.tags.length > 0 && (
+                {challenge?.tags && challenge.tags.length > 0 && (
                     <div className="space-y-2">
                         <h3 className="text-sm font-medium flex items-center gap-1">
                             <span className="text-blue-500">#</span> 태그
                         </h3>
                         <div className="flex flex-wrap gap-1">
-                            {challenge.tags.map((tag, index) => (
+                            {challenge?.tags?.map((tag: string, index: number) => (
                                 <Badge key={index} variant="secondary" className="text-xs">
                                     {tag}
                                 </Badge>
@@ -194,15 +196,16 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                     </div>
                 )}
 
-                {/* 하단: 참여자 목록만 출력 */}
-                <div className="mt-6">
+                {/* 하단: 참여자 목록 및 포상 버튼 (challenge 있을 때만 렌더링) */}
+                {challenge && (
+                  <div className="mt-6">
                     <div className="flex items-center gap-2 text-sm mb-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">참여자 목록</span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        {challenge.participants && challenge.participants.length > 0 ? (
-                            challenge.participants.map((p: any) => (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {challenge?.participants && challenge.participants.length > 0 ? (
+                            challenge.participants.map((p: { id: number; name: string }) => (
                                 <Badge key={p.id} variant="secondary" className="text-xs px-2 py-1">
                                     {p.name}
                                 </Badge>
@@ -211,7 +214,16 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                             <span className="text-xs text-muted-foreground">아직 참여자가 없습니다.</span>
                         )}
                     </div>
-                </div>
+                        <div className="flex justify-end">
+                            <ChallengeRewardDialog
+                                challengeId={challenge.id}
+                                challengeTitle={challenge.title}
+                                disabled={!(currentUser?.id === challenge?.authorId || currentUser?.role === 'ADMIN')}
+                                className="z-50"
+                            />
+                        </div>
+                  </div>
+                )}
             </CardContent>
         </Card>
     );
