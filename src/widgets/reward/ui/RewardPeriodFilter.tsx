@@ -15,7 +15,7 @@ export function RewardPeriodFilter({ onQuickFilter, isLoading = false }: RewardP
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Filter className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium text-muted-foreground">기간별 필터</span>
+                    <span className="text-sm font-medium text-muted-foreground mr-2">기간별 필터</span>
                 </div>
                 <div className="flex gap-2">
                     <Button
