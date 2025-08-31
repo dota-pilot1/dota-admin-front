@@ -123,7 +123,7 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
 
     return (
         <Card className="h-full flex flex-col py-0 gap-3">
-            <CardHeader className="rounded-t-xl px-5 py-2 pb-2 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0 items-center gap-0">
+            <CardHeader className="rounded-t-xl px-5 py-4 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0 items-center gap-0">
                 <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight">
                         <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100/70 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">

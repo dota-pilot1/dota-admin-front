@@ -112,18 +112,18 @@ export function ChallengeRewardHistory({ challengeId }: ChallengeRewardHistoryPr
     return (
         <>
             <Card className="h-full flex flex-col">
-                <CardHeader className="rounded-t-xl py-4 px-5 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0">
-                    <CardTitle className="flex items-center justify-between w-full text-base font-semibold tracking-tight">
-                        <div className="flex items-center gap-2">
+                <CardHeader className="rounded-t-xl px-5 py-4 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0 items-center gap-0">
+                    <div className="flex items-center justify-between w-full">
+                        <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight">
                             <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-purple-100/70 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
                                 <History className="h-4 w-4" />
                             </span>
                             <span className="ml-1">포상 히스토리</span>
-                        </div>
+                        </CardTitle>
                         <Badge variant="outline" className="h-5 px-2 text-[10px] font-medium bg-white/60 dark:bg-slate-800/60">
                             총 {data.length}건
                         </Badge>
-                    </CardTitle>
+                    </div>
                 </CardHeader>
                 <CardContent className="pt-5 flex-1 overflow-y-auto">
                     {data.length === 0 ? (
