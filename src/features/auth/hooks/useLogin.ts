@@ -25,8 +25,8 @@ export function useLogin() {
 
             // 약간의 지연 후 라우팅 (localStorage 동기화 대기)
             setTimeout(() => {
-                console.log("🔄 Redirecting to dashboard...");
-                router.push("/dashboard");
+                console.log("🔄 Redirecting to challenge list...");
+                router.push("/challenge");
             }, 100);
         },
         onError: (error) => {

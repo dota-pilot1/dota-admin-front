@@ -52,6 +52,7 @@ export function AppHeaderClient() {
                 {isAuthed && (
                     <nav className="flex items-center gap-6">
                         {[
+                            // 기본 진입점: 루트(/) 접근 시 이 메뉴를 활성화 처리
                             { href: "/challenge", label: "챌린지" },
                             { href: "/challenge-stats", label: "챌린지 통계" },
                             { href: "/dashboard", label: "Tech Hub" },
@@ -62,11 +63,12 @@ export function AppHeaderClient() {
                             { href: "/docs/challenge-history", label: "챌린지 히스토리" },
                             { href: "/docs/auth-system", label: "권한 시스템" },
                         ].map(({ href, label }) => {
-                            // 정확한 경로 매칭 - pathname이 정확히 href이거나, href/로 시작하는 경우만 활성화
-                            const isActive = pathname === href || (
-                                href !== "/" && 
-                                pathname?.startsWith(href + "/")
-                            );
+                            // 기본 선택: 루트('/')일 때 챌린지 메뉴(/challenge) 활성화
+                            const isHome = pathname === '/' || pathname === '';
+                            let isActive = pathname === href || (href !== '/' && pathname?.startsWith(href + '/'));
+                            if (isHome && href === '/challenge') {
+                                isActive = true;
+                            }
                             return (
                                 <Link
                                     key={href}
