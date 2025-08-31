@@ -1,13 +1,18 @@
 import api from '@/shared/lib/axios';
 
 export interface RewardHistoryItem {
+  participantId: number;
+  createdByName?: string;
+  processedAt?: string;
   id: number;
   challengeId: number;
   challengeTitle: string;
+  participantName: string;
   amount: number;
   method: 'CASH';
   reason: string;
   createdAt: string;
+  processed: boolean;
 }
 
 export interface RewardHistoryResponse {

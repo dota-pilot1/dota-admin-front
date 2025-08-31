@@ -83,7 +83,7 @@ export function ChallengeRewardDialog({
         issueRewardMutation.mutate({
             participantId: parseInt(selectedParticipantId),
             amount: challenge.rewardAmount,
-            method: challenge.rewardType === 'CASH' ? 'CASH' : 'POINT',
+            method: 'CASH', // 항상 CASH로 고정
             reason: reason.trim()
         });
     };

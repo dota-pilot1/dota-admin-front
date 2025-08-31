@@ -83,21 +83,29 @@ export interface ChallengeStatsResponse {
 }
 
 // 새로운 API를 기존 구조로 변환하는 어댑터 함수
+// 기존 RewardStatsResponse 타입 정의
+export interface RewardStatsResponse {
+  success: boolean;
+  data: RewardStatsItem[];
+  summary: RewardStatsSummary;
+  timestamp: string;
+}
+
 function adaptToLegacyFormat(newData: RewardStatisticsResponse): RewardStatsResponse {
   const stats = newData.statistics;
   
   // 참가자 데이터를 RewardStatsItem 형태로 변환
     const data: RewardStatsItem[] = stats.topParticipants.map(participant => ({
-    id: participant.participantId,
-    participantName: participant.participantName,
-    participantEmail: participant.participantEmail || `user${participant.participantId}@example.com`,
-    totalAmount: participant.totalAmount,
-    totalCount: participant.rewardCount,
-    cashAmount: participant.totalAmount, // 현금만 지원
-    cashCount: participant.rewardCount,
-    lastRewardedAt: new Date().toISOString(), // 임시 값
-    challenges: [], // 상세 챌린지 정보는 별도 API에서 가져와야 함
-  }));
+  id: participant.participantId,
+  participantName: participant.participantName,
+  participantEmail: `user${participant.participantId}@example.com`, // 임의 이메일 생성
+  totalAmount: participant.totalAmount,
+  totalCount: participant.rewardCount,
+  cashAmount: participant.totalAmount,
+  cashCount: participant.rewardCount,
+  lastRewardedAt: new Date().toISOString(),
+  challenges: [],
+}));
 
   return {
     success: newData.success,
@@ -177,13 +185,17 @@ export async function apiForGetRewardStatsByMethod(): Promise<{
 }> {
   const response = await api.get<RewardStatisticsResponse>('/api/rewards/statistics');
   const stats = response.data.statistics;
-  
   return {
     success: response.data.success,
     cash: {
       totalAmount: stats.totalAmount, // 현금만 지원
       totalCount: stats.totalRewardsCount,
       participants: stats.topParticipants.length,
+    },
+    point: {
+      totalAmount: 0,
+      totalCount: 0,
+      participants: 0,
     },
     timestamp: response.data.timestamp,
   };

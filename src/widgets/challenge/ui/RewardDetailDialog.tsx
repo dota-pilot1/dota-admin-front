@@ -67,7 +67,7 @@ export function RewardDetailDialog({ reward, isOpen, onClose }: RewardDetailDial
         }
     };
 
-    const statusInfo = getStatusInfo(reward.processed, reward.processedAt);
+    const statusInfo = getStatusInfo(reward.processed, reward.processedAt ?? null);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
