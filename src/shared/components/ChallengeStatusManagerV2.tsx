@@ -26,7 +26,7 @@ export function ChallengeStatusManagerV2({
     mode = 'compact',
     size = 'sm'
 }: ChallengeStatusManagerV2Props) {
-    const { startChallenge, completeChallenge, cancelChallenge, reopenChallenge, isLoading: isStatusChanging } = useChallengeStatusChange();
+    const { startChallenge, completeChallenge, reopenChallenge, isLoading: isStatusChanging } = useChallengeStatusChange();
 
     // 상태별 색상 및 라벨 설정
     const getStatusInfo = (status: string) => {

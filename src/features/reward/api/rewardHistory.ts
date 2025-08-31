@@ -3,16 +3,11 @@ import api from '@/shared/lib/axios';
 export interface RewardHistoryItem {
   id: number;
   challengeId: number;
-  participantId: number;
-  participantName: string;
+  challengeTitle: string;
   amount: number;
-  method: 'POINT' | 'CASH';
+  method: 'CASH';
   reason: string;
   createdAt: string;
-  createdBy: number;
-  createdByName: string;
-  processed: boolean;
-  processedAt: string | null;
 }
 
 export interface RewardHistoryResponse {

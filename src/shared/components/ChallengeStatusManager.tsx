@@ -25,7 +25,7 @@ export function ChallengeStatusManager({
     layout = 'horizontal',
     compact = false
 }: ChallengeStatusManagerProps) {
-    const { startChallenge, completeChallenge, cancelChallenge, reopenChallenge, isLoading: isStatusChanging } = useChallengeStatusChange();
+    const { startChallenge, completeChallenge, reopenChallenge, isLoading: isStatusChanging } = useChallengeStatusChange();
 
     // 상태별 색상 설정
     const getStatusBadge = (status: string) => {
@@ -36,8 +36,6 @@ export function ChallengeStatusManager({
                 return <Badge variant="default" className="bg-orange-500">진행중</Badge>;
             case 'COMPLETED':
                 return <Badge variant="default" className="bg-green-500">완료</Badge>;
-            case 'CANCELLED':
-                return <Badge variant="destructive">취소됨</Badge>;
             default:
                 return <Badge variant="outline">{status}</Badge>;
         }
@@ -60,18 +58,6 @@ export function ChallengeStatusManager({
                     시작
                 </Button>
             );
-            buttons.push(
-                <Button 
-                    key="cancel"
-                    variant="destructive" 
-                    size={buttonSize}
-                    className={compact ? "px-2 text-xs" : ""}
-                    onClick={() => cancelChallenge(challengeId)}
-                    disabled={isStatusChanging}
-                >
-                    취소
-                </Button>
-            );
         } else if (status === 'IN_PROGRESS') {
             buttons.push(
                 <Button 
@@ -83,31 +69,6 @@ export function ChallengeStatusManager({
                     disabled={isStatusChanging}
                 >
                     완료
-                </Button>
-            );
-            buttons.push(
-                <Button 
-                    key="cancel"
-                    variant="destructive" 
-                    size={buttonSize}
-                    className={compact ? "px-2 text-xs" : ""}
-                    onClick={() => cancelChallenge(challengeId)}
-                    disabled={isStatusChanging}
-                >
-                    취소
-                </Button>
-            );
-        } else if (status === 'CANCELLED') {
-            buttons.push(
-                <Button 
-                    key="reopen"
-                    variant="outline" 
-                    size={buttonSize}
-                    className={compact ? "px-2 text-xs" : ""}
-                    onClick={() => reopenChallenge(challengeId)}
-                    disabled={isStatusChanging}
-                >
-                    다시 열기
                 </Button>
             );
         }

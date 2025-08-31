@@ -123,7 +123,7 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
 
     return (
         <Card className="h-full flex flex-col py-0 gap-3">
-            <CardHeader className="rounded-t-xl px-5 py-4 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0 items-center gap-0">
+            <CardHeader className="rounded-t-xl px-5 py-4 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0">
                 <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight">
                         <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100/70 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
@@ -170,7 +170,11 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                             />
                             {/* 작성자가 본인이면 수정 버튼, 아니면 참여 버튼 */}
                             {currentUser?.id === challenge?.authorId ? (
-                                <ChallengeEditDialog challenge={challenge ?? defaultChallenge} />
+                                <ChallengeEditDialog 
+                                    challenge={challenge ?? defaultChallenge} 
+                                    // COMPLETED 상태면 비활성화
+                                    disabled={challenge?.status === 'COMPLETED'}
+                                />
                             ) : (
                                 <ParticipateChallengeButton
                                     challengeId={challenge?.id ?? 0}

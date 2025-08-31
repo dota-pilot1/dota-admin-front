@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { 
@@ -27,6 +28,7 @@ import {
 } from "lucide-react";
 import { useChallengeStatusChange } from '@/features/challenge/hooks/useChallengeStatusChange';
 import { cn } from "@/lib/utils";
+import { ErrorDialog } from "./ErrorDialog";
 
 interface ChallengeStatusPanelProps {
     challengeId: number;
@@ -46,13 +48,14 @@ export function ChallengeStatusPanel({
     participantCount,
     className
 }: ChallengeStatusPanelProps) {
-    const { startChallenge, completeChallenge, cancelChallenge, reopenChallenge, isLoading: isStatusChanging } = useChallengeStatusChange();
+    const { startChallenge, completeChallenge, reopenChallenge, isLoading: isStatusChanging } = useChallengeStatusChange();
+    const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
     // 상태별 정보 설정
     const getStatusInfo = (status: string) => {
         switch (status) {
             case 'RECRUITING':
-                return { 
+                return {
                     label: '모집중',
                     color: 'text-blue-600',
                     bgColor: 'bg-blue-50',
@@ -63,7 +66,7 @@ export function ChallengeStatusPanel({
                     description: '참여자를 모집하고 있습니다'
                 };
             case 'IN_PROGRESS':
-                return { 
+                return {
                     label: '진행중',
                     color: 'text-orange-600',
                     bgColor: 'bg-orange-50',
@@ -74,7 +77,7 @@ export function ChallengeStatusPanel({
                     description: '챌린지가 진행중입니다'
                 };
             case 'COMPLETED':
-                return { 
+                return {
                     label: '완료',
                     color: 'text-green-600',
                     bgColor: 'bg-green-50',
@@ -84,19 +87,8 @@ export function ChallengeStatusPanel({
                     icon: <CheckCircle2 className="h-4 w-4" />,
                     description: '챌린지가 완료되었습니다'
                 };
-            case 'CANCELLED':
-                return { 
-                    label: '취소됨',
-                    color: 'text-red-600',
-                    bgColor: 'bg-red-50',
-                    borderColor: 'border-red-200',
-                    badgeVariant: 'destructive' as const,
-                    badgeClassName: 'bg-red-500 hover:bg-red-600',
-                    icon: <Square className="h-4 w-4" />,
-                    description: '챌린지가 취소되었습니다'
-                };
             default:
-                return { 
+                return {
                     label: status,
                     color: 'text-gray-600',
                     bgColor: 'bg-gray-50',
@@ -109,75 +101,48 @@ export function ChallengeStatusPanel({
         }
     };
 
-    // 상태별 가능한 액션들
-    const getAvailableActions = () => {
-        const actions = [];
-        
-        if (status === 'RECRUITING') {
-            actions.push({
-                key: 'start',
-                label: '시작',
-                icon: <Play className="h-4 w-4" />,
-                action: () => startChallenge(challengeId),
-                variant: 'default' as const,
-                className: "text-blue-600 hover:text-blue-700 hover:bg-blue-50",
-                buttonClassName: "bg-blue-600 hover:bg-blue-700 text-white"
-            });
-            actions.push({
-                key: 'cancel',
-                label: '취소',
-                icon: <Square className="h-4 w-4" />,
-                action: () => cancelChallenge(challengeId),
-                variant: 'destructive' as const,
-                className: "text-red-600 hover:text-red-700 hover:bg-red-50",
-                buttonClassName: "bg-red-600 hover:bg-red-700 text-white"
-            });
-        } else if (status === 'IN_PROGRESS') {
-            actions.push({
-                key: 'complete',
-                label: '완료',
-                icon: <CheckCircle2 className="h-4 w-4" />,
-                action: () => completeChallenge(challengeId),
-                variant: 'default' as const,
-                className: "text-green-600 hover:text-green-700 hover:bg-green-50",
-                buttonClassName: "bg-green-600 hover:bg-green-700 text-white"
-            });
-            actions.push({
-                key: 'cancel',
-                label: '취소',
-                icon: <Square className="h-4 w-4" />,
-                action: () => cancelChallenge(challengeId),
-                variant: 'destructive' as const,
-                className: "text-red-600 hover:text-red-700 hover:bg-red-50",
-                buttonClassName: "bg-red-600 hover:bg-red-700 text-white"
-            });
-        } else if (status === 'CANCELLED') {
-            actions.push({
-                key: 'reopen',
-                label: '다시 열기',
-                icon: <RotateCcw className="h-4 w-4" />,
-                action: () => reopenChallenge(challengeId),
-                variant: 'outline' as const,
-                className: "text-blue-600 hover:text-blue-700 hover:bg-blue-50",
-                buttonClassName: "border-blue-600 text-blue-600 hover:bg-blue-50"
-            });
-        }
-        
-        return actions;
-    };
-
+    // 상태 변경 드롭다운 옵션
+    const statusOptions = [
+        {
+            key: 'RECRUITING',
+            label: '모집중',
+            icon: <Users className="h-4 w-4" />,
+            onClick: () => Promise.resolve(reopenChallenge(challengeId)).catch((error: any) => setErrorMessage(error?.response?.data?.message || '상태 변경에 실패했습니다.')),
+        },
+        {
+            key: 'IN_PROGRESS',
+            label: '진행중',
+            icon: <Clock className="h-4 w-4" />,
+            onClick: () => Promise.resolve(startChallenge(challengeId)).catch((error: any) => setErrorMessage(error?.response?.data?.message || '상태 변경에 실패했습니다.')),
+        },
+        {
+            key: 'COMPLETED',
+            label: '완료',
+            icon: <CheckCircle2 className="h-4 w-4" />,
+            onClick: () => Promise.resolve(completeChallenge(challengeId)).catch((error: any) => setErrorMessage(error?.response?.data?.message || '상태 변경에 실패했습니다.')),
+        },
+    ];
     const statusInfo = getStatusInfo(status);
-    const availableActions = getAvailableActions();
 
     // 컴팩트 모드: 배지 + 드롭다운
     if (mode === 'compact') {
         return (
-            <div className={cn("flex items-center gap-2", className)}>
-                <Badge variant={statusInfo.badgeVariant} className={cn(statusInfo.badgeClassName, "flex items-center gap-1")}>
-                    {statusInfo.icon}
-                    <span>{statusInfo.label}</span>
-                </Badge>
-                {availableActions.length > 0 && (
+            <>
+                {errorMessage && (
+                    <div
+                        className="fixed top-8 left-1/2 z-[200] -translate-x-1/2 w-full max-w-lg px-4 flex justify-center animate-slideDown"
+                        style={{ pointerEvents: 'auto' }}
+                    >
+                        <div className="w-full">
+                            <ErrorDialog message={errorMessage} onClose={() => setErrorMessage(null)} />
+                        </div>
+                    </div>
+                )}
+                <div className={cn("flex items-center gap-2", className)}>
+                    <Badge variant={statusInfo.badgeVariant} className={cn(statusInfo.badgeClassName, "flex items-center gap-1")}> 
+                        {statusInfo.icon}
+                        <span>{statusInfo.label}</span>
+                    </Badge>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button 
@@ -190,27 +155,40 @@ export function ChallengeStatusPanel({
                                 <span className="sr-only">상태 변경</span>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40">
+                        <DropdownMenuContent align="end" className="w-44">
                             <div className="px-2 py-1.5 text-xs font-medium text-gray-500 border-b">
                                 상태 변경
                             </div>
-                            {availableActions.map((action, index) => (
-                                <div key={action.key}>
-                                    {index > 0 && action.variant === 'destructive' && <DropdownMenuSeparator />}
-                                    <DropdownMenuItem
-                                        onClick={action.action}
-                                        className={`flex items-center gap-2 cursor-pointer ${action.className} py-2`}
-                                        disabled={isStatusChanging}
-                                    >
-                                        {action.icon}
-                                        <span className="font-medium">{action.label}</span>
-                                    </DropdownMenuItem>
-                                </div>
+                            {statusOptions.map(opt => (
+                                <DropdownMenuItem
+                                    key={opt.key}
+                                    onClick={opt.onClick}
+                                    disabled={isStatusChanging || status === opt.key}
+                                    className={cn(
+                                        "flex items-center gap-2 py-2 cursor-pointer",
+                                        status === opt.key ? "bg-gray-100 text-gray-400" : "hover:bg-blue-50"
+                                    )}
+                                >
+                                    {opt.icon}
+                                    <span className="font-medium">{opt.label}</span>
+                                    {status === opt.key && (
+                                        <span className="ml-auto text-xs text-blue-500">현재</span>
+                                    )}
+                                </DropdownMenuItem>
                             ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                )}
-            </div>
+                </div>
+                <style>{`
+                    @keyframes slideDown {
+                        from { opacity: 0; transform: translateY(-32px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    .animate-slideDown {
+                        animation: slideDown 0.4s cubic-bezier(.4,2,.3,1) forwards;
+                    }
+                `}</style>
+            </>
         );
     }
 
@@ -218,7 +196,7 @@ export function ChallengeStatusPanel({
     if (mode === 'detailed') {
         return (
             <div className={cn("space-y-3", className)}>
-                {/* 현재 상태 표시 */}
+                {/* 현재 상태 표시 + 드롭다운 */}
                 <div className={cn(
                     "flex items-center justify-between p-3 rounded-lg border",
                     statusInfo.bgColor,
@@ -237,6 +215,41 @@ export function ChallengeStatusPanel({
                             </div>
                         </div>
                     </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button 
+                                variant="outline"
+                                size="sm"
+                                className="ml-2"
+                                disabled={isStatusChanging}
+                            >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">상태 변경</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44">
+                            <div className="px-2 py-1.5 text-xs font-medium text-gray-500 border-b">
+                                상태 변경
+                            </div>
+                            {statusOptions.map(opt => (
+                                <DropdownMenuItem
+                                    key={opt.key}
+                                    onClick={opt.onClick}
+                                    disabled={isStatusChanging || status === opt.key}
+                                    className={cn(
+                                        "flex items-center gap-2 py-2 cursor-pointer",
+                                        status === opt.key ? "bg-gray-100 text-gray-400" : "hover:bg-blue-50"
+                                    )}
+                                >
+                                    {opt.icon}
+                                    <span className="font-medium">{opt.label}</span>
+                                    {status === opt.key && (
+                                        <span className="ml-auto text-xs text-blue-500">현재</span>
+                                    )}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                     {participantCount !== undefined && (
                         <div className="text-right">
                             <div className="text-sm font-medium">{participantCount}명</div>
@@ -244,27 +257,6 @@ export function ChallengeStatusPanel({
                         </div>
                     )}
                 </div>
-
-                {/* 액션 버튼들 */}
-                {availableActions.length > 0 && (
-                    <div className="flex gap-2">
-                        {availableActions.map((action) => (
-                            <Button
-                                key={action.key}
-                                onClick={action.action}
-                                disabled={isStatusChanging}
-                                className={cn(
-                                    "flex items-center gap-2 flex-1",
-                                    action.buttonClassName
-                                )}
-                                size="sm"
-                            >
-                                {action.icon}
-                                {action.label}
-                            </Button>
-                        ))}
-                    </div>
-                )}
             </div>
         );
     }
@@ -280,6 +272,41 @@ export function ChallengeStatusPanel({
                             {statusInfo.icon}
                             <span className="ml-1">{statusInfo.label}</span>
                         </Badge>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button 
+                                    variant="outline"
+                                    size="sm"
+                                    className="ml-2"
+                                    disabled={isStatusChanging}
+                                >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                    <span className="sr-only">상태 변경</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44">
+                                <div className="px-2 py-1.5 text-xs font-medium text-gray-500 border-b">
+                                    상태 변경
+                                </div>
+                                {statusOptions.map(opt => (
+                                    <DropdownMenuItem
+                                        key={opt.key}
+                                        onClick={opt.onClick}
+                                        disabled={isStatusChanging || status === opt.key}
+                                        className={cn(
+                                            "flex items-center gap-2 py-2 cursor-pointer",
+                                            status === opt.key ? "bg-gray-100 text-gray-400" : "hover:bg-blue-50"
+                                        )}
+                                    >
+                                        {opt.icon}
+                                        <span className="font-medium">{opt.label}</span>
+                                        {status === opt.key && (
+                                            <span className="ml-auto text-xs text-blue-500">현재</span>
+                                        )}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -295,29 +322,6 @@ export function ChallengeStatusPanel({
                             {statusInfo.description}
                         </p>
                     </div>
-
-                    {availableActions.length > 0 && (
-                        <div className="space-y-2">
-                            <h4 className="font-medium text-sm">가능한 액션</h4>
-                            <div className="flex gap-2">
-                                {availableActions.map((action) => (
-                                    <Button
-                                        key={action.key}
-                                        onClick={action.action}
-                                        disabled={isStatusChanging}
-                                        className={cn(
-                                            "flex items-center gap-2 flex-1",
-                                            action.buttonClassName
-                                        )}
-                                        size="sm"
-                                    >
-                                        {action.icon}
-                                        {action.label}
-                                    </Button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </CardContent>
             </Card>
         );

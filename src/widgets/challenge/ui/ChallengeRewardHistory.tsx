@@ -112,8 +112,8 @@ export function ChallengeRewardHistory({ challengeId }: ChallengeRewardHistoryPr
     return (
         <>
             <Card className="h-full flex flex-col">
-                <CardHeader className="rounded-t-xl px-5 py-4 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0 items-center gap-0">
-                    <div className="flex items-center justify-between w-full">
+                <CardHeader className="rounded-t-xl px-5 py-4 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0">
+                    <div className="flex items-center justify-between">
                         <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight">
                             <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-purple-100/70 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
                                 <History className="h-4 w-4" />

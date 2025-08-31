@@ -53,6 +53,7 @@ export function AppHeaderClient() {
                     <nav className="flex items-center gap-6">
                         {[
                             { href: "/challenge", label: "챌린지" },
+                            { href: "/challenge-stats", label: "챌린지 통계" },
                             { href: "/dashboard", label: "Tech Hub" },
                             { href: "/freeboard", label: "자유 게시판" },
                             { href: "/members", label: "회원 관리" },
@@ -61,14 +62,18 @@ export function AppHeaderClient() {
                             { href: "/docs/challenge-history", label: "챌린지 히스토리" },
                             { href: "/docs/auth-system", label: "권한 시스템" },
                         ].map(({ href, label }) => {
-                            const isActive = pathname === href || (href !== "/" && pathname?.startsWith(href));
+                            // 정확한 경로 매칭 - pathname이 정확히 href이거나, href/로 시작하는 경우만 활성화
+                            const isActive = pathname === href || (
+                                href !== "/" && 
+                                pathname?.startsWith(href + "/")
+                            );
                             return (
                                 <Link
                                     key={href}
                                     href={href}
                                     className={`text-sm font-medium transition-colors px-2 py-1 rounded-md ${
                                         isActive
-                                            ? "text-blue-600 font-bold underline underline-offset-4 bg-blue-50 border border-blue-300"
+                                            ? "text-blue-600 font-bold bg-blue-50 border border-blue-300"
                                             : "text-muted-foreground hover:text-foreground"
                                     }`}
                                 >

@@ -12,11 +12,11 @@ export interface ChallengeStatusChangeResponse {
         email?: string;
         tags: string[];
         participantIds: number[];
-        status: 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+        status: 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
         startDate: string;
         endDate: string;
         rewardAmount: number;
-        rewardType: 'CASH' | 'POINT' | 'ITEM';
+        rewardType: 'CASH' | 'ITEM';
         createdAt: string;
         updatedAt: string;
     };
@@ -30,11 +30,6 @@ export async function apiForStartChallenge(challengeId: number): Promise<Challen
 
 export async function apiForCompleteChallenge(challengeId: number): Promise<ChallengeStatusChangeResponse> {
     const { data } = await api.patch<ChallengeStatusChangeResponse>(`/api/challenges/${challengeId}/complete`);
-    return data;
-}
-
-export async function apiForCancelChallenge(challengeId: number): Promise<ChallengeStatusChangeResponse> {
-    const { data } = await api.patch<ChallengeStatusChangeResponse>(`/api/challenges/${challengeId}/cancel`);
     return data;
 }
 

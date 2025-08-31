@@ -5,6 +5,7 @@ import "./globals.css";
 import { Toaster } from "@/shared/ui/sonner";
 import AppHeader from "@/widgets/header/ui/AppHeader";
 import QueryProvider from "@/shared/providers/query-client-provider";
+import { ErrorOverlayProvider } from '@/shared/components/ErrorOverlay';
 import { ConditionalAuthGuard } from "@/shared/lib/conditional-auth-guard";
 
 const geistSans = Geist({
@@ -31,11 +32,13 @@ export default function RootLayout({
     <html lang="ko">
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background text-foreground`}>
         <QueryProvider>
-          <ConditionalAuthGuard>
-            <AppHeader />
-            <Suspense fallback={null}>{children}</Suspense>
-          </ConditionalAuthGuard>
-          <Toaster />
+          <ErrorOverlayProvider>
+            <ConditionalAuthGuard>
+              <AppHeader />
+              <Suspense fallback={null}>{children}</Suspense>
+            </ConditionalAuthGuard>
+            <Toaster />
+          </ErrorOverlayProvider>
         </QueryProvider>
       </body>
     </html>

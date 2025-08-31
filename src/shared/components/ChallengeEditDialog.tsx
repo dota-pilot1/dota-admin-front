@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui/dialog';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
+import { TagifyInput } from '@/shared/ui/TagifyInput';
 import { Textarea } from '@/shared/ui/textarea';
 import { Label } from '@/shared/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
@@ -20,11 +21,13 @@ interface Challenge {
   rewardType: 'CASH' | 'ITEM';
   startDate: string;
   endDate: string;
+  status: string;
 }
 
 interface ChallengeEditDialogProps {
   challenge: Challenge;
   children?: React.ReactNode;
+  disabled?: boolean;
 }
 
 export function ChallengeEditDialog({ challenge, children }: ChallengeEditDialogProps) {
@@ -66,7 +69,7 @@ export function ChallengeEditDialog({ challenge, children }: ChallengeEditDialog
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children || (
-          <Button size="sm" variant="outline" className="h-8 px-3 text-xs">
+          <Button size="sm" variant="outline" className="h-8 px-3 text-xs" disabled={!!challenge.status && challenge.status === 'COMPLETED'}>
             <Edit3 className="h-3 w-3 mr-1" />
             수정
           </Button>
@@ -84,6 +87,7 @@ export function ChallengeEditDialog({ challenge, children }: ChallengeEditDialog
               value={formData.title}
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               required
+              disabled={!!challenge.status && challenge.status === 'COMPLETED'}
             />
           </div>
           
@@ -94,16 +98,17 @@ export function ChallengeEditDialog({ challenge, children }: ChallengeEditDialog
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               rows={3}
+              disabled={!!challenge.status && challenge.status === 'COMPLETED'}
             />
           </div>
           
           <div>
-            <Label htmlFor="tags">태그 (쉼표로 구분)</Label>
-            <Input
-              id="tags"
-              value={formData.tags.join(', ')}
-              onChange={(e) => handleTagsChange(e.target.value)}
+            <Label htmlFor="tags">태그</Label>
+            <TagifyInput
+              value={formData.tags}
+              onChange={(tags) => setFormData(prev => ({ ...prev, tags }))}
               placeholder="예: react, typescript, frontend"
+              disabled={!!challenge.status && challenge.status === 'COMPLETED'}
             />
           </div>
           
@@ -115,6 +120,7 @@ export function ChallengeEditDialog({ challenge, children }: ChallengeEditDialog
                 onValueChange={(value: 'CASH' | 'ITEM') => 
                   setFormData(prev => ({ ...prev, rewardType: value }))
                 }
+                disabled={!!challenge.status && challenge.status === 'COMPLETED'}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -134,6 +140,7 @@ export function ChallengeEditDialog({ challenge, children }: ChallengeEditDialog
                 value={formData.rewardAmount}
                 onChange={(e) => setFormData(prev => ({ ...prev, rewardAmount: Number(e.target.value) }))}
                 required
+                disabled={!!challenge.status && challenge.status === 'COMPLETED'}
               />
             </div>
           </div>
@@ -147,6 +154,7 @@ export function ChallengeEditDialog({ challenge, children }: ChallengeEditDialog
                 value={formData.startDate}
                 onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
                 required
+                disabled={!!challenge.status && challenge.status === 'COMPLETED'}
               />
             </div>
             
@@ -158,6 +166,7 @@ export function ChallengeEditDialog({ challenge, children }: ChallengeEditDialog
                 value={formData.endDate}
                 onChange={(e) => setFormData(prev => ({ ...prev, endDate: e.target.value }))}
                 required
+                disabled={!!challenge.status && challenge.status === 'COMPLETED'}
               />
             </div>
           </div>
@@ -166,7 +175,7 @@ export function ChallengeEditDialog({ challenge, children }: ChallengeEditDialog
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               취소
             </Button>
-            <Button type="submit" disabled={updateMutation.isPending}>
+            <Button type="submit" disabled={updateMutation.isPending || (!!challenge.status && challenge.status === 'COMPLETED')}>
               {updateMutation.isPending ? '수정 중...' : '수정'}
             </Button>
           </div>

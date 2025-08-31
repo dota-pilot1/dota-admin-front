@@ -3,7 +3,7 @@ import api from "@/shared/lib/axios";
 export type RewardRequest = {
     participantId: number;
     amount: number;
-    method: 'POINT' | 'CASH';
+    method: 'CASH';
     reason: string;
 };
 

@@ -4,7 +4,7 @@ export interface RewardRequest {
   challengeId: number;
   participantId: number;
   amount: number;
-  method: string; // "포인트" | "현금"
+  method: string; // "현금"
   reason: string;
 }
 
