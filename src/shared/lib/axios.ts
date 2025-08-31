@@ -46,7 +46,7 @@ export function getApiBaseURL() {
 
 const api = axios.create({
     baseURL,
-    withCredentials: false, // JWT 헤더 사용하므로 불필요
+    withCredentials: true, // refresh_token 쿠키 포함하기 위해 true로 변경
 });
 
 // Request interceptor: localStorage에서 토큰 읽어서 헤더에 추가
@@ -61,40 +61,54 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
-// Response interceptor: 간단한 에러 처리
+// Response interceptor: 토큰 만료 시 자동 갱신
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        // 개발 환경에서만 로깅
-        if (process.env.NODE_ENV === 'development') {
-            // Always log status, url, and message for easier debugging
-            const status = error.response?.status;
-            const url = error.response?.config?.url;
-            const data = error.response?.data;
-            const fallbackMsg = error.message || '[No error message]';
-            if (data) {
-                const { success, message, errorCode, details, timestamp } = data;
-                console.error('API Error:', {
-                    status,
-                    url,
-                    errorCode,
-                    message,
-                    details,
-                    timestamp,
-                    success,
-                    raw: data
-                });
-            } else {
-                console.error('API Error:', {
-                    status,
-                    url,
-                    message: fallbackMsg,
-                    raw: error
-                });
+    async (error) => {
+        const originalRequest = error.config;
+        const errorData = error.response?.data;
+        const status = error.response?.status;
+        
+        // 401 에러이고 TOKEN_EXPIRED인 경우에만 refresh 시도
+        if (status === 401 && 
+            errorData?.errorCode === 'TOKEN_EXPIRED' && 
+            !originalRequest._retry && 
+            !originalRequest.url?.includes('/auth/refresh')) {
+            
+            if (process.env.NODE_ENV === 'development') {
+                console.log("⏰ Token expired, attempting refresh");
+            }
+            
+            originalRequest._retry = true;
+            
+            try {
+                const { refreshToken } = await import("@/features/auth/api/refresh");
+                const newToken = await refreshToken();
+                
+                if (process.env.NODE_ENV === 'development') {
+                    console.log("✅ Token refresh successful, retrying request");
+                }
+                
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return api(originalRequest);
+            } catch (refreshError) {
+                if (process.env.NODE_ENV === 'development') {
+                    console.log("❌ Token refresh failed");
+                }
+                return Promise.reject(refreshError);
             }
         }
 
-        // 에러를 그대로 throw하여 각 훅에서 처리하도록 함
+        // 다른 모든 에러는 그대로 전달
+        if (process.env.NODE_ENV === 'development') {
+            console.error('API Error:', {
+                status,
+                url: error.response?.config?.url,
+                errorCode: errorData?.errorCode,
+                message: errorData?.message || error.message
+            });
+        }
+
         return Promise.reject(error);
     }
 );

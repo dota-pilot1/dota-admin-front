@@ -176,20 +176,6 @@ export function AppHeaderClient() {
                                     >
                                         🛡️ AuthGuard
                                     </Link>
-                                    
-                                    <div className="border-t border-gray-200 my-1"></div>
-                                    
-                                    {/* 핵심 요약 섹션 */}
-                                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        핵심 요약
-                                    </div>
-                                    <Link
-                                        href="/docs/login-logic-summary"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        ⚡ 로그인 로직 5단계
-                                    </Link>
                                 </div>
                             )}
                         </div>

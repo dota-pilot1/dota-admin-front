@@ -129,66 +129,27 @@ export function AppHeaderClient() {
                                         📚 문서 홈
                                     </Link>
                                     <div className="border-t border-gray-200 my-1"></div>
-                                    
-                                    {/* 로그인 시스템 섹션 */}
-                                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        로그인 시스템
-                                    </div>
-                                    <Link
-                                        href="/docs/login-overview"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        🏗️ 시스템 개요
-                                    </Link>
                                     <Link
                                         href="/docs/login-system-guide"
                                         className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         onClick={() => setDocsOpen(false)}
                                     >
-                                        🔄 프로세스 가이드
+                                        � 로그인 시스템 가이드
                                     </Link>
-                                    
+                                    <Link
+                                        href="/docs/login-flow-analysis"
+                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        onClick={() => setDocsOpen(false)}
+                                    >
+                                        � 로그인 플로우 분석
+                                    </Link>
                                     <div className="border-t border-gray-200 my-1"></div>
-                                    
-                                    {/* 인증 컴포넌트 섹션 */}
-                                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        인증 컴포넌트
-                                    </div>
                                     <Link
-                                        href="/docs/axios-vs-authguard"
+                                        href="/docs/token-basics"
                                         className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         onClick={() => setDocsOpen(false)}
                                     >
-                                        🔄 Axios vs AuthGuard
-                                    </Link>
-                                    <Link
-                                        href="/docs/axios-interceptor"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        🚀 Axios 인터셉터
-                                    </Link>
-                                    <Link
-                                        href="/docs/authguard"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        🛡️ AuthGuard
-                                    </Link>
-                                    
-                                    <div className="border-t border-gray-200 my-1"></div>
-                                    
-                                    {/* 핵심 요약 섹션 */}
-                                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        핵심 요약
-                                    </div>
-                                    <Link
-                                        href="/docs/login-logic-summary"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        ⚡ 로그인 로직 5단계
+                                        � 토큰 기초 이해하기
                                     </Link>
                                 </div>
                             )}

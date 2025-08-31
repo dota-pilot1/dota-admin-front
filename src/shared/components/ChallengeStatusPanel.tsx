@@ -150,6 +150,8 @@ export function ChallengeStatusPanel({
                                 size="sm"
                                 className="h-7 w-7 p-0 hover:bg-gray-100 rounded-full"
                                 disabled={isStatusChanging}
+                                onClick={(e) => e.stopPropagation()}
+                                onMouseDown={(e) => e.stopPropagation()}
                             >
                                 <MoreHorizontal className="h-4 w-4" />
                                 <span className="sr-only">상태 변경</span>

@@ -15,8 +15,7 @@ export function ChallengeList({ items, onSelect, selectedId }: {
         <div className="grid grid-cols-1 gap-3">
             {items.map((ch) => (
                 <div key={ch.id} className="relative group">
-                    <button
-                        type="button"
+                    <div
                         tabIndex={0}
                         onClick={() => onSelect(ch.id)}
                         onKeyDown={(e) => {
@@ -25,7 +24,9 @@ export function ChallengeList({ items, onSelect, selectedId }: {
                                 onSelect(ch.id);
                             }
                         }}
-                        className="text-left w-full cursor-pointer focus:outline-none"
+                        className="text-left w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-lg"
+                        role="button"
+                        aria-label={`${ch.title} 챌린지 선택`}
                     >
                         <Card className={`${selectedId === ch.id ? "border-primary shadow-md" : "hover:border-foreground/30 hover:shadow-sm"} transition-all duration-200 border-2 p-4`}>
                             <div className="flex items-center justify-between">
@@ -44,7 +45,7 @@ export function ChallengeList({ items, onSelect, selectedId }: {
                                 />
                             </div>
                         </Card>
-                    </button>
+                    </div>
                 </div>
             ))}
         </div>

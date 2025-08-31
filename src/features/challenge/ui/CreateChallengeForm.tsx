@@ -21,6 +21,7 @@ import { useApiForCreateChallenge } from "@/features/challenge/hooks/useApiForCr
 import { getToastErrorMessage } from "@/shared/lib/error-utils";
 import { canCreateChallenge } from "@/entities/user/lib/auth-utils";
 import EditorForTabsHeadless from "@/shared/components/editor-for-tabs-headless";
+import { Textarea } from "@/shared/ui/textarea"; // 추가
 
 export function CreateChallengeForm() {
   const [title, setTitle] = useState("");
@@ -197,20 +198,21 @@ export function CreateChallengeForm() {
                 maxLength={255}
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="description" className="text-right pt-2">
                 설명 *
               </Label>
-              <Input
+              <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => {
                   setDescription(e.target.value);
                   clearFieldError('설명');
                 }}
-                className="col-span-3"
+                className="col-span-3 resize-y"
                 placeholder="챌린지 설명을 입력하세요 (최대 1000자)"
                 maxLength={1000}
+                rows={5}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
