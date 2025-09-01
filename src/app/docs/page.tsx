@@ -8,6 +8,15 @@ import Link from "next/link";
 
 const docItems = [
     {
+        id: "authorization-process",
+        title: "권한 관리 프로세스",
+        description: "백엔드 권한 관리 시스템의 전체 프로세스를 단계별로 설명",
+        icon: ShieldCheck,
+        href: "/docs/authorization-process",
+        tags: ["권한", "인증", "Spring Security", "JWT"],
+        priority: "high"
+    },
+    {
         id: "auth-system",
         title: "권한 / 롤 시스템",
         description: "현재 Role 기반 구조와 초기화 & 등록 정책 설명",

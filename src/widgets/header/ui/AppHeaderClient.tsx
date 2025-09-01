@@ -110,6 +110,7 @@ export function AppHeaderClient() {
                             { href: "/dashboard", label: "Tech Hub" },
                             { href: "/freeboard", label: "자유 게시판" },
                             { href: "/members", label: "회원 관리" },
+                            { href: "/docs2", label: "문서2" },
                             // { href: "/payments", label: "결제 내역" }, // 임시 주석 처리
                         ].map(({ href, label }) => {
                             // 기본 선택: 루트('/')일 때 챌린지 메뉴(/challenge) 활성화
@@ -188,6 +189,27 @@ export function AppHeaderClient() {
                                         onClick={() => setDocsOpen(false)}
                                     >
                                         🗄️ 백엔드 총정리
+                                    </Link>
+                                    
+                                    <div className="border-t border-gray-200 my-1"></div>
+                                    
+                                    {/* 권한 관리 섹션 */}
+                                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                        권한 관리
+                                    </div>
+                                    <Link
+                                        href="/docs/authorization-process"
+                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        onClick={() => setDocsOpen(false)}
+                                    >
+                                        🔐 권한 관리 프로세스
+                                    </Link>
+                                    <Link
+                                        href="/docs/auth-system"
+                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        onClick={() => setDocsOpen(false)}
+                                    >
+                                        🛡️ 권한 / 롤 시스템
                                     </Link>
                                     
                                     <div className="border-t border-gray-200 my-1"></div>
