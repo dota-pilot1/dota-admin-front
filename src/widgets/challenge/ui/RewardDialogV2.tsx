@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CommonDialog } from "@/shared/ui/CommonDialog";
-import { RewardParticipantSelector, type ParticipantOption } from "./RewardParticipantSelector";
+import { RewardParticipantSelector, type Participant } from "./RewardParticipantSelector";
 
 interface RewardDialogV2Props {
   open: boolean;
@@ -8,7 +8,7 @@ interface RewardDialogV2Props {
   onReward: (participantId: number, amount: number, reason: string, method: string) => void;
   challengeId: number;
   challengeTitle?: string;
-  participants: ParticipantOption[];
+  participants: Participant[];
   defaultAmount?: number;
   defaultMethod?: string;
 }
@@ -23,7 +23,7 @@ export function RewardDialogV2({
   defaultAmount = 1000, 
   defaultMethod = "포인트" 
 }: RewardDialogV2Props) {
-  const [selectedParticipant, setSelectedParticipant] = useState<ParticipantOption | null>(null);
+  const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
   const [amount, setAmount] = useState(defaultAmount);
   const [reason, setReason] = useState("");
   const [method, setMethod] = useState(defaultMethod);

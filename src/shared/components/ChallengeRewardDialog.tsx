@@ -16,7 +16,7 @@ import { Badge } from "@/shared/ui/badge";
 import { Award, Users, AlertCircle } from "lucide-react";
 import { useApiForGetChallengeDetail } from "@/features/challenge/hooks/useApiForGetChallengeDetail";
 import { useIssueReward } from "@/features/challenge/hooks/useIssueReward";
-import { RewardParticipantSelector, type ParticipantOption } from "@/widgets/challenge/ui/RewardParticipantSelector";
+import { RewardParticipantSelector, type Participant } from "@/widgets/challenge/ui/RewardParticipantSelector";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { RewardSuccessDialog } from "./RewardSuccessDialog";
@@ -35,7 +35,7 @@ export function ChallengeRewardDialog({
     disabled = false
 }: ChallengeRewardDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedParticipant, setSelectedParticipant] = useState<ParticipantOption | null>(null);
+    const [selectedParticipant, setSelectedParticipant] = useState<Participant | null>(null);
     const [reason, setReason] = useState<string>("");
     const [rewardedCount, setRewardedCount] = useState<number>(0);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
@@ -47,8 +47,8 @@ export function ChallengeRewardDialog({
     const challenge = data?.challenge;
     const participants = challenge?.participants || [];
 
-    // ParticipantOption 형태로 변환
-    const participantOptions: ParticipantOption[] = participants.map(p => ({
+    // Participant 형태로 변환
+    const participantOptions: Participant[] = participants.map(p => ({
         id: p.id,
         email: p.email || '',
         username: p.name || ''

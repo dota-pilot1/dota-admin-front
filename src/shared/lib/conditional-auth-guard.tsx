@@ -7,7 +7,7 @@ interface ConditionalAuthGuardProps {
   children: React.ReactNode;
 }
 
-const PUBLIC_ROUTES = ['/', '/login', '/register']; // 인증이 필요없는 페이지들
+const PUBLIC_ROUTES = ['/', '/login', '/register', '/favorites']; // 인증이 필요없는 페이지들
 
 export function ConditionalAuthGuard({ children }: ConditionalAuthGuardProps) {
   const pathname = usePathname();
