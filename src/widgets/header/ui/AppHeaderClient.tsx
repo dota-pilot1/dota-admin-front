@@ -198,18 +198,11 @@ export function AppHeaderClient() {
                                         권한 관리
                                     </div>
                                     <Link
-                                        href="/docs/authorization-process"
+                                        href="/docs/jwt-authorization"
                                         className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         onClick={() => setDocsOpen(false)}
                                     >
-                                        🔐 권한 관리 프로세스
-                                    </Link>
-                                    <Link
-                                        href="/docs/auth-system"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        🛡️ 권한 / 롤 시스템
+                                        🚀 JWT 토큰 기반 권한 시스템
                                     </Link>
                                     
                                     <div className="border-t border-gray-200 my-1"></div>
