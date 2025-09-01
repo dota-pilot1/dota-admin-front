@@ -14,8 +14,7 @@ export default function JwtAuthorizationPage() {
                     Spring Security와 JWT 토큰을 연동한 고성능 권한 인증 시스템 구현 가이드
                 </p>
             </div>
-
-            {/* Spring Security 연동 개요 */}
+            {/* (초기 하이라이트 블록 제거됨 - 실제 핵심 암기 블록은 Step 3 아래에 위치) */}
             <Card className="mb-6">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -25,7 +24,7 @@ export default function JwtAuthorizationPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="mb-4">
-                        JWT 토큰에 포함된 권한 정보를 Spring Security의 인증/인가 시스템과 연동하여 
+                        JWT 토큰에 포함된 권한 정보를 Spring Security의 인증/인가 시스템과 연동하여
                         <strong> 메모리 기반 고속 권한 관리</strong>를 구현합니다.
                     </p>
                     
@@ -122,8 +121,7 @@ export default function JwtAuthorizationPage() {
                         </div>
                         <p className="text-sm text-gray-600 mb-3">사용자의 역할과 권한 정보를 JWT 토큰에 포함하는 메서드를 구현합니다.</p>
                         <div className="bg-gray-50 p-4 rounded-lg">
-                            <pre className="text-sm overflow-x-auto">
-{`// JwtUtil.java
+                            <pre className="text-sm overflow-x-auto">{`// JwtUtil.java
 public String generateToken(String email, String roleName, List<String> authorities) {
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + expiration);
@@ -136,8 +134,7 @@ public String generateToken(String email, String roleName, List<String> authorit
             .expiration(expiryDate)
             .signWith(getSigningKey())
             .compact();
-}`}
-                            </pre>
+}`}</pre>
                         </div>
                     </div>
 
@@ -149,8 +146,7 @@ public String generateToken(String email, String roleName, List<String> authorit
                         </div>
                         <p className="text-sm text-gray-600 mb-3">토큰을 한 번만 파싱하여 모든 사용자 정보를 추출하는 메서드를 구현합니다.</p>
                         <div className="bg-gray-50 p-4 rounded-lg">
-                            <pre className="text-sm overflow-x-auto">
-{`// JwtUtil.java
+                            <pre className="text-sm overflow-x-auto">{`// JwtUtil.java
 public TokenInfo getTokenInfo(String token) {
     Claims claims = Jwts.parser()
             .verifyWith(getSigningKey())
@@ -165,21 +161,16 @@ public TokenInfo getTokenInfo(String token) {
     );
 }
 
-// 토큰 정보를 담는 내부 클래스
 public static class TokenInfo {
     private final String email;
     private final String role;
     private final List<String> authorities;
-    
     public TokenInfo(String email, String role, List<String> authorities) {
-        this.email = email;
-        this.role = role;
-        this.authorities = authorities;
-    }
-    
-    // getter 메서드들...
-}`}
-                            </pre>
+        this.email = email; this.role = role; this.authorities = authorities; }
+    public String getEmail() { return email; }
+    public String getRole() { return role; }
+    public List<String> getAuthorities() { return authorities; }
+}`}</pre>
                         </div>
                     </div>
 
@@ -257,6 +248,46 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
     filterChain.doFilter(request, response);
 }`}
                             </pre>
+                        </div>
+                    </div>
+
+                    {/* 🔦 핵심 암기 블록 (형광펜 효과) - JwtAuthenticationFilter 설명 바로 아래 */}
+                    <div className="mt-6 bg-yellow-50/80 border border-yellow-200 rounded-lg p-4 shadow-sm relative overflow-hidden">
+                        <div className="pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(135deg,rgba(255,243,191,0.35)_0px,rgba(255,243,191,0.35)_8px,rgba(255,255,255,0.4)_8px,rgba(255,255,255,0.4)_16px)] mix-blend-multiply" />
+                        <div className="relative">
+                            <h5 className="font-semibold text-yellow-800 mb-2 flex items-center gap-2">
+                                <span className="inline-block px-2 py-0.5 rounded bg-yellow-400 text-xs font-bold text-yellow-900 shadow">암기!</span>
+                                Spring Security 권한 주입 핵심 4단계
+                            </h5>
+                            <ol className="text-sm text-yellow-900 space-y-1 font-medium">
+                                <li>1. <code className="bg-white/70 px-1 rounded">role</code> → <code className="bg-yellow-200 px-1 rounded">ROLE_(role값)</code> 형태로 변환</li>
+                                <li>2. <code className="bg-white/70 px-1 rounded">authorities[]</code> 그대로 <code className="bg-yellow-200 px-1 rounded">GrantedAuthority</code> 로 매핑</li>
+                                <li>3. <code className="bg-white/70 px-1 rounded">new UsernamePasswordAuthenticationToken(email, null, grantedAuthorities)</code></li>
+                                <li>4. <code className="bg-white/70 px-1 rounded">SecurityContextHolder.getContext().setAuthentication(authToken)</code></li>
+                            </ol>
+                            <div className="mt-3 text-xs text-yellow-700 leading-relaxed">
+                                이 블록이 실행되면 <code className="bg-yellow-100 px-1 rounded">@PreAuthorize</code> 가 사용할 수 있는 권한 목록이 <strong>메모리(SecurityContext)</strong> 에 실시간 세팅됩니다. <br />
+                                즉, <span className="bg-yellow-300 px-1 rounded font-semibold">ROLE_*</span> / 개별 <span className="bg-yellow-300 px-1 rounded font-semibold">권한 문자열</span> 이 모두 GrantedAuthority 로 등록되어 컨트롤러 진입 직전에 검증됩니다.
+                            </div>
+                            <div className="mt-4 grid md:grid-cols-2 gap-3 text-xs">
+                                <div className="bg-white/70 border border-yellow-200 rounded p-2">
+                                    <p className="font-semibold text-yellow-800 mb-1">암기용 최소 패턴</p>
+                                    <pre className="text-[11px] leading-4 overflow-x-auto">{`List<GrantedAuthority> auths = new ArrayList<>();
+if (role != null) auths.add(new SimpleGrantedAuthority("ROLE_" + role));
+for (String a : authorities) auths.add(new SimpleGrantedAuthority(a));
+Authentication at = new UsernamePasswordAuthenticationToken(email, null, auths);
+SecurityContextHolder.getContext().setAuthentication(at);`}</pre>
+                                </div>
+                                <div className="bg-white/70 border border-yellow-200 rounded p-2">
+                                    <p className="font-semibold text-yellow-800 mb-1">자주 하는 실수 🚫</p>
+                                    <ul className="list-disc list-inside space-y-1 text-yellow-800">
+                                        <li><code className="bg-yellow-100 px-1 rounded">ROLE_</code> 접두사 빠뜨림</li>
+                                        <li>authorities 를 String 그대로 SecurityContext 에 넣지 않음</li>
+                                        <li>authToken 만들고 <code className="bg-yellow-100 px-1 rounded">setAuthentication()</code> 호출 누락</li>
+                                        <li>토큰 만료/검증 전에 파싱 시도</li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
