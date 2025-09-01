@@ -117,7 +117,7 @@ export default function JwtAuthorizationPage() {
                     <div className="border-l-4 border-blue-500 pl-4">
                         <div className="flex items-center gap-2 mb-2">
                             <Badge className="bg-blue-500 text-white">1</Badge>
-                            <h4 className="font-semibold">JwtUtil에 권한 정보를 포함한 토큰 생성 메서드 구현</h4>
+                            <h4 className="font-semibold">JwtUtil에 권한 정보를 포함한 토큰 생성 메서드 구현 <span className="text-xs font-normal text-blue-600">(로그인 단계 또는 로그인 검증 단계에서 사용되는 핵심 로직)</span></h4>
                         </div>
                         <p className="text-sm text-gray-600 mb-3">사용자의 역할과 권한 정보를 JWT 토큰에 포함하는 메서드를 구현합니다.</p>
                         <div className="bg-gray-50 p-4 rounded-lg">
