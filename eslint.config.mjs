@@ -16,7 +16,12 @@ const eslintConfig = [
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/ban-ts-comment": [
         "warn",
-        { "ts-expect-error": "allow-without-description" }
+        { 
+          "ts-expect-error": "allow-with-description",
+          "ts-ignore": "allow-with-description",
+          "ts-nocheck": true,
+          "ts-check": false
+        }
       ]
     }
   }
