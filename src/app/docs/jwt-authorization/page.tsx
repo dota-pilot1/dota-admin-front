@@ -142,7 +142,7 @@ public String generateToken(String email, String roleName, List<String> authorit
                     <div className="border-l-4 border-green-500 pl-4">
                         <div className="flex items-center gap-2 mb-2">
                             <Badge className="bg-green-500 text-white">2</Badge>
-                            <h4 className="font-semibold">토큰에서 모든 정보를 한번에 추출하는 메서드 추가</h4>
+                            <h4 className="font-semibold">토큰에서 모든 정보를 한번에 추출하는 메서드 추가 <span className="text-xs font-normal text-green-600">(사용자 식별이 필요한 모든 API 에서 공통 재사용되는 파싱 로직)</span></h4>
                         </div>
                         <p className="text-sm text-gray-600 mb-3">토큰을 한 번만 파싱하여 모든 사용자 정보를 추출하는 메서드를 구현합니다.</p>
                         <div className="bg-gray-50 p-4 rounded-lg">
