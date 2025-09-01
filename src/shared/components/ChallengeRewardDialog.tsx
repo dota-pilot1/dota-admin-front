@@ -11,19 +11,15 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/shared/ui/dialog";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/shared/ui/select";
 import { Input } from "@/shared/ui/input";
 import { Badge } from "@/shared/ui/badge";
 import { Award, Users, AlertCircle } from "lucide-react";
 import { useApiForGetChallengeDetail } from "@/features/challenge/hooks/useApiForGetChallengeDetail";
 import { useIssueReward } from "@/features/challenge/hooks/useIssueReward";
+import { RewardParticipantSelector, type ParticipantOption } from "@/widgets/challenge/ui/RewardParticipantSelector";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { RewardSuccessDialog } from "./RewardSuccessDialog";
 
 interface ChallengeRewardDialogProps {
     challengeId: number;
@@ -39,27 +35,72 @@ export function ChallengeRewardDialog({
     disabled = false
 }: ChallengeRewardDialogProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedParticipantId, setSelectedParticipantId] = useState<string>("");
+    const [selectedParticipant, setSelectedParticipant] = useState<ParticipantOption | null>(null);
     const [reason, setReason] = useState<string>("");
+    const [rewardedCount, setRewardedCount] = useState<number>(0);
+    const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+    const [successData, setSuccessData] = useState<{ participantName: string; amount: number } | null>(null);
     
-    const { data } = useApiForGetChallengeDetail(challengeId);
+    const queryClient = useQueryClient();
+    const { data, refetch } = useApiForGetChallengeDetail(challengeId);
     
     const challenge = data?.challenge;
     const participants = challenge?.participants || [];
 
+    // ParticipantOption 형태로 변환
+    const participantOptions: ParticipantOption[] = participants.map(p => ({
+        id: p.id,
+        email: p.email || '',
+        username: p.name || ''
+    }));
+
+    // 포상받은 참여자 수 업데이트 함수
+    const handleRewardedCountChange = (count: number) => {
+        setRewardedCount(count);
+    };
+
     const issueRewardMutation = useIssueReward({
         challengeId,
-        onSuccess: () => {
-            const participant = participants.find(p => p.id.toString() === selectedParticipantId);
-            toast.success(`${participant?.name}님에게 포상이 지급되었습니다.`);
+        onSuccess: async () => {
+            // 성공 다이얼로그 데이터 설정
+            if (selectedParticipant && challenge) {
+                setSuccessData({
+                    participantName: selectedParticipant.username,
+                    amount: challenge.rewardAmount
+                });
+                setShowSuccessDialog(true);
+            }
+            
+            // 포상 상태 강제 업데이트
+            setTimeout(async () => {
+                // 챌린지 상세 정보 강제 리페치
+                await refetch();
+                
+                // 모든 관련 쿼리들 무효화 (더 광범위하게)
+                queryClient.invalidateQueries({ queryKey: ['challenge'] });
+                queryClient.invalidateQueries({ queryKey: ['challenges'] });
+                queryClient.invalidateQueries({ queryKey: ['reward'] });
+                queryClient.invalidateQueries({ queryKey: ['rewardHistory'] });
+                
+                // 특정 challengeId 관련 쿼리들
+                queryClient.invalidateQueries({ queryKey: ['challenge', 'detail', challengeId] });
+                queryClient.invalidateQueries({ queryKey: ['challenges', challengeId] });
+                
+                // 전체 페이지 강제 새로고침 (마지막 수단)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 500);
+                
+                setSelectedParticipant(null);
+                setReason("");
+            }, 1000);
+            
             setIsOpen(false);
-            setSelectedParticipantId("");
-            setReason("");
         }
     });
 
     const handleReward = async () => {
-        if (!selectedParticipantId) {
+        if (!selectedParticipant) {
             toast.error("참여자를 선택해주세요.");
             return;
         }
@@ -69,19 +110,13 @@ export function ChallengeRewardDialog({
             return;
         }
 
-        const participant = participants.find(p => p.id.toString() === selectedParticipantId);
-        if (!participant) {
-            toast.error("선택된 참여자를 찾을 수 없습니다.");
-            return;
-        }
-
         if (!challenge) {
             toast.error("챌린지 정보를 찾을 수 없습니다.");
             return;
         }
 
         issueRewardMutation.mutate({
-            participantId: parseInt(selectedParticipantId),
+            participantId: selectedParticipant.id,
             amount: challenge.rewardAmount,
             method: 'CASH', // 항상 CASH로 고정
             reason: reason.trim()
@@ -89,10 +124,11 @@ export function ChallengeRewardDialog({
     };
 
     return (
+        <>
         <Dialog open={isOpen} onOpenChange={(open) => {
             setIsOpen(open);
             if (!open) {
-                setSelectedParticipantId("");
+                setSelectedParticipant(null);
                 setReason("");
             }
         }}>
@@ -103,7 +139,7 @@ export function ChallengeRewardDialog({
                     disabled={disabled || !challenge || participants.length === 0}
                 >
                     <Award className="h-4 w-4 mr-1" />
-                    포상 ({participants.length}명)
+                    포상 (완료: {rewardedCount}명 / 전체: {participants.length}명)
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
@@ -135,7 +171,7 @@ export function ChallengeRewardDialog({
                     <div className="space-y-2">
                         <label className="text-sm font-medium flex items-center gap-2">
                             <Users className="h-4 w-4" />
-                            참여자 선택 ({participants.length}명)
+                            참여자 선택 (완료: {rewardedCount}명 / 전체: {participants.length}명)
                         </label>
                         
                         {participants.length === 0 ? (
@@ -144,25 +180,14 @@ export function ChallengeRewardDialog({
                                 참여자가 없습니다.
                             </div>
                         ) : (
-                            <Select value={selectedParticipantId} onValueChange={setSelectedParticipantId}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="포상을 받을 참여자를 선택하세요" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {participants.map((participant) => (
-                                        <SelectItem key={participant.id} value={participant.id.toString()}>
-                                            <div className="flex items-center gap-2">
-                                                <span>{participant.name}</span>
-                                                {participant.email && (
-                                                    <Badge variant="outline" className="text-xs">
-                                                        {participant.email}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <RewardParticipantSelector
+                                challengeId={challengeId}
+                                participants={participantOptions}
+                                selectedParticipant={selectedParticipant}
+                                onSelect={setSelectedParticipant}
+                                onRewardedCountChange={handleRewardedCountChange}
+                                placeholder="포상을 받을 참여자를 선택하세요"
+                            />
                         )}
                     </div>
 
@@ -190,7 +215,7 @@ export function ChallengeRewardDialog({
                         variant="outline" 
                         onClick={() => {
                             setIsOpen(false);
-                            setSelectedParticipantId("");
+                            setSelectedParticipant(null);
                             setReason("");
                         }}
                         disabled={issueRewardMutation.isPending}
@@ -199,7 +224,7 @@ export function ChallengeRewardDialog({
                     </Button>
                     <Button 
                         onClick={handleReward}
-                        disabled={!selectedParticipantId || !reason.trim() || issueRewardMutation.isPending || participants.length === 0}
+                        disabled={!selectedParticipant || !reason.trim() || issueRewardMutation.isPending || participants.length === 0}
                         className="bg-yellow-500 hover:bg-yellow-600 text-white"
                     >
                         {issueRewardMutation.isPending ? "처리 중..." : "포상 지급"}
@@ -207,5 +232,19 @@ export function ChallengeRewardDialog({
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+
+        {/* 화려한 성공 다이얼로그 */}
+        {successData && (
+            <RewardSuccessDialog
+                isOpen={showSuccessDialog}
+                onClose={() => {
+                    setShowSuccessDialog(false);
+                    setSuccessData(null);
+                }}
+                participantName={successData.participantName}
+                amount={successData.amount}
+            />
+        )}
+        </>
     );
 }
