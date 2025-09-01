@@ -221,7 +221,7 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
                 grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
             }
             
-            // AUTHORITY 변환: CREATE_USER → CREATE_USER (그대로)
+            // AUTHORITY 변환: CREATE_USER 문자열 → new SimpleGrantedAuthority("CREATE_USER") 객체 (래핑)
             if (authorities != null && !authorities.isEmpty()) {
                 for (String authority : authorities) {
                     grantedAuthorities.add(new SimpleGrantedAuthority(authority));
@@ -261,7 +261,7 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
                             </h5>
                             <ol className="text-sm text-yellow-900 space-y-1 font-medium">
                                 <li>1. <code className="bg-white/70 px-1 rounded">role</code> → <code className="bg-yellow-200 px-1 rounded">ROLE_(role값)</code> 형태로 변환</li>
-                                <li>2. <code className="bg-white/70 px-1 rounded">authorities[]</code> 그대로 <code className="bg-yellow-200 px-1 rounded">GrantedAuthority</code> 로 매핑</li>
+                                <li>2. <code className="bg-white/70 px-1 rounded">authorities[]</code> 각 문자열 → <code className="bg-yellow-200 px-1 rounded">new SimpleGrantedAuthority(문자열)</code> 로 래핑하여 추가</li>
                                 <li>3. <code className="bg-white/70 px-1 rounded">new UsernamePasswordAuthenticationToken(email, null, grantedAuthorities)</code></li>
                                 <li>4. <code className="bg-white/70 px-1 rounded">SecurityContextHolder.getContext().setAuthentication(authToken)</code></li>
                             </ol>
@@ -282,7 +282,7 @@ SecurityContextHolder.getContext().setAuthentication(at);`}</pre>
                                     <p className="font-semibold text-yellow-800 mb-1">자주 하는 실수 🚫</p>
                                     <ul className="list-disc list-inside space-y-1 text-yellow-800">
                                         <li><code className="bg-yellow-100 px-1 rounded">ROLE_</code> 접두사 빠뜨림</li>
-                                        <li>authorities 를 String 그대로 SecurityContext 에 넣지 않음</li>
+                                        <li>authorities 문자열을 SimpleGrantedAuthority 로 래핑하지 않고 그대로 쓰려 함</li>
                                         <li>authToken 만들고 <code className="bg-yellow-100 px-1 rounded">setAuthentication()</code> 호출 누락</li>
                                         <li>토큰 만료/검증 전에 파싱 시도</li>
                                     </ul>
