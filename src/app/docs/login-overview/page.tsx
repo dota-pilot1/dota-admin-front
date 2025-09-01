@@ -92,6 +92,26 @@ export default function LoginOverviewPage() {
         </div>
       </section>
 
+
+      {/* 관리자 페이지 필요성 및 설계 예시 */}
+      <section className="mb-12">
+        <h2 className="text-3xl font-bold mb-6">👨‍💼 관리자 페이지 필요성</h2>
+        <ul className="list-disc ml-6 mb-4 text-gray-700">
+          <li>회원 관리/세션 관리: 로그인 유저 정보, 세션(RefreshToken) 목록, 강제 로그아웃/차단 기능 제공</li>
+          <li>운영/보안: 실시간 모니터링 및 제어, 보안 사고 대응력 강화</li>
+          <li>추천: 별도의 관리자 페이지에서 유저/세션 관리 기능 구현 권장</li>
+        </ul>
+        <div className="mt-2 p-4 border rounded bg-gray-50">
+          <b>관리자 페이지 설계 예시:</b>
+          <ul className="list-disc ml-6 mt-2">
+            <li>유저 목록/검색/상세 정보</li>
+            <li>세션(RefreshToken) 목록 및 상태 표시</li>
+            <li>강제 로그아웃/차단 버튼</li>
+            <li>실시간 세션 모니터링</li>
+          </ul>
+          <span className="text-xs text-gray-500">※ 운영/보안 강화를 위해 관리자 페이지 구현을 적극 추천합니다.</span>
+        </div>
+      </section>
       {/* 인증 방식 */}
       <section className="mb-12">
         <h2 className="text-3xl font-bold mb-6">🔐 인증 방식</h2>

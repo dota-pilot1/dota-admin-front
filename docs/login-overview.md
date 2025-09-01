@@ -2,7 +2,7 @@
 
 ## 📖 시스템 아키텍처
 
-### 전체 구조
+### 전체 구조 (최신화)
 ```
 ┌─────────────────┐    HTTP Request     ┌─────────────────┐
 │   Frontend      │ ──────────────────> │   Backend       │
@@ -10,118 +10,80 @@
 │                 │ <────────────────── │                 │
 └─────────────────┘    HTTP Response    └─────────────────┘
          │                                       │
-         │                                       │
          v                                       v
-┌─────────────────┐                     ┌─────────────────┐
-│   Local Storage │                     │   PostgreSQL    │
-│   - JWT Token   │                     │   - Users       │
-│   - User Info   │                     │   - Roles       │
-└─────────────────┘                     │   - RefreshTokens│
-                                        └─────────────────┘
+┌─────────────────┐                     ┌─────────────────────────────┐
+│   Local Storage │                     │   PostgreSQL                │
+│   - JWT Token   │                     │   - Users                   │
+│   - User Info   │                     │   - Roles                   │
+└─────────────────┘                     │   - RefreshTokens (DB 관리)  │
+                                        └─────────────────────────────┘
 ```
 
-## 🔐 인증 방식
+## 🔐 인증 방식 및 토큰 관리
 
-| 구분 | 토큰 종류 | 만료 시간 | 저장 위치 | 용도 |
-|------|-----------|-----------|-----------|------|
-| Primary | JWT Access Token | 5분 | localStorage | API 요청 인증 |
-| Secondary | Refresh Token | 14일 | HttpOnly Cookie | 토큰 갱신 |
+| 구분      | 토큰 종류         | 만료 시간 | 저장 위치      | 용도         |
+|-----------|------------------|-----------|---------------|--------------|
+| Primary   | JWT Access Token | 5분       | localStorage  | API 인증     |
+| Secondary | Refresh Token    | 14일      | DB(PostgreSQL)| 재발급/세션관리 |
 
-## 🎯 핵심 컴포넌트
+- Access Token: stateless, 빠른 인증
+- Refresh Token: DB에서 관리, 세션/보안/강제 로그아웃 등 제어 가능
 
-### 프론트엔드
-- **AuthGuard**: 페이지 접근 권한 확인
-- **Axios 인터셉터**: 자동 토큰 첨부 및 갱신
-- **useLogin Hook**: 로그인 처리 및 상태 관리
+---
 
-### 백엔드
-- **JwtAuthenticationFilter**: JWT 토큰 검증
-- **AuthController**: 로그인/로그아웃/토큰갱신 API
-- **RefreshTokenService**: Refresh Token 관리
+## ⚡ DB 기반 토큰 관리 활용 방식
 
-## ⚡ 주요 기능
+- **강제 로그아웃**: 관리자가 회원 관리 페이지에서 특정 사용자의 토큰을 DB에서 삭제/차단 → 즉시 로그아웃
+- **블랙리스트/세션 관리**: 여러 기기/브라우저별 세션 관리, 토큰 이력 추적
+- **보안/운영**: 실시간 세션 제어, 감사/추적 가능
 
-### 1. 자동 토큰 갱신
-```typescript
-// 401 에러 감지 시 자동 처리
-if (errorCode === 'TOKEN_EXPIRED') {
-  const newToken = await refreshToken();
-  // 원본 요청 재시도
+### 주요 구현 예시
+```java
+// 토큰 검증
+public boolean isTokenValid(String token) {
+    RefreshTokenEntity entity = refreshTokenRepository.findByRefreshToken(token);
+    return entity != null && !entity.isRevoked() && entity.getExpiresAt().isAfter(LocalDateTime.now());
+}
+
+// 강제 로그아웃
+public void revokeToken(String token) {
+    RefreshTokenEntity entity = refreshTokenRepository.findByRefreshToken(token);
+    if (entity != null) {
+        entity.setRevoked(true);
+        refreshTokenRepository.save(entity);
+    }
 }
 ```
 
-### 2. Race Condition 방지
-```typescript
-// 로그인 성공 후 지연 리다이렉트
-setTimeout(() => {
-  window.location.href = '/dashboard';
-}, 500);
-```
+---
 
-### 3. Token Rotation
-```java
-// 기존 토큰 무효화 후 새 토큰 발급
-refreshTokenService.invalidateToken(oldToken);
-return generateNewTokens(user);
-```
+## 🔄 전체 플로우
 
-## 🛡️ 보안 특징
+1. 로그인 → 토큰 발급/저장 (Access, Refresh)
+2. API 요청 → Access Token 인증
+3. 만료 시 → Refresh Token으로 재발급 (DB 검증)
+4. 관리자가 토큰 삭제/차단 → 해당 사용자는 즉시 로그아웃
 
-- **BCrypt 해싱**: 비밀번호 안전 저장
-- **JWT 서명**: HMAC SHA-256으로 위조 방지
-- **HttpOnly Cookie**: XSS 공격 방지
-- **Token Rotation**: 토큰 탈취 시 피해 최소화
+---
 
-## 📋 API 엔드포인트
+## 📝 활용/운영 포인트
 
-| 메서드 | 경로 | 설명 | 인증 필요 |
-|--------|------|------|-----------|
-| POST | /api/auth/login | 로그인 | ❌ |
-| POST | /api/auth/refresh | 토큰 갱신 | 🍪 Cookie |
-| POST | /api/auth/logout | 로그아웃 | ✅ JWT |
-| GET | /api/user/me | 내 정보 조회 | ✅ JWT |
+- **RefreshToken DB 저장 시점**: 로그인 성공 시점에 DB에 저장
+- **무효화(삭제/차단) 효과**: 관리자가 DB에서 토큰을 삭제/차단하면, 해당 사용자는 최대 5분(Access Token 만료) 이내에 모든 API 요청이 401로 바뀌며 즉시 로그아웃 효과 발생
+- **실시간 세션 제어**: 여러 기기/브라우저별 토큰 관리 가능, 관리자 페이지에서 특정 유저의 세션을 직접 제어 가능
 
-## 🔄 토큰 생명주기
+---
 
-```
-1. 로그인 성공
-   ↓
-2. JWT (5분) + Refresh Token (14일) 발급
-   ↓
-3. API 요청 시 JWT 자동 첨부
-   ↓
-4. JWT 만료 시 Refresh Token으로 자동 갱신
-   ↓
-5. 새 JWT + 새 Refresh Token 발급 (Token Rotation)
-   ↓
-6. Refresh Token 만료 시 재로그인 필요
-```
+## 👨‍💼 관리자 페이지 필요성
 
-## ⚙️ 환경 설정
+- **회원 관리/세션 관리**: 로그인 유저 정보, 세션(RefreshToken) 목록, 강제 로그아웃/차단 기능 제공
+- **운영/보안**: 실시간 모니터링 및 제어, 보안 사고 대응력 강화
+- **추천**: 별도의 관리자 페이지에서 유저/세션 관리 기능 구현 권장
 
-### 백엔드 (application.yml)
-```yaml
-app:
-  jwt:
-    secret: ${JWT_SECRET:your-secret-key}
-    expiration: 300000  # 5분 (밀리초)
-  refresh-token:
-    expiration: 1209600000  # 14일 (밀리초)
-```
+---
 
-### 프론트엔드 (환경변수)
-```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
-```
+## 📝 결론
 
-## 🧪 테스트 계정
-
-| 이메일 | 비밀번호 | 역할 |
-|--------|----------|------|
-| terecal@daum.net | 123456 | ADMIN |
-| test@example.com | password123 | USER |
-
-## 📚 관련 문서
-
-- [로그인 프로세스 가이드](./login-process.md) - 상세한 단계별 프로세스
-- [API 문서] - 백엔드 API 상세 명세
+- JWT + DB 기반 RefreshToken 관리로 보안, 운영, 확장성 모두 잡을 수 있음
+- 회원 관리 페이지에서 실시간 세션 제어, 강제 로그아웃 등 다양한 기능 구현 가능
+- 관리자 페이지를 통해 실무적 운영/보안까지 완성 가능
