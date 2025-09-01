@@ -5,7 +5,7 @@ import { Database, Shield, Zap, Clock, Lock, CheckCircle2, RefreshCw, Users } fr
 
 const FeatureCard = ({ title, icon: Icon, children, color = "blue" }: {
   title: string,
-  icon: any,
+  icon: React.ComponentType<{className?: string}>,
   children: React.ReactNode,
   color?: "blue" | "green" | "orange" | "red" | "purple"
 }) => {

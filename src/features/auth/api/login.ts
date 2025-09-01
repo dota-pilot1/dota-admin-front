@@ -29,8 +29,8 @@ export async function loginApi(payload: LoginPayload): Promise<LoginResponse> {
         console.log("🍪 Cookies after login:", document.cookie);
         
         return response.data;
-    } catch (error: any) {
-        console.error("❌ Login failed:", error.response?.data || error.message);
+    } catch (error: unknown) {
+        console.error("❌ Login failed:", (error as any).response?.data || (error as Error).message);
         throw error;
     }
 }

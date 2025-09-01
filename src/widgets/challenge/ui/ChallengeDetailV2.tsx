@@ -144,8 +144,8 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                                     try {
                                         await deleteChallengeMutation.mutateAsync(challenge.id);
                                         router.push('/challenge');
-                                    } catch (err: any) {
-                                        alert(err?.message || '삭제에 실패했습니다.');
+                                    } catch (err: unknown) {
+                                        alert((err as Error)?.message || '삭제에 실패했습니다.');
                                     }
                                 }}
                                 disabled={deleteChallengeMutation.isPending}

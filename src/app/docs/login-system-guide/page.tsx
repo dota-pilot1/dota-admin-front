@@ -47,7 +47,7 @@ const ProcessStep = ({ step, title, description, icon: Icon, success = true, chi
   step: number,
   title: string,
   description: string,
-  icon: any,
+  icon: React.ComponentType<{className?: string}>,
   success?: boolean,
   children?: React.ReactNode
 }) => {

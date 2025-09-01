@@ -82,7 +82,7 @@ const Timeline = ({ items }: { items: Array<{ title: string, time: string, statu
 
 const ProblemCard = ({ title, icon: Icon, children, severity }: { 
   title: string, 
-  icon: any, 
+  icon: React.ComponentType<{className?: string}>, 
   children: React.ReactNode, 
   severity: 'high' | 'medium' | 'low'
 }) => {

@@ -45,7 +45,7 @@ const CodeBlock = ({ children, title, language = "javascript" }: { children: str
 
 const ExampleBox = ({ title, icon: Icon, children, color = "blue" }: { 
   title: string, 
-  icon: any, 
+  icon: React.ComponentType<{className?: string}>, 
   children: React.ReactNode, 
   color?: "blue" | "green" | "orange" | "red"
 }) => {
@@ -81,10 +81,10 @@ export default function TokenBasicsPage() {
         
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           <ExampleBox title="토큰이란?" icon={Shield} color="blue">
-            <p className="mb-2">토큰은 <strong>"출입증"</strong>과 같습니다.</p>
+            <p className="mb-2">토큰은 <strong>&ldquo;출입증&rdquo;</strong>과 같습니다.</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
               <li>회사에 들어갈 때 보여주는 사원증</li>
-              <li>API를 호출할 때 "나는 로그인된 사용자야!"라고 증명</li>
+              <li>API를 호출할 때 &ldquo;나는 로그인된 사용자야!&rdquo;라고 증명</li>
               <li>만료일이 있어서 오래된 건 무효</li>
             </ul>
           </ExampleBox>
@@ -120,7 +120,7 @@ export default function TokenBasicsPage() {
 
       {/* 2. 백엔드가 만료를 판단하는 방법 */}
       <section className="mb-10">
-        <h2 className="text-3xl font-bold mb-6">🔍 2단계: 백엔드는 어떻게 "만료됐다"고 판단하나요?</h2>
+        <h2 className="text-3xl font-bold mb-6">🔍 2단계: 백엔드는 어떻게 &ldquo;만료됐다&rdquo;고 판단하나요?</h2>
         
         <div className="space-y-6">
           <ExampleBox title="토큰 안에는 만료 시간이 들어있어요" icon={Clock} color="blue">
@@ -142,7 +142,7 @@ export default function TokenBasicsPage() {
                 <div className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">1</div>
                 <div>
                   <h4 className="font-semibold">프론트엔드가 API 요청</h4>
-                  <p className="text-gray-600">Header에 "Bearer 토큰값" 포함해서 요청</p>
+                  <p className="text-gray-600">Header에 &ldquo;Bearer 토큰값&rdquo; 포함해서 요청</p>
                 </div>
               </div>
               
@@ -170,7 +170,7 @@ export default function TokenBasicsPage() {
                 <div className="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">4</div>
                 <div>
                   <h4 className="font-semibold">401 에러 응답</h4>
-                  <p className="text-gray-600">"토큰이 만료되었습니다" 메시지와 함께 거부</p>
+                  <p className="text-gray-600">&ldquo;토큰이 만료되었습니다&rdquo; 메시지와 함께 거부</p>
                 </div>
               </div>
             </div>
@@ -207,10 +207,10 @@ if (token != null && token.startsWith("Bearer ")) {
 
       {/* 3. 프론트엔드의 401 감지 */}
       <section className="mb-10">
-        <h2 className="text-3xl font-bold mb-6">📡 3단계: 프론트엔드는 어떻게 "만료됐다"는 걸 알아요?</h2>
+        <h2 className="text-3xl font-bold mb-6">📡 3단계: 프론트엔드는 어떻게 &ldquo;만료됐다&rdquo;는 걸 알아요?</h2>
         
         <ExampleBox title="401 응답을 받으면 만료된 걸로 판단" icon={AlertCircle} color="red">
-          <p className="mb-3">백엔드가 401 상태코드로 응답하면 "아, 토큰이 만료됐구나!" 알게 됩니다.</p>
+          <p className="mb-3">백엔드가 401 상태코드로 응답하면 &ldquo;아, 토큰이 만료됐구나!&rdquo; 알게 됩니다.</p>
         </ExampleBox>
 
         <div className="bg-white border-2 border-gray-200 rounded-lg p-6 mt-6">
@@ -241,7 +241,7 @@ api.interceptors.response.use(
     async (error) => {
         // 에러가 발생한 경우
         if (error.response?.status === 401) {
-            console.log("401 에러 감지! 토큰이 만료된 것 같아요");
+            console.log(&quot;401 에러 감지! 토큰이 만료된 것 같아요&quot;);
             // 여기서 토큰 갱신 로직 실행
         }
         
@@ -280,8 +280,8 @@ api.interceptors.response.use(
             <h3 className="font-bold text-green-800 mb-3">✅ refreshPromise로 하면...</h3>
             <div className="space-y-2 text-sm text-green-700">
               <div>• API 1이 401 받음 → 토큰 갱신 요청 (refreshPromise 생성)</div>
-              <div>• API 2가 401 받음 → "어? 이미 갱신 중이네" (같은 Promise 재사용)</div>
-              <div>• API 3이 401 받음 → "어? 이미 갱신 중이네" (같은 Promise 재사용)</div>
+              <div>• API 2가 401 받음 → &ldquo;어? 이미 갱신 중이네&rdquo; (같은 Promise 재사용)</div>
+              <div>• API 3이 401 받음 → &ldquo;어? 이미 갱신 중이네&rdquo; (같은 Promise 재사용)</div>
               <div className="font-semibold mt-2">결과: 백엔드에 갱신 요청이 1번만! 😊</div>
             </div>
           </div>
@@ -293,12 +293,12 @@ let refreshPromise = null;
 async function refreshToken() {
     // 이미 갱신 중이면 그걸 기다림 (중복 방지!)
     if (refreshPromise) {
-        console.log("이미 갱신 중이니까 기다릴게요");
+        console.log(&quot;이미 갱신 중이니까 기다릴게요&quot;);
         return refreshPromise;
     }
     
     // 갱신 중이 아니면 새로 시작
-    console.log("새로 토큰 갱신 시작!");
+    console.log(&quot;새로 토큰 갱신 시작!&quot;);
     refreshPromise = fetch('/api/auth/refresh')
         .then(response => response.json())
         .then(data => {
@@ -309,7 +309,7 @@ async function refreshToken() {
         .finally(() => {
             // 갱신 완료되면 다시 null로 초기화
             refreshPromise = null;
-            console.log("갱신 완료! 다음에 또 갱신할 수 있어요");
+            console.log(&quot;갱신 완료! 다음에 또 갱신할 수 있어요&quot;);
         });
     
     return refreshPromise;
@@ -319,7 +319,7 @@ async function refreshToken() {
           <div className="bg-blue-50 p-4 rounded-lg">
             <h4 className="font-semibold text-blue-800 mb-2">🎯 핵심 포인트</h4>
             <p className="text-blue-700 text-sm">
-              refreshPromise는 "교통정리" 역할입니다. 여러 명이 동시에 "토큰 갱신해주세요!"라고 외쳐도, 
+              refreshPromise는 &ldquo;교통정리&rdquo; 역할입니다. 여러 명이 동시에 &ldquo;토큰 갱신해주세요!&rdquo;라고 외쳐도, 
               한 번만 실제로 갱신하고 모든 사람이 같은 결과를 받도록 해줍니다.
             </p>
           </div>
@@ -539,7 +539,7 @@ async function refreshToken() {
           <div className="bg-blue-50 p-4 rounded-lg">
             <h4 className="font-semibold text-blue-800 mb-2">💡 핵심 포인트</h4>
             <ul className="text-blue-700 text-sm space-y-1">
-              <li>• JWT는 자체적으로 정보를 포함하는 "self-contained" 토큰</li>
+              <li>• JWT는 자체적으로 정보를 포함하는 &ldquo;self-contained&rdquo; 토큰</li>
               <li>• 서버가 DB 조회 없이도 토큰만으로 사용자 정보와 만료 여부 확인 가능</li>
               <li>• Base64로 인코딩되어 있지만 암호화는 아님 (누구나 디코딩 가능)</li>
               <li>• 보안은 서명(Signature)이 담당 - 비밀키 없이는 위조 불가</li>

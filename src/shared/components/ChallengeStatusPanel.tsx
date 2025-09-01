@@ -107,19 +107,19 @@ export function ChallengeStatusPanel({
             key: 'RECRUITING',
             label: '모집중',
             icon: <Users className="h-4 w-4" />,
-            onClick: () => Promise.resolve(reopenChallenge(challengeId)).catch((error: any) => setErrorMessage(error?.response?.data?.message || '상태 변경에 실패했습니다.')),
+            onClick: () => Promise.resolve(reopenChallenge(challengeId)).catch((error: unknown) => setErrorMessage((error as any)?.response?.data?.message || '상태 변경에 실패했습니다.')),
         },
         {
             key: 'IN_PROGRESS',
             label: '진행중',
             icon: <Clock className="h-4 w-4" />,
-            onClick: () => Promise.resolve(startChallenge(challengeId)).catch((error: any) => setErrorMessage(error?.response?.data?.message || '상태 변경에 실패했습니다.')),
+            onClick: () => Promise.resolve(startChallenge(challengeId)).catch((error: unknown) => setErrorMessage((error as any)?.response?.data?.message || '상태 변경에 실패했습니다.')),
         },
         {
             key: 'COMPLETED',
             label: '완료',
             icon: <CheckCircle2 className="h-4 w-4" />,
-            onClick: () => Promise.resolve(completeChallenge(challengeId)).catch((error: any) => setErrorMessage(error?.response?.data?.message || '상태 변경에 실패했습니다.')),
+            onClick: () => Promise.resolve(completeChallenge(challengeId)).catch((error: unknown) => setErrorMessage((error as any)?.response?.data?.message || '상태 변경에 실패했습니다.')),
         },
     ];
     const statusInfo = getStatusInfo(status);

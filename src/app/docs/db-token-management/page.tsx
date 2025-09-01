@@ -61,7 +61,7 @@ public class RefreshTokenEntity {
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">5. 강제 로그아웃 처리 플로우</h2>
         <ol className="list-decimal list-inside text-lg text-gray-700 mb-4">
           <li>관리자가 회원 관리 페이지에서 특정 사용자의 토큰을 선택</li>
-          <li>"로그아웃" 버튼 클릭 시 해당 토큰 DB에서 삭제 또는 revoked=true 처리</li>
+          <li>&ldquo;로그아웃&rdquo; 버튼 클릭 시 해당 토큰 DB에서 삭제 또는 revoked=true 처리</li>
           <li>사용자가 다음 API 요청 시 토큰이 DB에 없거나 revoked 상태면 401 반환 및 프론트에서 로그인 페이지로 이동</li>
         </ol>
       </section>

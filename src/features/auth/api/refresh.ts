@@ -16,11 +16,11 @@ async function refreshTokenApi(): Promise<string> {
         const response = await api.post<RefreshResponse>("/api/auth/refresh");
         console.log("✅ Refresh token success:", response.data);
         return response.data.accessToken;
-    } catch (error: any) {
-        console.error("❌ Refresh token failed:", error.response?.data || error.message);
+    } catch (error: unknown) {
+        console.error("❌ Refresh token failed:", (error as any).response?.data || (error as Error).message);
         
         // NO_REFRESH_COOKIE 에러이고 페이지 로드 직후라면 잠시 대기 후 재시도
-        if (error.response?.data?.error === "NO_REFRESH_COOKIE") {
+        if ((error as any).response?.data?.error === "NO_REFRESH_COOKIE") {
             const now = Date.now();
             const pageLoadTime = window.performance.timing.loadEventEnd;
             const timeSincePageLoad = now - pageLoadTime;
@@ -34,8 +34,8 @@ async function refreshTokenApi(): Promise<string> {
                     const retryResponse = await api.post<RefreshResponse>("/api/auth/refresh");
                     console.log("✅ Refresh token success on retry:", retryResponse.data);
                     return retryResponse.data.accessToken;
-                } catch (retryError: any) {
-                    console.error("❌ Refresh token failed on retry:", retryError.response?.data || retryError.message);
+                } catch (retryError: unknown) {
+                    console.error("❌ Refresh token failed on retry:", (retryError as any).response?.data || (retryError as Error).message);
                     throw retryError;
                 }
             }

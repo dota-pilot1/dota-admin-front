@@ -22,7 +22,7 @@ export function useChallengeStatusChange() {
         onError: (error: unknown) => {
             let message = '챌린지 시작에 실패했습니다.';
             if (typeof error === 'object' && error !== null && 'response' in error) {
-                // @ts-expect-error
+                // @ts-expect-error - error response type not typed for axios errors
                 message = error.response?.data?.message || message;
             }
             pushError(message);
@@ -39,7 +39,7 @@ export function useChallengeStatusChange() {
         onError: (error: unknown) => {
             let message = '챌린지 완료에 실패했습니다.';
             if (typeof error === 'object' && error !== null && 'response' in error) {
-                // @ts-ignore
+                // @ts-ignore - error response structure not typed for axios errors
                 message = error.response?.data?.message || message;
             }
             pushError(message);

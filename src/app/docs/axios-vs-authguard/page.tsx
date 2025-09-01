@@ -40,7 +40,7 @@ const CodeBlock = ({ title, children, language = "typescript" }: {
 
 const FeatureCard = ({ title, icon: Icon, children, color = "blue" }: {
   title: string,
-  icon: any,
+  icon: React.ComponentType<{className?: string}>,
   children: React.ReactNode,
   color?: "blue" | "green" | "orange" | "red" | "purple"
 }) => {
@@ -230,7 +230,7 @@ export default function AxiosVsAuthGuardPage() {
                 <ol className="list-decimal list-inside space-y-1 text-sm text-orange-700">
                   <li>사용자가 /payments 페이지에서 작업 중</li>
                   <li><strong>[AuthGuard]</strong> 이미 페이지 로드 시 체크 완료 (5분 전 토큰이 유효했음)</li>
-                  <li>사용자가 "결제 생성" 버튼 클릭 (현재 토큰은 만료됨)</li>
+                  <li>사용자가 &ldquo;결제 생성&rdquo; 버튼 클릭 (현재 토큰은 만료됨)</li>
                   <li>결제 생성 API 호출</li>
                   <li><strong>[Axios 인터셉터]</strong> 만료된 토큰을 요청에 첨부</li>
                   <li>서버에서 401 + TOKEN_EXPIRED 응답</li>
@@ -620,7 +620,7 @@ api.interceptors.response.use(
               <Shield className="w-12 h-12 text-blue-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-blue-800 mb-2">AuthGuard</h3>
               <p className="text-gray-700 text-sm">
-                "이 페이지에 들어올 자격이 있나?"<br />
+                &ldquo;이 페이지에 들어올 자격이 있나?&rdquo;<br />
                 <span className="font-medium">(페이지 접근 제어)</span>
               </p>
             </div>
@@ -629,7 +629,7 @@ api.interceptors.response.use(
               <Zap className="w-12 h-12 text-green-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-green-800 mb-2">Axios 인터셉터</h3>
               <p className="text-gray-700 text-sm">
-                "API 요청할 때 토큰 관리는 내가 알아서 할게"<br />
+                &ldquo;API 요청할 때 토큰 관리는 내가 알아서 할게&rdquo;<br />
                 <span className="font-medium">(HTTP 레벨 인증)</span>
               </p>
             </div>

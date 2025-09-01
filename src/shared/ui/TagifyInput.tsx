@@ -26,8 +26,8 @@ export function TagifyInput({ value, onChange, placeholder, disabled }: TagifyIn
       disabled,
     });
     tagifyRef.current.addTags(value);
-    tagifyRef.current.on('change', (e: any) => {
-      const tags = e.detail.tagify.value.map((t: any) => t.value);
+    tagifyRef.current.on('change', (e: {detail: {tagify: {value: Array<{value: string}>}}}) => {
+      const tags = e.detail.tagify.value.map((t: {value: string}) => t.value);
       onChange(tags);
     });
     return () => {

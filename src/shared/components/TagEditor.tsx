@@ -58,7 +58,7 @@ export function TagEditor({
       return;
     }
 
-    if (allowSeparators.includes(key as any)) {
+    if (allowSeparators.includes(key as "," | " " | "Enter")) {
       e.preventDefault();
       addTag();
     }

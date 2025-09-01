@@ -40,7 +40,7 @@ const CodeBlock = ({ title, children, language = "typescript" }: {
 
 const FeatureCard = ({ title, icon: Icon, children, color = "blue" }: {
   title: string,
-  icon: any,
+  icon: React.ComponentType,
   children: React.ReactNode,
   color?: "blue" | "green" | "orange" | "red" | "purple"
 }) => {
@@ -575,7 +575,7 @@ if (isChecking) {
                 <div className="text-sm text-red-700 space-y-1">
                   <p><strong>증상:</strong> 로그인 페이지와 보호된 페이지 간 무한 리다이렉트</p>
                   <p><strong>원인:</strong> 로그인 페이지도 AuthGuard로 보호되어 있음</p>
-                  <p><strong>해결:</strong> ConditionalAuthGuard에서 공개 경로에 '/login' 포함 확인</p>
+                  <p><strong>해결:</strong> ConditionalAuthGuard에서 공개 경로에 &lsquo;/login&rsquo; 포함 확인</p>
                 </div>
               </div>
 

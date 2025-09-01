@@ -120,7 +120,7 @@ export function RewardParticipantSelector({
   }, [rewardedCount, loading, onRewardedCountChange]);
 
   const customStyles = {
-    control: (provided: any, state: any) => ({
+    control: (provided: object, state: {isFocused: boolean}) => ({
       ...provided,
       borderColor: state.isFocused ? '#3b82f6' : '#d1d5db',
       boxShadow: state.isFocused ? '0 0 0 1px #3b82f6' : 'none',
@@ -128,7 +128,7 @@ export function RewardParticipantSelector({
         borderColor: '#9ca3af'
       }
     }),
-    option: (provided: any, state: any) => ({
+    option: (provided: object, state: {isSelected: boolean, isFocused: boolean, isDisabled: boolean}) => ({
       ...provided,
       backgroundColor: state.isSelected 
         ? '#3b82f6' 
@@ -139,7 +139,7 @@ export function RewardParticipantSelector({
       cursor: state.isDisabled ? 'not-allowed' : 'pointer',
       padding: 0
     }),
-    menu: (provided: any) => ({
+    menu: (provided: object) => ({
       ...provided,
       zIndex: 9999
     })
