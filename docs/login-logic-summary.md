@@ -4,23 +4,22 @@
 
 ## 🎯 핵심 요약
 
-### 1️⃣ 로그인: 토큰 획득하기
-**로그인 버튼 클릭 → API 요청 → 백엔드 응답 → 토큰을 로컬스토리지에 저장**
+### 1️⃣ 로그인: 토큰 발급 & 저장
+**로그인 버튼 → /api/auth/login → Access Token + (HttpOnly Cookie 기반 Refresh Token) + 사용자 정보**
 
 ```typescript
 // 📍 위치: src/features/auth/hooks/useLogin.ts
 const handleLogin = async (credentials: LoginRequest) => {
-  const response = await api.post('/api/auth/login', credentials);
-  
-  // 토큰을 로컬스토리지에 저장
-  localStorage.setItem('authToken', response.data.token);
-  localStorage.setItem('refreshToken', response.data.refreshToken);
-  localStorage.setItem('userInfo', JSON.stringify(response.data.userInfo));
+  const res = await api.post('/api/auth/login', credentials);
+  // Access Token & User Info 저장 (Refresh Token은 서버가 HttpOnly Cookie로 내려주므로 JS 접근 불가)
+  localStorage.setItem('authToken', res.data.token);
+  localStorage.setItem('userInfo', JSON.stringify(res.data.userInfo));
 };
 ```
+> Refresh Token은 DB + HttpOnly Cookie로만 관리 → 클라이언트 JS 저장 금지 (보안 + 탈취 위험 감소)
 
-### 2️⃣ 인증: 토큰 실어 보내기
-**API 요청 날릴 때 로그인 사용자 증명용으로 토큰 싣기**
+### 2️⃣ 인증: API 요청 시 토큰 자동 첨부
+**Axios Request Interceptor가 Access Token을 Authorization 헤더에 자동 설정**
 
 ```typescript
 // 📍 위치: src/shared/lib/axios.ts (Request Interceptor)
@@ -35,33 +34,34 @@ api.interceptors.request.use((config) => {
 });
 ```
 
-### 3️⃣ 갱신: 토큰 만료 시 자동 재발급
-**API 응답 받을 때 토큰 만료 응답 있을 시 토큰 재발급 요청**
+### 3️⃣ 갱신: Access Token 만료 시 자동 재발급
+**401 + TOKEN_EXPIRED(or 401) → /api/auth/refresh 호출 (쿠키에 있는 Refresh Token 사용) → 새 Access Token 반영**
 
 ```typescript
 // 📍 위치: src/shared/lib/axios.ts (Response Interceptor)
 api.interceptors.response.use(
-  (response) => response,
+  (res) => res,
   async (error) => {
+    const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
-      // 토큰 재발급 시도
-      const newToken = await refreshToken();
-      
+      const newToken = await refreshToken(); // 내부에서 /api/auth/refresh (쿠키 포함) 호출
       if (newToken) {
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api.request(originalRequest);
       }
+      // 재발급 실패 → 강제 로그아웃 흐름
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userInfo');
+      window.location.href = '/login';
     }
-    
     return Promise.reject(error);
   }
 );
 ```
 
-### 4️⃣ 보호: 페이지 접근 제어
-**로그인 상태에 따른 페이지 접근 권한 관리**
+### 4️⃣ 보호: 페이지 접근 & 권한 제어 (AuthGuard)
+**로그인 필요/비로그인 전용/역할(Role) 기반 보호. 토큰은 단일 진입점에서만 검사.**
 
 ```typescript
 // 📍 위치: src/features/auth/components/AuthGuard.tsx
@@ -84,32 +84,27 @@ const AuthGuard = ({ children }: { children: React.ReactNode }) => {
 };
 ```
 
-### 5️⃣ 중복 방지: 동시 재발급 요청 방지
-**여러 API가 동시에 401을 받아도 토큰 재발급 요청은 한 번만 실행**
+### 5️⃣ 안정성: 동시 재발급(Race) 방지 + Token Rotation + 강제 로그아웃 연계
+**401이 여러 요청에서 동시에 발생해도 재발급 한 번만 수행. Rotation 시 이전 Refresh 토큰 DB revoke. 관리자 revoke 시 5분 내 자동 로그아웃.**
 
 ```typescript
 // 📍 위치: src/features/auth/api/refresh.ts
-let refreshPromise: Promise<string> | null = null;
+let refreshPromise: Promise<string | null> | null = null;
 
-export async function refreshToken(): Promise<string> {
-  // 이미 재발급 요청이 진행 중이면 그 Promise를 재사용
-  if (refreshPromise) {
-    console.log("🔄 Reusing existing refresh promise");
-    return refreshPromise;
-  }
-
-  console.log("🚀 Starting new refresh token request");
-  refreshPromise = refreshTokenApi()
-    .then((newToken) => {
-      localStorage.setItem("authToken", newToken);
-      return newToken;
+export async function refreshToken(): Promise<string | null> {
+  if (refreshPromise) return refreshPromise; // 진행 중 재사용
+  refreshPromise = api.post('/api/auth/refresh') // 쿠키 포함 자동 전송
+    .then(res => {
+      const newToken = res.data.token;
+      if (newToken) localStorage.setItem('authToken', newToken);
+      return newToken ?? null;
     })
-    .finally(() => {
-      refreshPromise = null; // 완료되면 초기화
-    });
-
+    .catch(() => null)
+    .finally(() => { refreshPromise = null; });
   return refreshPromise;
 }
+// Token Rotation은 백엔드에서 이전 refresh revoke + 새 refresh 발급 (DB 레코드 교체)
+// 강제 로그아웃: 관리자가 refresh revoke → 재발급 실패 → Access 만료 시 자동 로그아웃 흐름 확정
 ```
 
 ---
@@ -137,7 +132,7 @@ graph TD
 
 ## 🌍 범용성: 어떤 백엔드든 동일한 패턴
 
-이 4단계 패턴은 백엔드 기술 스택에 관계없이 거의 동일하게 적용됩니다:
+이 5단계 패턴은 백엔드 기술 스택에 관계없이 거의 동일하게 적용됩니다 (Refresh Token 저장 매체만 다를 수 있음, 여기서는 DB+HttpOnly Cookie):
 
 ### 🔥 NestJS + TypeScript
 ```typescript
@@ -292,16 +287,17 @@ if (token) {
 ## 📝 요약
 
 이 5단계가 전부입니다:
-1. **로그인** → 토큰 저장
-2. **인증** → API 요청 시 토큰 첨부  
-3. **갱신** → 토큰 만료 시 자동 재발급
-4. **보호** → 페이지 접근 권한 관리
-5. **중복 방지** → 동시 재발급 요청 방지
+1. **로그인** → Access Token + HttpOnly Refresh (DB 기록) 발급 & 저장
+2. **인증** → 요청 시 Access Token 자동 첨부
+3. **갱신** → 만료 시 쿠키 기반 자동 재발급 (실패 시 로그아웃)
+4. **보호** → AuthGuard로 라우트 접근/역할 제어
+5. **안정성** → Race 방지 + Rotation + 강제 로그아웃 연계
 
 이 패턴은 **NestJS, Golang, Python, Java** 등 어떤 백엔드와도 동일하게 작동합니다. 
 JWT 표준만 지키면 프론트엔드는 항상 이 5단계로 해결됩니다! 🎉
 
 ### 💡 특히 5번째가 중요한 이유
-- **성능**: 불필요한 중복 API 호출 방지
-- **안정성**: 동시 요청 환경에서도 안전한 토큰 관리
-- **사용자 경험**: 여러 탭에서 동시 작업 시에도 매끄러운 동작
+- **성능**: 재발급 1회로 중복 네트워크 비용 제거
+- **보안**: Rotation + revoke로 탈취/재사용 공격 방지
+- **운영**: 관리자 revoke → 프론트 자동 세션 종료 경로 일원화
+- **UX**: 여러 탭/동시 요청에서도 매끄러운 흐름 유지

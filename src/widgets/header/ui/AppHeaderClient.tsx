@@ -76,7 +76,6 @@ export function AppHeaderClient() {
                 {isAuthed && (
                     <nav className="flex items-center gap-6">
                         {[
-                            // 기본 진입점: 루트(/) 접근 시 이 메뉴를 활성화 처리
                             { href: "/challenge", label: "챌린지" },
                             { href: "/challenge-stats", label: "챌린지 통계" },
                             { href: "/dashboard", label: "Tech Hub" },
@@ -135,18 +134,18 @@ export function AppHeaderClient() {
                                         로그인 시스템
                                     </div>
                                     <Link
-                                        href="/docs/login-overview"
+                                        href="/docs/frontend/overview"
                                         className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         onClick={() => setDocsOpen(false)}
                                     >
-                                        🏗️ 시스템 개요
+                                        🧩 프론트엔드 총정리
                                     </Link>
                                     <Link
-                                        href="/docs/login-system-guide"
+                                        href="/docs/backend/overview"
                                         className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         onClick={() => setDocsOpen(false)}
                                     >
-                                        🔄 프로세스 가이드
+                                        🗄️ 백엔드 총정리
                                     </Link>
                                     
                                     <div className="border-t border-gray-200 my-1"></div>
