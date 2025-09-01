@@ -30,7 +30,10 @@ export async function loginApi(payload: LoginPayload): Promise<LoginResponse> {
         
         return response.data;
     } catch (error: unknown) {
-        console.error("❌ Login failed:", (error as any).response?.data || (error as Error).message);
+        console.error("❌ Login failed:", 
+            (error as {response?: {data?: unknown}}).response?.data || 
+            (error as Error).message
+        );
         throw error;
     }
 }

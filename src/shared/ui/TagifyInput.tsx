@@ -11,7 +11,7 @@ interface TagifyInputProps {
 
 export function TagifyInput({ value, onChange, placeholder, disabled }: TagifyInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const tagifyRef = useRef<any>(null);
+  const tagifyRef = useRef<InstanceType<typeof Tagify> | null>(null);
 
   useEffect(() => {
     if (!inputRef.current) return;
@@ -34,7 +34,7 @@ export function TagifyInput({ value, onChange, placeholder, disabled }: TagifyIn
       tagifyRef.current.destroy();
       tagifyRef.current = null;
     };
-  }, []);
+  }, [value, onChange, placeholder, disabled]);
 
   useEffect(() => {
     if (!tagifyRef.current) return;

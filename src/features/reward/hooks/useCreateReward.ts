@@ -21,7 +21,7 @@ export function useCreateReward() {
     onError: (error: unknown) => {
       let message = '포상 지급에 실패했습니다.';
       if (typeof error === 'object' && error !== null && 'response' in error) {
-        // @ts-ignore
+        // @ts-ignore - error response structure not typed for axios errors
         message = error.response?.data?.message || message;
       }
       toast.error(message);

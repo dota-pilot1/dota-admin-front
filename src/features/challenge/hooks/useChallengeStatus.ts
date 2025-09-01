@@ -15,7 +15,7 @@ export function useStartChallenge(options?: { onErrorDialog?: (msg: string) => v
             toast.success(data.message || '챌린지가 시작되었습니다!');
         },
         onError: (error: unknown) => {
-            const message = (error as any)?.response?.data?.message || '챌린지 시작에 실패했습니다.';
+            const message = (error as {response?: {data?: {message?: string}}})?.response?.data?.message || '챌린지 시작에 실패했습니다.';
             options?.onErrorDialog?.(message);
         },
     });
@@ -33,7 +33,7 @@ export function useCompleteChallenge(options?: { onErrorDialog?: (msg: string) =
             toast.success(data.message || '챌린지가 완료되었습니다!');
         },
         onError: (error: unknown) => {
-            const message = (error as any)?.response?.data?.message || '챌린지 완료에 실패했습니다.';
+            const message = (error as {response?: {data?: {message?: string}}})?.response?.data?.message || '챌린지 완료에 실패했습니다.';
             options?.onErrorDialog?.(message);
         },
     });
@@ -51,7 +51,7 @@ export function useReopenChallenge(options?: { onErrorDialog?: (msg: string) => 
             toast.success(data.message || '챌린지가 다시 열렸습니다!');
         },
         onError: (error: unknown) => {
-            const message = (error as any)?.response?.data?.message || '챌린지 재개방에 실패했습니다.';
+            const message = (error as {response?: {data?: {message?: string}}})?.response?.data?.message || '챌린지 재개방에 실패했습니다.';
             options?.onErrorDialog?.(message);
         },
     });

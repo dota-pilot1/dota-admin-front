@@ -40,7 +40,7 @@ const CodeBlock = ({ title, children, language = "typescript" }: {
 
 const FeatureCard = ({ title, icon: Icon, children, color = "blue" }: {
   title: string,
-  icon: React.ComponentType,
+  icon: React.ComponentType<{className?: string}>,
   children: React.ReactNode,
   color?: "blue" | "green" | "orange" | "red" | "purple"
 }) => {
