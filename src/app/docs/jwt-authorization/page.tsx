@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 import { CheckCircle, Database, Zap, Shield, Code } from "lucide-react";
+import CodeBlock from "@/shared/components/CodeBlock";
 
 export default function JwtAuthorizationPage() {
     return (
@@ -194,61 +195,44 @@ public static class TokenInfo {
                             </div>
                         </div>
 
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <pre className="text-sm overflow-x-auto">
-{`// JwtAuthenticationFilter.java - doFilterInternal 메서드 내부
-
-@Override
+                        <CodeBlock
+                          language="java"
+                          title="JwtAuthenticationFilter.java"
+                          code={`@Override
 protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-    
-    // 1️⃣ 프론트엔드에서 보낸 Authorization 헤더 확인
+    // 1️⃣ Authorization 헤더 확인
     String authHeader = request.getHeader("Authorization");
     if (authHeader != null && authHeader.startsWith("Bearer ")) {
-        String token = authHeader.substring(7); // "Bearer " 제거
-        
+        String token = authHeader.substring(7);
         try {
-            // 2️⃣ JWT 토큰 파싱 - 모든 정보 한번에 추출
+            // 2️⃣ 토큰 파싱 - 한번에 정보 추출
             JwtUtil.TokenInfo tokenInfo = jwtUtil.getTokenInfo(token);
-            String email = tokenInfo.getEmail();           // 사용자 식별자
-            String role = tokenInfo.getRole();             // 역할 (ADMIN, USER 등)
-            List<String> authorities = tokenInfo.getAuthorities(); // 권한 목록
-            
-            // 3️⃣ Spring Security가 이해하는 권한 형태로 변환
+            String email = tokenInfo.getEmail();
+            String role = tokenInfo.getRole();
+            List<String> authorities = tokenInfo.getAuthorities();
+
+            // 3️⃣ 권한 객체 생성
             List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
-            
-            // ROLE 변환: ADMIN → ROLE_ADMIN
             if (role != null && !role.isEmpty()) {
                 grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
             }
-            
-            // AUTHORITY 변환: CREATE_USER 문자열 → new SimpleGrantedAuthority("CREATE_USER") 객체 (래핑)
             if (authorities != null && !authorities.isEmpty()) {
                 for (String authority : authorities) {
                     grantedAuthorities.add(new SimpleGrantedAuthority(authority));
                 }
             }
-            
-            // 4️⃣ 🔥 SecurityContext에 인증 정보 저장 (핵심!)
-            // 이제 @PreAuthorize가 이 정보를 사용해서 권한 체크할 수 있음
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                email, null, grantedAuthorities
-            );
+
+            // 4️⃣ SecurityContext 저장 → @PreAuthorize 사용 가능
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, null, grantedAuthorities);
             SecurityContextHolder.getContext().setAuthentication(authToken);
-            
-            logger.debug("✅ 인증 성공: {} (권한: {}개)", email, grantedAuthorities.size());
-            
         } catch (Exception e) {
-            logger.error("❌ 토큰 파싱 실패: {}", e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
     }
-    
-    // 다음 필터로 진행
     filterChain.doFilter(request, response);
 }`}
-                            </pre>
-                        </div>
+                        />
                     </div>
 
                     {/* 🔦 핵심 암기 블록 (형광펜 효과) - JwtAuthenticationFilter 설명 바로 아래 */}
@@ -726,215 +710,7 @@ if (authorities != null && !authorities.isEmpty()) {
                 </CardContent>
             </Card>
 
-            {/* 서버 배포 가이드 */}
-            <Card className="mb-6">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-green-500" />
-                        🚀 서버 배포 Step-by-Step 가이드
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="bg-green-50 border border-green-200 p-4 rounded-lg mb-4">
-                        <h4 className="font-semibold text-green-800 mb-2">💡 배포 전 체크사항</h4>
-                        <div className="text-sm text-green-700 space-y-1">
-                            <div>• JWT 권한 시스템이 정상 작동하는지 로컬에서 테스트 완료</div>
-                            <div>• application.yml의 데이터베이스 설정 확인</div>
-                            <div>• JWT secret key 및 만료 시간 설정 확인</div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-6">
-                        {/* Step 1 */}
-                        <div className="border-l-4 border-green-500 pl-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">1</span>
-                                <h5 className="font-semibold">🔍 현재 실행 중인 프로세스 확인 및 종료</h5>
-                            </div>
-                            <div className="bg-gray-50 p-3 rounded mb-2">
-                                <pre className="text-sm">
-{`# 실행 중인 애플리케이션 프로세스 확인
-ps aux | grep "dota-admin-backend"
-
-# 출력 예시:
-# ubuntu  602371  0.5 11.4 3676824 448724 ?  Sl  08:38  1:33 java -jar build/libs/dota-admin-backend-0.0.1-SNAPSHOT.jar
-
-# 프로세스 종료 (602371은 PID - 실제 값으로 변경)
-kill 602371`}
-                                </pre>
-                            </div>
-                            <div className="text-sm text-gray-600">
-                                💡 <strong>PID(Process ID)</strong>는 매번 달라지므로 실제 출력된 숫자를 사용하세요.
-                            </div>
-                        </div>
-
-                        {/* Step 2 */}
-                        <div className="border-l-4 border-blue-500 pl-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">2</span>
-                                <h5 className="font-semibold">🔨 애플리케이션 빌드</h5>
-                            </div>
-                            <div className="bg-gray-50 p-3 rounded mb-2">
-                                <pre className="text-sm">
-{`# 테스트 제외하고 빌드 (빠른 배포용)
-./gradlew build -x test`}
-                                </pre>
-                            </div>
-                            <div className="bg-yellow-50 border border-yellow-200 p-3 rounded">
-                                <h6 className="font-semibold text-yellow-800 mb-1">⚠️ 빌드 중 주의사항</h6>
-                                <div className="text-sm text-yellow-700 space-y-1">
-                                    <div>• <code>-x test</code>: 테스트를 건너뛰어 빌드 시간 단축</div>
-                                    <div>• 첫 빌드 시 <code>Starting a Gradle Daemon</code> 메시지는 정상</div>
-                                    <div>• <code>BUILD SUCCESSFUL</code> 메시지 확인 필수</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Step 3 */}
-                        <div className="border-l-4 border-purple-500 pl-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">3</span>
-                                <h5 className="font-semibold">🚀 백그라운드 실행</h5>
-                            </div>
-                            <div className="bg-gray-50 p-3 rounded mb-2">
-                                <pre className="text-sm">
-{`# nohup으로 백그라운드 실행 (터미널 종료해도 계속 실행)
-nohup java -jar build/libs/dota-admin-backend-0.0.1-SNAPSHOT.jar > app.log 2>&1 &`}
-                                </pre>
-                            </div>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div className="bg-blue-50 border border-blue-200 p-3 rounded">
-                                    <h6 className="font-semibold text-blue-800 mb-1">📝 명령어 해석</h6>
-                                    <div className="text-sm text-blue-700 space-y-1">
-                                        <div><code>nohup</code>: 터미널 종료 후에도 실행 유지</div>
-                                        <div><code>&gt; app.log</code>: 표준 출력을 app.log 파일로</div>
-                                        <div><code>2&gt;&1</code>: 오류도 같은 파일로</div>
-                                        <div><code>&</code>: 백그라운드 실행</div>
-                                    </div>
-                                </div>
-                                
-                                <div className="bg-green-50 border border-green-200 p-3 rounded">
-                                    <h6 className="font-semibold text-green-800 mb-1">✅ 실행 확인</h6>
-                                    <div className="text-sm text-green-700">
-                                        명령어 실행 후 <code>[1] 123456</code> 같은 출력이 나오면 정상입니다.
-                                        (123456은 새로운 PID)
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Step 4 */}
-                        <div className="border-l-4 border-orange-500 pl-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="bg-orange-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">4</span>
-                                <h5 className="font-semibold">📋 로그 확인 및 모니터링</h5>
-                            </div>
-                            
-                            <div className="space-y-3">
-                                <div className="bg-gray-50 p-3 rounded">
-                                    <h6 className="font-semibold mb-2">실시간 로그 확인</h6>
-                                    <pre className="text-sm mb-2">
-{`# 실시간으로 로그 확인 (Ctrl+C로 종료)
-tail -f app.log`}
-                                    </pre>
-                                </div>
-
-                                <div className="bg-gray-50 p-3 rounded">
-                                    <h6 className="font-semibold mb-2">최근 로그 확인</h6>
-                                    <pre className="text-sm mb-2">
-{`# 최근 100줄 확인
-tail -n 100 app.log
-
-# 최근 50줄 확인
-tail -n 50 app.log`}
-                                    </pre>
-                                </div>
-
-                                <div className="bg-gray-50 p-3 rounded">
-                                    <h6 className="font-semibold mb-2">특정 로그 검색</h6>
-                                    <pre className="text-sm mb-2">
-{`# 에러 로그만 확인
-grep "ERROR" app.log
-
-# 특정 단어 포함 로그 확인
-grep "JWT" app.log
-
-# 권한 관련 로그 확인
-grep "Authentication" app.log`}
-                                    </pre>
-                                </div>
-
-                                <div className="bg-gray-50 p-3 rounded">
-                                    <h6 className="font-semibold mb-2">프로세스 상태 확인</h6>
-                                    <pre className="text-sm mb-2">
-{`# 애플리케이션 실행 상태 확인
-ps aux | grep "dota-admin-backend"
-
-# 포트 8080 사용 중인지 확인
-netstat -tlnp | grep :8080
-
-# 또는
-lsof -i :8080`}
-                                    </pre>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Step 5 */}
-                        <div className="border-l-4 border-red-500 pl-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">5</span>
-                                <h5 className="font-semibold">🔧 배포 후 테스트</h5>
-                            </div>
-                            
-                            <div className="space-y-3">
-                                <div className="bg-gray-50 p-3 rounded">
-                                    <h6 className="font-semibold mb-2">헬스 체크</h6>
-                                    <pre className="text-sm mb-2">
-{`# 애플리케이션 응답 확인
-curl http://localhost:8080/api/auth/health
-
-# 또는 외부에서 접근 시 (서버 IP로 변경)
-curl http://your-server-ip:8080/api/auth/health`}
-                                    </pre>
-                                </div>
-
-                                <div className="bg-gray-50 p-3 rounded">
-                                    <h6 className="font-semibold mb-2">JWT 권한 시스템 테스트</h6>
-                                    <pre className="text-sm mb-2">
-{`# 1. 로그인 테스트
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@example.com","password":"password"}'
-
-# 2. 토큰으로 보호된 API 테스트
-curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  http://localhost:8080/api/challenges`}
-                                    </pre>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 복사용 명령어 모음 */}
-                    <div className="mt-6 bg-gradient-to-r from-gray-50 to-blue-50 border border-gray-200 p-4 rounded-lg">
-                        <h4 className="font-semibold mb-3">📋 복사용 명령어 모음</h4>
-                        <div className="space-y-2 text-sm font-mono bg-white p-3 rounded border">
-                            <div className="text-gray-600"># 1. 기존 프로세스 확인 및 종료</div>
-                            <div>ps aux | grep "dota-admin-backend"</div>
-                            <div>kill [PID]</div>
-                            <div className="text-gray-600 mt-3"># 2. 빌드</div>
-                            <div>./gradlew build -x test</div>
-                            <div className="text-gray-600 mt-3"># 3. 백그라운드 실행</div>
-                            <div>nohup java -jar build/libs/dota-admin-backend-0.0.1-SNAPSHOT.jar &gt; app.log 2&gt;&1 &</div>
-                            <div className="text-gray-600 mt-3"># 4. 로그 확인</div>
-                            <div>tail -f app.log</div>
-                            <div className="text-gray-600 mt-3"># 5. 상태 확인</div>
-                            <div>ps aux | grep "dota-admin-backend"</div>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            {/* 배포 가이드는 별도 페이지로 분리됨 */}
 
             {/* 결론 */}
             <Card>
@@ -942,6 +718,15 @@ curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
                     <CardTitle className="text-blue-600">🎯 결론</CardTitle>
                 </CardHeader>
                 <CardContent>
+                    <div className="mb-6 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 p-4 rounded-lg text-sm">
+                        <p className="mb-2 font-semibold">� 백엔드 배포 매뉴얼 분리 안내</p>
+                        <p className="text-gray-600 leading-relaxed">이 문서에 있던 EC2 배포/재시작 명령어 세트는 전용 페이지로 이동되었습니다. 지속적으로 업데이트되는 최신 배포 매뉴얼은 아래 페이지에서 확인하세요.</p>
+                        <div className="mt-3">
+                            <a href="/docs/backend-deploy" className="inline-flex items-center text-blue-600 font-medium hover:underline">
+                                /docs/backend-deploy → 백엔드 EC2 배포 매뉴얼 바로가기
+                            </a>
+                        </div>
+                    </div>
                     <p className="mb-4">
                         JWT 토큰 기반 권한 관리 시스템으로 구현하여:
                     </p>

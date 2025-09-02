@@ -2,8 +2,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
-import { Button } from "@/shared/ui/button";
 import { FileText, CreditCard, BookOpen, Settings, Users, Code, Target, Server, ShieldCheck } from "lucide-react";
+import { CodeBlock } from "@/shared/ui/code-block";
 import Link from "next/link";
 
 const docItems = [
@@ -31,8 +31,8 @@ const docItems = [
         description: "handlePay 함수 중심의 전체 챌린지 포상 워크플로우 및 파일 구조 설명",
         icon: Target,
         href: "/docs/challenge-process",
-        tags: ["챌린지", "워크플로우", "handlePay"],
-        priority: "high"
+    tags: ["챌린지", "워크플로우", "handlePay"],
+    priority: "high"
     },
     {
         id: "payment-process",
@@ -110,22 +110,17 @@ export default function DocsPage() {
                                     <Icon className="h-6 w-6 text-primary" />
                                     {item.title}
                                 </CardTitle>
-                                <CardDescription className="text-sm">
-                                    {item.description}
-                                </CardDescription>
+                                <CardDescription>{item.description}</CardDescription>
                             </CardHeader>
-                            <CardContent>
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    {item.tags.map(tag => (
-                                        <Badge key={tag} variant="secondary" className="text-xs">
-                                            {tag}
-                                        </Badge>
-                                    ))}
-                                </div>
-                                <Link href={item.href}>
-                                    <Button variant="outline" className="w-full">
-                                        문서 보기
-                                    </Button>
+                            <CardContent className="flex flex-wrap items-center gap-2">
+                                {item.tags?.map(tag => (
+                                    <Badge key={tag} variant="secondary">{tag}</Badge>
+                                ))}
+                                <Link
+                                    href={item.href}
+                                    className="ml-auto text-sm font-medium text-primary hover:underline"
+                                >
+                                    자세히 보기 →
                                 </Link>
                             </CardContent>
                         </Card>
@@ -133,38 +128,46 @@ export default function DocsPage() {
                 })}
             </div>
 
-            <div className="mt-12 p-6 bg-muted/30 rounded-lg">
-                <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    개발팀 정보
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                        <h3 className="font-medium mb-2">Frontend</h3>
-                        <ul className="text-muted-foreground space-y-1">
-                            <li>• Next.js 15.4.6 + App Router</li>
-                            <li>• TypeScript + Tailwind CSS</li>
-                            <li>• React Query + Zustand</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 className="font-medium mb-2">결제 시스템</h3>
-                        <ul className="text-muted-foreground space-y-1">
-                            <li>• PortOne v2 SDK</li>
-                            <li>• KakaoPay 통합</li>
-                            <li>• JWT 인증</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 className="font-medium mb-2">Backend</h3>
-                        <ul className="text-muted-foreground space-y-1">
-                            <li>• Express.js + MySQL</li>
-                            <li>• PortOne Webhook</li>
-                            <li>• REST API</li>
-                        </ul>
-                    </div>
-                </div>
+            {/* Backend Deploy Quick Commands */}
+            <div className="mt-14">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Server className="h-5 w-5" />
+                            백엔드 재배포 빠른 명령어 (요약)
+                        </CardTitle>
+                        <CardDescription>EC2 상 Spring Boot JAR 재시작 시 자주 사용하는 최소 명령어 세트</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <CodeBlock
+                            language="bash"
+                            showLineNumbers
+                            code={`# 1. 실행 중 프로세스 확인 & 종료
+ps -ef | grep java
+kill -9 <PID>
+
+# 2. 빌드 (테스트 제외)
+cd ~/dota-admin-backend
+./gradlew build -x test
+
+# 3. 백그라운드 실행 (로그: app.log)
+nohup java -jar build/libs/dota-admin-backend-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+
+# 4. 로그 실시간 확인
+tail -f app.log
+
+# 5. 상태/포트 확인 (옵션)
+ss -lntp | grep 8080  ||  netstat -tlnp | grep 8080`}
+                        />
+                        <div className="text-xs text-muted-foreground mt-3 space-y-1">
+                            <p>전체 상세 절차는 <Link href="/docs/backend-deploy" className="underline font-medium">백엔드 EC2 배포</Link> 문서를 참고하세요.</p>
+                            <p>JAR 버전 변경 시 경로/파일명만 수정하면 됩니다.</p>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </main>
     );
 }
+
+// Added backend deploy quick commands section at bottom of docs menu
