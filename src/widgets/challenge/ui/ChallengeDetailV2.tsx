@@ -47,19 +47,53 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
     const router = useRouter();
     const deleteChallengeMutation = useDeleteChallenge();
 
+    const Header = () => (
+        <CardHeader className="h-12 px-3 py-2 border-b bg-white/60 backdrop-blur-sm flex-shrink-0">
+            <div className="flex items-center justify-between h-full">
+                <CardTitle className="flex items-center gap-2 text-sm font-semibold tracking-tight text-gray-800">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-blue-500 text-white">
+                        <Target className="h-3.5 w-3.5" />
+                    </span>
+                    <span>챌린지 상세 정보</span>
+                </CardTitle>
+                {challenge && (
+                    (currentUser?.id === challenge?.authorId || currentUser?.role === 'ADMIN') && (
+                        <div className="flex items-center gap-1">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                title="챌린지 삭제"
+                                onClick={async () => {
+                                    if (!challenge?.id) return;
+                                    if (!window.confirm('정말로 이 챌린지를 삭제하시겠습니까?')) return;
+                                    try {
+                                        await deleteChallengeMutation.mutateAsync(challenge.id);
+                                        router.push('/challenge');
+                                    } catch (err: unknown) {
+                                        alert((err as Error)?.message || '삭제에 실패했습니다.');
+                                    }
+                                }}
+                                disabled={deleteChallengeMutation.isPending}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">삭제</span>
+                            </Button>
+                        </div>
+                    )
+                )}
+            </div>
+        </CardHeader>
+    );
+
     if (!challengeId) {
         return (
-            <Card className="h-fit">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Target className="h-5 w-5" />
-                        챌린지 상세 정보
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-center py-8 text-muted-foreground">
-                        <Target className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                        <p>챌린지를 선택하여 상세 정보를 확인하세요</p>
+            <Card className="h-fit flex flex-col">
+                <Header />
+                <CardContent className="flex-1 flex items-center justify-center p-6">
+                    <div className="text-center text-muted-foreground">
+                        <Target className="h-10 w-10 mx-auto mb-3 opacity-40" />
+                        <p className="text-xs">좌측에서 챌린지를 선택하세요</p>
                     </div>
                 </CardContent>
             </Card>
@@ -68,22 +102,17 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
 
     if (isLoading) {
         return (
-            <Card className="h-fit">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Target className="h-5 w-5" />
-                        챌린지 상세 정보
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <Skeleton className="h-6 w-3/4" />
+            <Card className="h-fit flex flex-col">
+                <Header />
+                <CardContent className="space-y-3 p-4">
+                    <Skeleton className="h-5 w-3/4" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-2/3" />
                     <div className="flex gap-2">
-                        <Skeleton className="h-6 w-16" />
-                        <Skeleton className="h-6 w-20" />
+                        <Skeleton className="h-5 w-16" />
+                        <Skeleton className="h-5 w-20" />
                     </div>
-                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-16 w-full" />
                 </CardContent>
             </Card>
         );
@@ -91,17 +120,12 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
 
     if (isError) {
         return (
-            <Card className="h-fit">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Target className="h-5 w-5" />
-                        챌린지 상세 정보
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Alert variant="destructive">
+            <Card className="h-fit flex flex-col">
+                <Header />
+                <CardContent className="p-4">
+                    <Alert variant="destructive" className="text-sm">
                         <AlertDescription>
-                            챌린지 정보를 불러오지 못했습니다. 
+                            챌린지 정보를 불러오지 못했습니다.
                             {error instanceof Error && `: ${error.message}`}
                         </AlertDescription>
                     </Alert>
@@ -122,44 +146,11 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
     };
 
     return (
-        <Card className="h-full flex flex-col py-0 gap-3">
-            <CardHeader className="rounded-t-xl px-5 py-4 border-b bg-slate-50/80 dark:bg-slate-800/50 flex-shrink-0">
-                <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-base font-semibold tracking-tight">
-                        <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-blue-100/70 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                            <Target className="h-4 w-4" />
-                        </span>
-                        <span className="ml-1">챌린지 상세 정보2</span>
-                    </CardTitle>
-                    {(currentUser?.id === challenge?.authorId || currentUser?.role === 'ADMIN') && (
-                        <div className="flex items-center gap-1">
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                title="챌린지 삭제"
-                                onClick={async () => {
-                                    if (!challenge?.id) return;
-                                    if (!window.confirm('정말로 이 챌린지를 삭제하시겠습니까?\n관련 포상 내역도 모두 삭제됩니다.')) return;
-                                    try {
-                                        await deleteChallengeMutation.mutateAsync(challenge.id);
-                                        router.push('/challenge');
-                                    } catch (err: unknown) {
-                                        alert((err as Error)?.message || '삭제에 실패했습니다.');
-                                    }
-                                }}
-                                disabled={deleteChallengeMutation.isPending}
-                            >
-                                <Trash2 className="h-4 w-4" />
-                                <span className="sr-only">삭제</span>
-                            </Button>
-                        </div>
-                    )}
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-0 flex-1 overflow-y-auto">
+        <Card className="h-full flex flex-col">
+            <Header />
+            <CardContent className="space-y-5 p-4 flex-1 overflow-y-auto">
                 {/* 최상단: 제목, 상태, 설명 */}
-                <div className="space-y-2 mb-4">
+                <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
                         <h2 className="text-xl font-semibold leading-tight">{challenge?.title ?? ''}</h2>
                         <div className="flex items-center gap-2">
@@ -196,7 +187,7 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                 </div>
 
                 {/* 일정과 보상 정보를 각각 한 줄씩 세로로 배치 */}
-                <div className="space-y-2 mb-4">
+                <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">일정</span>
@@ -234,7 +225,7 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
 
                 {/* 하단: 참여자 목록 및 포상 버튼 (challenge 있을 때만 렌더링) */}
                 {challenge && (
-                  <div className="mt-4">
+                  <div className="mt-2">
                     <div className="flex items-center gap-2 text-sm mb-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">참여자 목록</span>
@@ -254,7 +245,7 @@ export function ChallengeDetailV2({ challengeId }: ChallengeDetailV2Props) {
                 )}
             </CardContent>
             {challenge && (
-                <CardFooter className="justify-end">
+                <CardFooter className="justify-end p-3 border-t">
                     <ChallengeRewardDialog
                         challengeId={challenge.id}
                         challengeTitle={challenge.title}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import {
@@ -156,7 +157,13 @@ export function CreateChallengeForm() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={!hasPermission} title={!hasPermission ? "권한이 없습니다" : "새 챌린지 추가"}>
+        <Button 
+          disabled={!hasPermission} 
+          title={!hasPermission ? "권한이 없습니다" : "새 챌린지 추가"}
+          size="sm"
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
           챌린지 추가
         </Button>
       </DialogTrigger>

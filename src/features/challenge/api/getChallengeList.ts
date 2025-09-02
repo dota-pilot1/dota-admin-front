@@ -35,6 +35,11 @@ export type ApiForGetChallengeListResponse = {
 };
 
 export async function apiForGetChallengeList(): Promise<ApiForGetChallengeListResponse> {
-    const res = await api.get('/api/challenges');
-    return res.data;
+    try {
+        const res = await api.get('/api/challenges');
+        return res.data;
+    } catch (error) {
+        console.error('챌린지 목록 API 호출 실패:', error);
+        throw error;
+    }
 }

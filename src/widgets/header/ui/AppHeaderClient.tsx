@@ -95,196 +95,99 @@ export function AppHeaderClient() {
 
     return (
         <>
-        <header className="border-b bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50">
-            <div className="container mx-auto flex items-center justify-between py-2 px-4">
-                <Link href="/" className="text-xl font-bold text-blue-600">
-                    Dota Admin
-                </Link>
+            <header className="sticky top-0 z-50 w-full">
+                {/* 메인 헤더 영역 */}
+                <div className="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-gray-200/80">
+                    <div className="container flex h-14 max-w-screen-2xl items-center px-6">
+                        {/* 로고 및 홈 링크 */}
+                        <Link href="/" className="flex items-center space-x-2 mr-6">
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                                <span className="text-white font-bold text-sm">D</span>
+                            </div>
+                            <span className="font-semibold text-gray-900">DOTA Admin</span>
+                        </Link>
 
-                {/* Main navigation - 인증된 사용자만 표시 */}
-                {isAuthed && (
-                    <nav className="flex items-center gap-6">
-                        {[
-                            { href: "/challenge", label: "챌린지" },
-                            { href: "/challenge-stats", label: "챌린지 통계" },
-                            { href: "/dashboard", label: "Tech Hub" },
-                            { href: "/freeboard", label: "자유 게시판" },
-                            { href: "/members", label: "회원 관리" },
-                            { href: "/docs2", label: "문서2" },
-                            // { href: "/payments", label: "결제 내역" }, // 임시 주석 처리
-                        ].map(({ href, label }) => {
-                            // 기본 선택: 루트('/')일 때 챌린지 메뉴(/challenge) 활성화
-                            const isHome = pathname === '/' || pathname === '';
-                            let isActive = pathname === href || (href !== '/' && pathname?.startsWith(href + '/'));
-                            if (isHome && href === '/challenge') {
-                                isActive = true;
-                            }
-                            return (
-                                <Link
-                                    key={href}
-                                    href={href}
-                                    className={`text-sm font-medium transition-colors px-2 py-1 rounded-md ${
-                                        isActive
-                                            ? "text-blue-600 font-bold bg-blue-50 border border-blue-300"
-                                            : "text-muted-foreground hover:text-foreground"
-                                    }`}
-                                >
-                                    {label}
-                                </Link>
-                            );
-                        })}
-
-                        {/* 즐겨찾기 버튼 */}
-                        <button
-                            onClick={() => setFavoritesOpen(!favoritesOpen)}
-                            className={`text-sm font-medium transition-colors px-2 py-1 rounded-md flex items-center gap-1 ${
-                                favoritesOpen
-                                    ? "text-yellow-600 font-bold bg-yellow-50 border border-yellow-300"
-                                    : "text-muted-foreground hover:text-foreground hover:text-yellow-600"
-                            }`}
-                        >
-                            <Star className="h-3 w-3" />
-                            즐겨찾기
-                        </button>
-
-                        {/* 문서 드롭다운 메뉴 */}
-                        <div className="relative dropdown-docs">
-                            <button
-                                onClick={() => setDocsOpen(!docsOpen)}
-                                className={`text-sm font-medium transition-colors px-2 py-1 rounded-md flex items-center gap-1 ${
-                                    pathname?.startsWith('/docs')
-                                        ? "text-blue-600 font-bold bg-blue-50 border border-blue-300"
-                                        : "text-muted-foreground hover:text-foreground"
+                        {/* 네비게이션 */}
+                        <nav className="flex items-center space-x-1 flex-1">
+                            <Link 
+                                href="/dashboard" 
+                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                                    pathname === "/dashboard" 
+                                        ? "bg-blue-100 text-blue-700" 
+                                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                                 }`}
                             >
-                                문서
-                                <ChevronDown className={`h-3 w-3 transition-transform ${docsOpen ? 'rotate-180' : ''}`} />
-                            </button>
-                            
-                            {docsOpen && (
-                                <div className="absolute top-full left-0 mt-1 bg-white shadow-lg border rounded-md py-1 min-w-[220px] z-50">
-                                    <Link
-                                        href="/docs"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        📚 문서 홈
-                                    </Link>
-                                    <div className="border-t border-gray-200 my-1"></div>
-                                    
-                                    {/* 로그인 시스템 섹션 */}
-                                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        로그인 시스템
+                                대시보드
+                            </Link>
+                            <Link 
+                                href="/challenge" 
+                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                                    pathname === "/challenge" 
+                                        ? "bg-blue-100 text-blue-700" 
+                                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                                }`}
+                            >
+                                챌린지
+                            </Link>
+                            <Link 
+                                href="/members" 
+                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                                    pathname === "/members" 
+                                        ? "bg-blue-100 text-blue-700" 
+                                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                                }`}
+                            >
+                                회원 관리
+                            </Link>
+                            <Link 
+                                href="/freeboard" 
+                                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                                    pathname === "/freeboard" 
+                                        ? "bg-blue-100 text-blue-700" 
+                                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                                }`}
+                            >
+                                자유게시판
+                            </Link>
+
+                            {/* 즐겨찾기 드롭다운 */}
+                            <div className="relative dropdown-favorites">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setFavoritesOpen(!favoritesOpen);
+                                        setDocsOpen(false);
+                                    }}
+                                    className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors flex items-center gap-1"
+                                >
+                                    <Star className="h-4 w-4" />
+                                    즐겨찾기
+                                </button>
+                            </div>
+                        </nav>
+
+                        {/* 우측 사용자 영역 */}
+                        <div className="flex items-center space-x-4">
+                            {isAuthed && userInfo && (
+                                <div className="flex items-center space-x-3">
+                                    <div className="text-right">
+                                        <div className="text-sm font-medium text-gray-900">{userInfo.username}</div>
+                                        <div className="text-xs text-gray-500">{userInfo.role}</div>
                                     </div>
-                                    <Link
-                                        href="/docs/frontend/overview"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
+                                    <Button
+                                        onClick={handleLogout}
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs"
                                     >
-                                        🧩 프론트엔드 총정리
-                                    </Link>
-                                    <Link
-                                        href="/docs/backend/overview"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        🗄️ 백엔드 총정리
-                                    </Link>
-                                    
-                                    <div className="border-t border-gray-200 my-1"></div>
-                                    
-                                    {/* 권한 관리 섹션 */}
-                                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        권한 관리
-                                    </div>
-                                    <Link
-                                        href="/docs/jwt-authorization"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        🚀 JWT 토큰 기반 권한 시스템
-                                    </Link>
-                                    
-                                    <div className="border-t border-gray-200 my-1"></div>
-                                    
-                                    {/* 인증 컴포넌트 섹션 */}
-                                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        인증 컴포넌트
-                                    </div>
-                                    <Link
-                                        href="/docs/axios-vs-authguard"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        🔄 Axios vs AuthGuard
-                                    </Link>
-                                    <Link
-                                        href="/docs/axios-interceptor"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        🚀 Axios 인터셉터
-                                    </Link>
-                                    <Link
-                                        href="/docs/authguard"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        🛡️ AuthGuard
-                                    </Link>
-                                    
-                                    <div className="border-t border-gray-200 my-1"></div>
-                                    
-                                    {/* 핵심 요약 섹션 */}
-                                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                        핵심 요약
-                                    </div>
-                                    <Link
-                                        href="/docs/login-logic-summary"
-                                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        onClick={() => setDocsOpen(false)}
-                                    >
-                                        ⚡ 로그인 로직 5단계
-                                    </Link>
+                                        로그아웃
+                                    </Button>
                                 </div>
                             )}
                         </div>
-                    </nav>
-                )}
-
-                {/* Auth section - 오른쪽 정렬 */}
-                <div className="flex items-center gap-3">
-                    {isAuthed && userInfo ? (
-                        <>
-                            <div className="text-sm bg-gray-100 px-3 py-1 rounded-md">
-                                <span className="font-medium">{userInfo.username}</span>
-                                <span className="text-muted-foreground ml-1">({userInfo.role})</span>
-                            </div>
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={handleLogout}
-                                disabled={logout.isPending}
-                                className="h-8"
-                            >
-                                {logout.isPending ? "로그아웃 중..." : "로그아웃"}
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button asChild size="sm" variant="default" className="h-8">
-                                <Link href="/login">로그인</Link>
-                            </Button>
-                            <Button asChild size="sm" variant="outline" className="h-8">
-                                <Link href="/register">회원가입</Link>
-                            </Button>
-                        </>
-                    )}
+                    </div>
                 </div>
-            </div>
-            {/* 더 얇은 accent bar */}
-            <div className="h-0.5 w-full bg-gradient-to-r from-blue-500 to-yellow-400" />
-        </header>
+            </header>
 
         {/* 즐겨찾기 드롭다운 - 전체 화면 오버레이 */}
         {favoritesOpen && (

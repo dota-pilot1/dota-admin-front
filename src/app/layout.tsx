@@ -7,6 +7,7 @@ import AppHeader from "@/widgets/header/ui/AppHeader";
 import QueryProvider from "@/shared/providers/query-client-provider";
 import { ErrorOverlayProvider } from '@/shared/components/ErrorOverlay';
 import { ConditionalAuthGuard } from "@/shared/lib/conditional-auth-guard";
+import { RealTimeProvider } from "@/shared/providers/RealTimeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,13 +33,15 @@ export default function RootLayout({
     <html lang="ko">
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background text-foreground`}>
         <QueryProvider>
-          <ErrorOverlayProvider>
-            <ConditionalAuthGuard>
-              <AppHeader />
-              <Suspense fallback={null}>{children}</Suspense>
-            </ConditionalAuthGuard>
-            <Toaster />
-          </ErrorOverlayProvider>
+          <RealTimeProvider>
+            <ErrorOverlayProvider>
+              <ConditionalAuthGuard>
+                <AppHeader />
+                <Suspense fallback={null}>{children}</Suspense>
+              </ConditionalAuthGuard>
+              <Toaster />
+            </ErrorOverlayProvider>
+          </RealTimeProvider>
         </QueryProvider>
       </body>
     </html>

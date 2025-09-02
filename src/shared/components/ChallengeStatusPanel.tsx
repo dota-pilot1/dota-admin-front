@@ -56,7 +56,7 @@ export function ChallengeStatusPanel({
         switch (status) {
             case 'RECRUITING':
                 return {
-                    label: '모집중',
+                    label: 'RECRUITING',
                     color: 'text-blue-600',
                     bgColor: 'bg-blue-50',
                     borderColor: 'border-blue-200',
@@ -67,7 +67,7 @@ export function ChallengeStatusPanel({
                 };
             case 'IN_PROGRESS':
                 return {
-                    label: '진행중',
+                    label: 'IN_PROGRESS',
                     color: 'text-orange-600',
                     bgColor: 'bg-orange-50',
                     borderColor: 'border-orange-200',
@@ -78,7 +78,7 @@ export function ChallengeStatusPanel({
                 };
             case 'COMPLETED':
                 return {
-                    label: '완료',
+                    label: 'COMPLETED',
                     color: 'text-green-600',
                     bgColor: 'bg-green-50',
                     borderColor: 'border-green-200',
@@ -105,19 +105,19 @@ export function ChallengeStatusPanel({
     const statusOptions = [
         {
             key: 'RECRUITING',
-            label: '모집중',
+            label: 'RECRUITING',
             icon: <Users className="h-4 w-4" />,
             onClick: () => Promise.resolve(reopenChallenge(challengeId)).catch((error: unknown) => setErrorMessage((error as {response?: {data?: {message?: string}}})?.response?.data?.message || '상태 변경에 실패했습니다.')),
         },
         {
             key: 'IN_PROGRESS',
-            label: '진행중',
+            label: 'IN_PROGRESS',
             icon: <Clock className="h-4 w-4" />,
             onClick: () => Promise.resolve(startChallenge(challengeId)).catch((error: unknown) => setErrorMessage((error as {response?: {data?: {message?: string}}})?.response?.data?.message || '상태 변경에 실패했습니다.')),
         },
         {
             key: 'COMPLETED',
-            label: '완료',
+            label: 'COMPLETED',
             icon: <CheckCircle2 className="h-4 w-4" />,
             onClick: () => Promise.resolve(completeChallenge(challengeId)).catch((error: unknown) => setErrorMessage((error as {response?: {data?: {message?: string}}})?.response?.data?.message || '상태 변경에 실패했습니다.')),
         },
