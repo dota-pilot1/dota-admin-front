@@ -97,7 +97,7 @@ export function AppHeaderClient() {
         <>
             <header className="sticky top-0 z-50 w-full">
                 {/* 메인 헤더 영역 */}
-                <div className="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-gray-200/80">
+                <div className="bg-gradient-to-r from-blue-50/90 to-purple-50/90 backdrop-blur supports-[backdrop-filter]:bg-gradient-to-r supports-[backdrop-filter]:from-blue-50/60 supports-[backdrop-filter]:to-purple-50/60 border-b border-gray-200/80">
                     <div className="container flex h-14 max-w-screen-2xl items-center px-6">
                         {/* 로고 및 홈 링크 */}
                         <Link href="/" className="flex items-center space-x-2 mr-6">
@@ -167,7 +167,7 @@ export function AppHeaderClient() {
                         </nav>
 
                         {/* 우측 사용자 영역 */}
-                        <div className="flex items-center space-x-4">
+                        <div className="flex items-center">
                             {isAuthed && userInfo && (
                                 <div className="flex items-center space-x-3">
                                     <div className="text-right">
