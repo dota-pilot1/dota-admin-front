@@ -14,19 +14,20 @@ const isPrivateIPv4 =
 // 환경변수 우선, 없으면 자동 감지
 let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
-// 환경변수가 있으면 그것을 우선 사용
-if (baseURL) {
+// 강제 프로덕션 설정 (최우선)
+if (isBrowser && window.location.hostname === "dota-task.shop") {
+    baseURL = "https://api.dota-task.shop";
+    console.log("🔧 FORCED production domain setting:", baseURL);
+}
+// 환경변수가 있으면 그것을 사용
+else if (baseURL) {
     console.log("🔧 Using environment variable for API base URL:", baseURL);
 } else {
     // 환경변수가 없을 때만 자동 감지
     if (isBrowser) {
         const protocol = window.location.protocol || "http:";
         
-        // 프로덕션 도메인 강제 설정
-        if (hostname === "dota-task.shop") {
-            baseURL = "https://api.dota-task.shop";
-            console.log("🔧 Force setting for production domain:", baseURL);
-        } else if (isLoopback) {
+        if (isLoopback) {
             // Same machine - loopback is fine
             baseURL = `${protocol}//localhost:8080`;
         } else if (isPrivateIPv4 || isMdnsLocal) {
