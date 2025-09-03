@@ -169,7 +169,7 @@ export function AppHeaderClient() {
                         {/* 우측 사용자 영역 */}
                         <div className="flex items-center">
                             {isAuthed && userInfo && (
-                                <div className="flex items-center space-x-3">
+                                <div className="flex items-center">
                                     <div className="text-right">
                                         <div className="text-sm font-medium text-gray-900">{userInfo.username}</div>
                                         <div className="text-xs text-gray-500">{userInfo.role}</div>
