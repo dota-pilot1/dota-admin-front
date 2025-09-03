@@ -1,7 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
+import api from '@/shared/lib/axios'; // axios 사용
 
 // Lightweight dynamic import to avoid SSR issues
-let StompLib: any = null;
+le    function fetchInitialPresence() {
+      try {
+        console.log("🔍 [presence] Fetching initial presence from:", initialFetchUrl);
+        // axios 사용으로 변경 (baseURL 자동 적용됨)
+        api.get(initialFetchUrl)
+          .then((response) => {
+            const data = response.data;
+            const online = Array.isArray(data) ? data : (Array.isArray(data?.online) ? data.online : []);
+            setState(s => ({ ...s, online }));
+            if (debug) console.log('[presence] initial fetch success:', online);
+          })
+          .catch(err => {
+            if (debug) console.log('[presence] initial fetch failed:', err.response?.status || err.message);
+          });
+      } catch (err) {
+        if (debug) console.log('[presence] initial fetch error:', err);
+      }
+    }ll;
 const loadStomp = async () => {
   if (StompLib) return StompLib;
   const mod = await import('@stomp/stompjs');
@@ -247,6 +265,11 @@ function defaultEndpoint() {
 function resolveInitialFetchUrl(url: string) {
   if (typeof window === 'undefined') return url;
   if (url.startsWith('http')) return url;
+  
+  // 🔥 HARDCODED FIX: dota-task.shop에서는 api.dota-task.shop 사용
+  if (window.location.hostname === 'dota-task.shop') {
+    return `https://api.dota-task.shop${url}`;
+  }
   // dev 환경(front 3000, backend 8080) 자동 변환
   if (window.location.port === '3000') {
     return `http://localhost:8080${url}`;
