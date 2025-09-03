@@ -11,7 +11,7 @@ const isPrivateIPv4 =
     /^192\.168\./.test(hostname) ||
     /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname);
 
-// Prefer explicit override
+// 환경변수 우선, 없으면 자동 감지
 let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 if (!baseURL) {

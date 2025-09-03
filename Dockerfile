@@ -8,6 +8,11 @@ RUN npm ci --only=production
 # Copy source code
 COPY . .
 
+# Set production environment variables
+ENV NODE_ENV=production
+ENV NEXT_PUBLIC_API_BASE_URL=https://api.dota-task.shop
+ENV NEXT_PUBLIC_WS_URL=wss://api.dota-task.shop/ws
+
 # Build the application
 RUN npm run build
 

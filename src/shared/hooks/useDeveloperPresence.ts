@@ -221,14 +221,19 @@ export function useDeveloperPresence({
 
 // Helper functions
 function defaultEndpoint() {
-  // 1) Explicit env override
+  // 1) 환경변수 우선 사용
   if (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_WS_URL) {
     return process.env.NEXT_PUBLIC_WS_URL;
   }
-  // 2) 프로덕션 환경 강제 설정 (임시)
-  if (typeof window !== 'undefined' && window.location.hostname === 'dota-task.shop') {
-    return 'wss://api.dota-task.shop/ws';
+  
+  // 2) 브라우저 환경에서 런타임 체크
+  if (typeof window !== 'undefined') {
+    // 프로덕션 도메인 체크
+    if (window.location.hostname === 'dota-task.shop') {
+      return 'wss://api.dota-task.shop/ws';
+    }
   }
+  
   // 3) Dev heuristic: if running on Next dev (3000) assume backend 8080
   if (typeof window === 'undefined') return 'ws://localhost:8080/ws';
   const loc = window.location;
