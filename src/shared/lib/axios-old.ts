@@ -1,30 +1,69 @@
 import axios from "axios";
 
 const isBrowser = typeof window !== "undefined";
-const hostname = isBrowser ? window.location.hostname : "";
+const hostname = isBrowser ? window.location.hostname : process.env.HOST || "";
 
-// 🔥 HARDCODED SOLUTION - 더 이상 복잡한 로직 없음
-let baseURL: string;
+// RFC1918 private ranges and common dev hosts
+const isLoopback = hostname === "localhost" || hostname.startsWith("127.");
+const isMdnsLocal = hostname.endsWith(".local");
+const isPrivateIPv4 =
+    /^10\./.test(hostname) ||
+    /^192\.168\./.test(hostname) ||
+    /^172\.(1[6-9]|2\d|3[0-1])\./.test(hostname);
 
-if (isBrowser) {
-    // 브라우저에서는 hostname만 체크
-    if (hostname === "dota-task.shop") {
-        baseURL = "https://api.dota-task.shop";
-        console.log("🔥 HARDCODED for dota-task.shop:", baseURL);
-    } else if (hostname === "localhost" || hostname.startsWith("127.")) {
-        baseURL = "http://localhost:8080";
-        console.log("🔥 HARDCODED for localhost:", baseURL);
-    } else {
-        baseURL = "https://api.dota-task.shop"; // 기본값
-        console.log("🔥 HARDCODED default:", baseURL);
-    }
+// 디버깅 정보 출력
+console.log("🔍 AXIOS DEBUG INFO:");
+console.log("- isBrowser:", isBrowser);
+console.log("- hostname:", hostname);
+console.log("- NODE_ENV:", process.env.NODE_ENV);
+console.log("- NEXT_PUBLIC_API_BASE_URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+console.log("- window.location.href:", isBrowser ? window.location.href : "N/A");
+
+// 환경변수 우선, 없으면 자동 감지
+let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+
+// 🔥 NUCLEAR OPTION: dota-task.shop은 무조건 api.dota-task.shop 사용
+if (isBrowser && window.location.hostname === "dota-task.shop") {
+    baseURL = "https://api.dota-task.shop";
+    console.log("� NUCLEAR FORCED setting for dota-task.shop:", baseURL);
+}
+// 환경변수가 있으면 그것을 사용
+else if (baseURL) {
+    console.log("🔧 Using environment variable for API base URL:", baseURL);
 } else {
-    // 서버 사이드는 환경변수 또는 기본값
-    baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.dota-task.shop";
-    console.log("🔥 SERVER SIDE baseURL:", baseURL);
+    // 환경변수가 없을 때만 자동 감지
+    if (isBrowser) {
+        const protocol = window.location.protocol || "http:";
+        
+        if (isLoopback) {
+            // Same machine - loopback is fine
+            baseURL = `${protocol}//localhost:8080`;
+        } else if (isPrivateIPv4 || isMdnsLocal) {
+            // Accessing via LAN IP or .local hostname from another device
+            // Use the same host the site is served from, but port 8080 for backend
+            baseURL = `${protocol}//${hostname}:8080`;
+        } else {
+            // Other production-like domain
+            baseURL = "https://api.dota-task.shop";
+        }
+    } else {
+        // On the server (SSR)
+        if (process.env.NODE_ENV !== "production") {
+            baseURL = "http://localhost:8080";
+        } else {
+            baseURL = "https://api.dota-task.shop";
+        }
+    }
+    console.log("🔧 Auto-detected API base URL:", baseURL);
 }
 
-console.log("🎯 FINAL HARDCODED baseURL:", baseURL);
+console.log("🎯 FINAL baseURL:", baseURL);
+
+// 🔥 LAST RESORT: 하드코딩으로 강제 변경
+if (isBrowser && window.location.hostname === "dota-task.shop" && !baseURL.includes("api.dota-task.shop")) {
+    baseURL = "https://api.dota-task.shop";
+    console.log("🔥 LAST RESORT HARD-CODED:", baseURL);
+}
 
 export function getApiBaseURL() {
     return baseURL;
@@ -32,7 +71,7 @@ export function getApiBaseURL() {
 
 const api = axios.create({
     baseURL,
-    withCredentials: true,
+    withCredentials: true, // refresh_token 쿠키 포함하기 위해 true로 변경
 });
 
 // Request interceptor: localStorage에서 토큰 읽어서 헤더에 추가
