@@ -21,7 +21,12 @@ if (baseURL) {
     // 환경변수가 없을 때만 자동 감지
     if (isBrowser) {
         const protocol = window.location.protocol || "http:";
-        if (isLoopback) {
+        
+        // 프로덕션 도메인 강제 설정
+        if (hostname === "dota-task.shop") {
+            baseURL = "https://api.dota-task.shop";
+            console.log("🔧 Force setting for production domain:", baseURL);
+        } else if (isLoopback) {
             // Same machine - loopback is fine
             baseURL = `${protocol}//localhost:8080`;
         } else if (isPrivateIPv4 || isMdnsLocal) {
@@ -29,7 +34,7 @@ if (baseURL) {
             // Use the same host the site is served from, but port 8080 for backend
             baseURL = `${protocol}//${hostname}:8080`;
         } else {
-            // Probably production-like domain
+            // Other production-like domain
             baseURL = "https://api.dota-task.shop";
         }
     } else {
