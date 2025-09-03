@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, MessageSquare, Activity, Send, X, Wifi, WifiOff } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { useDeveloperActivity, useRealTimeChat, useRealTime } from '@/shared/providers/RealTimeProvider';
-import { useSimplePresence } from '@/shared/hooks/useSimplePresence';
+import { useDeveloperPresence } from '@/shared/hooks/useDeveloperPresence';
 
 type SidebarMode = 'activity' | 'chat';
 
@@ -19,9 +19,9 @@ export function RealTimeSidebar() {
     // 개발자 활동 추적
     const { activities, activeSessions, reportActivity } = useDeveloperActivity();
     
-    // Presence (온라인 개발자) - 간단 버전으로 테스트
+    // Presence (온라인 개발자) - WebSocket STOMP 방식
     const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : undefined;
-    const presence = useSimplePresence(authToken || undefined);
+    const presence = useDeveloperPresence({ token: authToken || undefined, disabled: !authToken });
 
     // 실시간 채팅 (전체 채팅방)
     const { 
@@ -141,7 +141,7 @@ export function RealTimeSidebar() {
                         
                         {/* 활성 세션 */}
                         <div className="space-y-2">
-                            {presence.online.length > 0 ? presence.online.map((userId, index) => (
+                            {presence.online.length > 0 ? presence.online.map((userId: string, index: number) => (
                                 <div key={userId} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                                     <div className="relative">
                                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
