@@ -2,24 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import api from '@/shared/lib/axios'; // axios 사용
 
 // Lightweight dynamic import to avoid SSR issues
-le    function fetchInitialPresence() {
-      try {
-        console.log("🔍 [presence] Fetching initial presence from:", initialFetchUrl);
-        // axios 사용으로 변경 (baseURL 자동 적용됨)
-        api.get(initialFetchUrl)
-          .then((response) => {
-            const data = response.data;
-            const online = Array.isArray(data) ? data : (Array.isArray(data?.online) ? data.online : []);
-            setState(s => ({ ...s, online }));
-            if (debug) console.log('[presence] initial fetch success:', online);
-          })
-          .catch(err => {
-            if (debug) console.log('[presence] initial fetch failed:', err.response?.status || err.message);
-          });
-      } catch (err) {
-        if (debug) console.log('[presence] initial fetch error:', err);
-      }
-    }ll;
+let StompLib: any = null;
 const loadStomp = async () => {
   if (StompLib) return StompLib;
   const mod = await import('@stomp/stompjs');
