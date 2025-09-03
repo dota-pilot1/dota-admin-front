@@ -57,7 +57,19 @@ RefreshToken: HttpOnly Cookie (14일) + 백엔드 DB (session control)`}
       </section>
 
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-4">👨‍💼 관리자 영향</h2>
+        <h2 className="text-2xl font-bold mb-4">�️ 실시간 Presence (신규)</h2>
+        <p className="text-sm text-gray-700 mb-2">Redis + STOMP 기반 접속 상태 브로드캐스트 1차 구축 완료.</p>
+        <ul className="list-disc ml-6 text-sm text-gray-700 space-y-1">
+          <li><b>백엔드</b>: WebSocketConfig, WebSocketAuthHandshakeInterceptor, PresenceService, WebSocketPresenceEventListener</li>
+          <li><b>저장</b>: Redis Set(presence:online), lastSeen 키</li>
+          <li><b>브로드캐스트</b>: /topic/presence (joined/left/online)</li>
+          <li><b>다음</b>: 프론트 STOMP Hook + /app/ping Heartbeat</li>
+        </ul>
+        <a href="/docs/frontend/websocket-presence" className="inline-block mt-3 text-blue-600 hover:underline text-sm">➡ 개발자 현황 시스템 가이드</a>
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold mb-4">�👨‍💼 관리자 영향</h2>
         <p className="text-sm text-gray-700">서버에서 RefreshToken revoke 시 프론트는 다음 API 401 순간 재로그인 처리. UX: 짧은 세션 종료 알림 가능.</p>
       </section>
 

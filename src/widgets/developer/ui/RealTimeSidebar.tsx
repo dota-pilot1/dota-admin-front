@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Users, MessageSquare, Activity, Send, X, Wifi, WifiOff } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { useDeveloperActivity, useRealTimeChat, useRealTime } from '@/shared/providers/RealTimeProvider';
+import { useSimplePresence } from '@/shared/hooks/useSimplePresence';
 
 type SidebarMode = 'activity' | 'chat';
 
@@ -18,6 +19,10 @@ export function RealTimeSidebar() {
     // 개발자 활동 추적
     const { activities, activeSessions, reportActivity } = useDeveloperActivity();
     
+    // Presence (온라인 개발자) - 간단 버전으로 테스트
+    const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : undefined;
+    const presence = useSimplePresence(authToken || undefined);
+
     // 실시간 채팅 (전체 채팅방)
     const { 
         messages: chatMessages, 
@@ -127,28 +132,31 @@ export function RealTimeSidebar() {
             <div className="flex-1 overflow-y-auto">
                 {mode === 'activity' && (
                     <div className="p-4 space-y-3">
-                        <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                            접속 중 ({activeSessions.length}명)
+                        <div className="flex items-center justify-between text-xs font-medium text-gray-500 uppercase tracking-wide">
+                            <span>접속 중 ({presence.online.length}명)</span>
+                            <span className={presence.connected ? 'text-green-600' : 'text-red-500'}>
+                                {presence.connected ? 'LIVE' : 'OFF'}
+                            </span>
                         </div>
                         
                         {/* 활성 세션 */}
                         <div className="space-y-2">
-                            {activeSessions.length > 0 ? activeSessions.map((session, index) => (
-                                <div key={session.id || `session-${index}`} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                            {presence.online.length > 0 ? presence.online.map((userId, index) => (
+                                <div key={userId} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                                     <div className="relative">
                                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                                             <span className="text-white text-xs font-medium">
-                                                {session.username.charAt(0).toUpperCase()}
+                                                {userId.charAt(0).toUpperCase()}
                                             </span>
                                         </div>
-                                        <div className={`absolute -bottom-1 -right-1 w-3 h-3 ${getStatusColor(session.status)} rounded-full border-2 border-white`}></div>
+                                        <div className={`absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white`}></div>
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="text-sm font-medium text-gray-900 truncate">
-                                            {session.username}
+                                            {userId}
                                         </div>
                                         <div className="text-xs text-gray-500 truncate">
-                                            {session.currentPage}
+                                            실시간 접속
                                         </div>
                                     </div>
                                 </div>

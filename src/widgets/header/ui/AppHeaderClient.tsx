@@ -7,6 +7,7 @@ import { useLogout } from "@/features/auth/hooks/useLogout";
 import { useEffect, useState, useRef } from "react";
 import { getCurrentUser } from "@/entities/user/lib/auth-utils";
 import { ChevronDown, Star } from "lucide-react";
+import { useDeveloperPresence } from "@/shared/hooks/useDeveloperPresence";
 
 export function AppHeaderClient() {
     const pathname = usePathname();
@@ -19,6 +20,7 @@ export function AppHeaderClient() {
     } | null>(null);
     const [docsOpen, setDocsOpen] = useState(false);
     const [favoritesOpen, setFavoritesOpen] = useState(false);
+    const [accessToken, setAccessToken] = useState<string | null>(null);
 
     // localStorage에서 인증 상태 확인
     useEffect(() => {
@@ -33,9 +35,11 @@ export function AppHeaderClient() {
                     email: user.email,
                     role: user.role
                 });
+                setAccessToken(token);
             } else {
                 setIsAuthed(false);
                 setUserInfo(null);
+                setAccessToken(null);
             }
         };
 
@@ -89,6 +93,21 @@ export function AppHeaderClient() {
 
     const handleLogout = () => {
         logout.mutate();
+    };
+
+    // Presence Hook (실시간 개발자 온라인 상태)
+    const presence = useDeveloperPresence({ token: accessToken || undefined, disabled: !accessToken });
+
+    // 간단한 온라인 배지 컴포넌트
+    const PresenceBadge = () => {
+        if (!accessToken) return null;
+        const dotCls = presence.connected ? 'bg-green-500 animate-pulse' : 'bg-gray-400';
+        return (
+            <div className="flex items-center ml-3 px-2 py-1 rounded-md border border-gray-200 bg-white/70 backdrop-blur text-xs gap-1 select-none" title={presence.online.length ? `온라인: ${presence.online.join(', ')}` : '연결 중...'}>
+                <span className={`inline-block h-2 w-2 rounded-full ${dotCls}`}/>
+                <span className="font-medium">DEV {presence.online.length}</span>
+            </div>
+        );
     };
 
     if (pathname?.startsWith("/login")) return null;
@@ -150,6 +169,45 @@ export function AppHeaderClient() {
                                 자유게시판
                             </Link>
 
+                            {/* 문서 드롭다운 */}
+                            <div className="relative dropdown-docs">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setDocsOpen(!docsOpen);
+                                        setFavoritesOpen(false);
+                                    }}
+                                    className={`px-3 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-1 ${
+                                        pathname?.startsWith('/docs')
+                                            ? 'bg-blue-100 text-blue-700'
+                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    문서
+                                    <ChevronDown className={`h-4 w-4 transition-transform ${docsOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {docsOpen && (
+                                    <div className="absolute top-full left-0 mt-2 w-64 bg-white shadow-lg border border-gray-200 rounded-md py-2 z-50 text-sm">
+                                        <Link href="/docs" onClick={()=>setDocsOpen(false)} className="block px-4 py-2 hover:bg-gray-50 font-medium">📚 문서 홈</Link>
+                                        <div className="my-2 border-t" />
+                                        <p className="px-4 pb-1 text-[11px] tracking-wide text-gray-500">로그인 시스템</p>
+                                        <Link href="/docs/frontend/overview" onClick={()=>setDocsOpen(false)} className="block px-4 py-1.5 hover:bg-gray-50">🧩 프론트엔드 총정리</Link>
+                                        <Link href="/docs/backend/overview" onClick={()=>setDocsOpen(false)} className="block px-4 py-1.5 hover:bg-gray-50">🗄️ 백엔드 총정리</Link>
+                                        <div className="my-2 border-t" />
+                                        <p className="px-4 pb-1 text-[11px] tracking-wide text-gray-500">권한 / 인증</p>
+                                        <Link href="/docs/jwt-authorization" onClick={()=>setDocsOpen(false)} className="block px-4 py-1.5 hover:bg-gray-50">🚀 JWT 권한</Link>
+                                        <Link href="/docs/axios-vs-authguard" onClick={()=>setDocsOpen(false)} className="block px-4 py-1.5 hover:bg-gray-50">🔄 Axios vs AuthGuard</Link>
+                                        <Link href="/docs/axios-interceptor" onClick={()=>setDocsOpen(false)} className="block px-4 py-1.5 hover:bg-gray-50">⚙️ Axios 인터셉터</Link>
+                                        <Link href="/docs/authguard" onClick={()=>setDocsOpen(false)} className="block px-4 py-1.5 hover:bg-gray-50">🛡️ AuthGuard</Link>
+                                        <div className="my-2 border-t" />
+                                        <p className="px-4 pb-1 text-[11px] tracking-wide text-gray-500">실시간 / 기타</p>
+                                        <Link href="/docs/frontend/websocket-presence" onClick={()=>setDocsOpen(false)} className="block px-4 py-1.5 hover:bg-gray-50">� 개발자 현황</Link>
+                                        <Link href="/docs/login-logic-summary" onClick={()=>setDocsOpen(false)} className="block px-4 py-1.5 hover:bg-gray-50">⚡ 로그인 5단계</Link>
+                                    </div>
+                                )}
+                            </div>
+
                             {/* 즐겨찾기 드롭다운 */}
                             <div className="relative dropdown-favorites">
                                 <button
@@ -174,6 +232,7 @@ export function AppHeaderClient() {
                                         <div className="text-sm font-medium text-gray-900">{userInfo.username}</div>
                                         <div className="text-xs text-gray-500">{userInfo.role}</div>
                                     </div>
+                                    <PresenceBadge />
                                     <Button
                                         onClick={handleLogout}
                                         variant="outline"
