@@ -14,7 +14,11 @@ const isPrivateIPv4 =
 // 환경변수 우선, 없으면 자동 감지
 let baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
-if (!baseURL) {
+// 환경변수가 있으면 그것을 우선 사용
+if (baseURL) {
+    console.log("🔧 Using environment variable for API base URL:", baseURL);
+} else {
+    // 환경변수가 없을 때만 자동 감지
     if (isBrowser) {
         const protocol = window.location.protocol || "http:";
         if (isLoopback) {
@@ -29,15 +33,14 @@ if (!baseURL) {
             baseURL = "https://api.dota-task.shop";
         }
     } else {
-        // On the server (SSR): prefer explicit env; in development, default to localhost to match client
-        if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-            baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
-        } else if (process.env.NODE_ENV !== "production") {
+        // On the server (SSR)
+        if (process.env.NODE_ENV !== "production") {
             baseURL = "http://localhost:8080";
         } else {
             baseURL = "https://api.dota-task.shop";
         }
     }
+    console.log("🔧 Auto-detected API base URL:", baseURL);
 }
 
 export function getApiBaseURL() {
